@@ -9,7 +9,7 @@ const conversationSchema=new mongoose.Schema({
   type:{
     type:String,
     enum:["direct", "group"],
-    defualt:"direct"
+    default:"direct"
   },
   lastMessageAt:{
       type: Date,
@@ -19,4 +19,4 @@ const conversationSchema=new mongoose.Schema({
     },
 },{timestamps:true});
 
-export const Conversation=mongoose.models.Conversations||mongoose.model("Conversation", conversationSchema);
+export const Conversation=mongoose.models.Conversation||mongoose.model("Conversation", conversationSchema);
