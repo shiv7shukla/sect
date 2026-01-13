@@ -1,12 +1,12 @@
-import mongoose, { mongo, type Date } from "mongoose";
+import mongoose from "mongoose";
 
 export interface IC{
-  participants:[mongoose.Types.ObjectId];
+  participants:mongoose.Types.ObjectId[];
   type:string;
   lastMessageAt:Date;
   lastMessagePreview:string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?:Date;
+  updatedAt?:Date;
 }
 
 const conversationSchema=new mongoose.Schema<IC>({
