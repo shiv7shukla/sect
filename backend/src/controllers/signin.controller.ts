@@ -7,9 +7,9 @@ export const signinController=async(req:Request, res:Response)=>{
   const {email, password}=req.body;
   try{
     const user=await User.findOne({email});
-    if (!user) return res.status(400).json({"msg":"invalid credentials"});
+    if (!user) return res.status(401).json({"msg":"invalid credentials"});
     const pwd=await bcrypt.compare(password, user.password);
-    if (!pwd) return res.status(401).json({"msg":"unauthorized"});
+    if (!pwd) return res.status(401).json({"msg":"invalid credentials"});
     generateToken(user._id, res);
     return res.status(200).json({"msg":"user logged in", "username":user.username});
   }
