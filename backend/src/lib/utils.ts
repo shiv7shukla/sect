@@ -10,7 +10,7 @@ export const generateToken=(id:mongoose.Types.ObjectId, res:Response)=>{
     maxAge:7*24*60*60*1000,  //the age for cookie's lifetime must be in ms
     httpOnly:true,
     sameSite:"strict",
-    secure:ENV.NODE_ENV!="development"
+    secure:ENV.NODE_ENV!="DEVELOPMENT"
   })
 
   return token;
