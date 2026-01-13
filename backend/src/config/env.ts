@@ -1,10 +1,10 @@
 import {z} from "zod";
 
 const EnvSchema = z.object({
-  DB_URL: z.string().url(),
-  JWT_SECRET: z.string().min(1),
   PORT: z.coerce.number().int().positive(),
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  DB_URL: z.string().url(),
+  NODE_ENV: z.enum(["DEVELOPMENT", "TEST", "PRODUCTION"]).default("DEVELOPMENT"),
+  JWT_SECRET: z.string().min(1),
 });
 
 export const ENV = EnvSchema.parse(process.env);
