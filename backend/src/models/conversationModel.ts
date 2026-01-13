@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 
-const conversationSchema=new mongoose.Schema({
+export interface IC{
+  participants:mongoose.Types.ObjectId[];
+  type:string;
+  lastMessageAt:Date;
+  lastMessagePreview:string;
+  createdAt?:Date;
+  updatedAt?:Date;
+}
+
+const conversationSchema=new mongoose.Schema<IC>({
   participants:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
@@ -13,10 +22,11 @@ const conversationSchema=new mongoose.Schema({
   },
   lastMessageAt:{
       type: Date,
+      default: () => new Date()
     },
   lastMessagePreview:{
       type: String,
     },
 },{timestamps:true});
 
-export const Conversation=mongoose.models.Conversation||mongoose.model("Conversation", conversationSchema);
+export const Conversation=mongoose.models.Conversation as mongoose.Model<IC>||mongoose.model<IC>("Conversation", conversationSchema);

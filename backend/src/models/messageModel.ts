@@ -1,6 +1,20 @@
 import mongoose from "mongoose";
 
-const messageSchema=new mongoose.Schema({
+export interface IM{
+  senderId:mongoose.Types.ObjectId;
+  conversationId:mongoose.Types.ObjectId;
+  content:{
+    type: "text" | "emoji" | "gif" | "sticker";
+    text?: string;
+    emoji?: string;
+    gifUrl?: string;
+    stickerUrl?: string;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const messageSchema=new mongoose.Schema<IM>({
   senderId:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
@@ -26,4 +40,4 @@ const messageSchema=new mongoose.Schema({
     },
 },{timestamps:true});
 
-export const Message=mongoose.models.Message||mongoose.model("Message", messageSchema);
+export const Message=mongoose.models.Message as mongoose.Model<IM>||mongoose.model<IM>("Message", messageSchema);

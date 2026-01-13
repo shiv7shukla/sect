@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 
-const userSchema=new mongoose.Schema({
+//ts needs to know what fields a user has
+export interface IUser{
+  email:string;
+  username:string;
+  password:string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const userSchema=new mongoose.Schema<IUser>({
   email:{
     type:String,
     required:true,
@@ -21,4 +30,4 @@ const userSchema=new mongoose.Schema({
 // in watch mode or hot reload, the same file can be imported multiple times
 // re-creating a model causes OverwriteModelError
 // this pattern prevents that error safely
-export const User=mongoose.models.User||mongoose.model("User", userSchema); 
+export const User=mongoose.models.User as mongoose.Model<IUser>||mongoose.model<IUser>("User", userSchema); 
