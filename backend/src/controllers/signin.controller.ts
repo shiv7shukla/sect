@@ -10,7 +10,7 @@ export const signinController=async(req:Request, res:Response)=>{
     if (!user) return res.status(401).json({"msg":"invalid credentials"});
     const pwd=await bcrypt.compare(password, user.password);
     if (!pwd) return res.status(401).json({"msg":"invalid credentials"});
-    generateToken(user._id, res);
+    generateToken(user._id.toString(), res);
     return res.status(200).json({"msg":"user logged in", "username":user.username});
   }
   catch(error){

@@ -13,7 +13,7 @@ export const signupController=async(req:Request, res:Response)=>{
     const hashedpwd=await bcrypt.hash(password, salt);
     const newUser=await User.create({email, username, password:hashedpwd});
     if(!newUser) return res.status(500).json({msg:"Failed to create user"});   
-    generateToken(newUser._id, res);    
+    generateToken(newUser._id.toString(), res);    
     return res.status(201).json({msg:"new user created"});
   }
   catch(error){
