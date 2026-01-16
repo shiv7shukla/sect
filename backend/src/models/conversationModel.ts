@@ -21,11 +21,11 @@ const conversationSchema=new mongoose.Schema<IC>({
     default:"direct"
   },
   lastMessageAt:{
-      type: Date,
-      default: () => new Date()
+      type:Date,
+      default:()=>new Date()
     },
   lastMessagePreview:{
-      type: String,
+      type:String,
     },
 },{timestamps:true});
 

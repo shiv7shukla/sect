@@ -25,7 +25,7 @@ const messageSchema=new mongoose.Schema<IM>({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
       required: true,
-    },
+  },
     // typ+payload pattern where one field tells the type and the other stores the actual data
   content: {
       type: {
@@ -37,7 +37,7 @@ const messageSchema=new mongoose.Schema<IM>({
       emoji: String,      
       gifUrl: String,     
       stickerUrl: String 
-    },
+  },
 },{timestamps:true});
 
 export const Message=mongoose.models.Message as mongoose.Model<IM>||mongoose.model<IM>("Message", messageSchema);
