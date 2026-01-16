@@ -6,8 +6,9 @@ export const errorHandler=(
   res: Response,
   next: NextFunction
 )=>{
-  console.error(err);
-  res.status(err.statusCode || 500).json({
-    message:err.message || "Internal Server Error",
-  });
+    if(res.headersSent) return next(err);
+    const status=typeof err?.statusCode === "number" ? err.statusCode : 500;
+    const message=status >= 500 ? "Internal Server Error" : (err?.message || "Error");
+    console.error(err);
+    res.status(status).json({ message });
 };

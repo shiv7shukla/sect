@@ -17,7 +17,8 @@ export const signinController=asyncHandler(async(req:Request, res:Response)=>{
 })
 
 export const signupController=asyncHandler(async(req:Request, res:Response)=>{
-  const {email, username, password}=req.body;
+  const {email, username, password}=req.body??{};
+  if(!email || !password || !username) return res.status(400).json({msg:"email, username and password are required"});
   if(password.length<6) return res.status(400).json({msg:"password too small"});
   const user= await User.findOne({email});
   if(user) return res.status(400).json({msg:"user already exists"});
