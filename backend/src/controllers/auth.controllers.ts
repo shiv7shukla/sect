@@ -5,7 +5,8 @@ import { generateToken } from "../lib/utils.js";
 import bcrypt from "bcryptjs";
 
 export const signinController=async(req:Request, res:Response)=>{
-  const {email, password}=req.body;
+  const {email, password}=req.body??{};
+  if(!email || !password) return res.status(400).json({msg:"email and password are required"});
   try{
     const user=await User.findOne({email});
     if (!user) return res.status(401).json({"msg":"invalid credentials"});
