@@ -1,36 +1,52 @@
-import mongoose from 'mongoose';
-import { Message } from '../models/messageModel.js';
-import { asyncHandler } from './../utils/asyncHandler.js';
-import type {Request, Response} from "express"
+import mongoose from "mongoose";
+import type { Request, Response } from "express";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Conversation } from "../models/conversationModel.js";
+import { Message } from "../models/messageModel.js";
 
-export const getMessages=asyncHandler(async(req:Request, res:Response)=>{
-  const {id}=req.params;
-  const myId=req.user?._id;
-  if(!myId) return res.status(400).json({"msg":"userId is required"}); 
-  if (!id) return res.status(400).json({"msg":"conversationId is required"});
-  if (!mongoose.isValidObjectId(id)) return res.status(400).json({ "msg": "invalid conversationId" });
-  const conversationObjectId=new mongoose.Types.ObjectId(id);
-  const messages=await Message
-  .find({conversationId:conversationObjectId})
-  .populate("senderId", "_id username")
-  .populate("conversationId", "type participants lastMessageAt lastMessagePreview")
-  .lean();
-  if(messages.length===0) return res.status(400).json({"msg":"no messages"});
-  const messageInfo=messages
-  .map(m=>{
-    const senderInfo=m.senderId as {_id:mongoose.Types.ObjectId, username:string} | null;
-    const conversationInfo=m.conversationId as {participants:mongoose.Types.ObjectId[], lastMessageAt:Date, lastMessagePreview:string} | null;
-    if (!senderInfo || !conversationInfo) return null;
-    if (!conversationInfo.participants.includes(myId)) return res.status(403).json({"msg": "unauthorized"});
-    return {
-      senderId:senderInfo._id,
-      senderUsername:senderInfo.username,
-      lastMessageAt:conversationInfo.lastMessageAt,
-      lastMessagePreview:conversationInfo.lastMessagePreview,
-      type:m.content.type,
-      payload: m.content.text ?? m.content.emoji ?? m.content.gifUrl ?? m.content.stickerUrl
-    }
+export const getMessages = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params; // conversationId
+  const myId = req.user?._id;
+
+  if (!myId) return res.status(401).json({ "msg": "unauthorized" });
+  if (!id) return res.status(400).json({ "msg": "conversationId is required" });
+  if (!mongoose.isValidObjectId(id))
+    return res.status(400).json({ "msg": "invalid conversationId" });
+
+  const conversationObjectId = new mongoose.Types.ObjectId(id);
+
+  const conversation = await Conversation.findOne({
+    _id:conversationObjectId,
+    participants:myId, // Mongo checks membership
   })
-  .filter(Boolean);
-  return res.status(200).json({messageInfo});
-})
+    .select("_id type participants lastMessageAt lastMessagePreview")
+    .lean();
+
+    if (!conversation) return res.status(403).json({ "msg": "unauthorized" }); // Either conversation doesn't exist or user is not a participant
+  const messages = await Message.find({ conversationId: conversationObjectId })
+    .sort({ createdAt: 1 })
+    .populate("senderId", "_id username")
+    .lean();
+
+  const messageInfo = messages.map((m) => {
+    const sender = m.senderId as { _id: mongoose.Types.ObjectId; username: string };
+
+    return {
+      id: m._id.toString(),
+      senderId: sender._id.toString(),
+      senderUsername: sender.username,
+      content: m.content,
+      createdAt: m.createdAt,
+    };
+  });
+
+  return res.status(200).json({
+    conversation: {
+      id: conversation._id.toString(),
+      type: conversation.type,
+      lastMessageAt: conversation.lastMessageAt,
+      lastMessagePreview: conversation.lastMessagePreview,
+    },
+    messages: messageInfo,
+  });
+});
