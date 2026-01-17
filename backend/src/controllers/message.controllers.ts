@@ -17,7 +17,7 @@ export const getMessages = asyncHandler(async (req: Request, res: Response) => {
 
   const conversation = await Conversation.findOne({
     _id:conversationObjectId,
-    participants:myId, // Mongo checks membership
+    participants:myId,
   })
     .select("_id type participants lastMessageAt lastMessagePreview")
     .lean();
@@ -29,12 +29,12 @@ export const getMessages = asyncHandler(async (req: Request, res: Response) => {
     .lean();
 
   const messageInfo = messages.map((m) => {
-    const sender = m.senderId as { _id: mongoose.Types.ObjectId; username: string };
+    const sender = m.senderId as { _id: mongoose.Types.ObjectId; username: string }| null;
 
     return {
       id: m._id.toString(),
-      senderId: sender._id.toString(),
-      senderUsername: sender.username,
+      senderId: sender?._id?.toString()??null,
+      senderUsername: sender?.username??"Deleted User",
       content: m.content,
       createdAt: m.createdAt,
     };
