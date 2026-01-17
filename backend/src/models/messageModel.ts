@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
+import type { IUser } from "./userModel.js";
+import type { IC } from "./conversationModel.js";
 
 export interface IM{
-  senderId:mongoose.Types.ObjectId;
-  conversationId:mongoose.Types.ObjectId;
+  senderId:mongoose.Types.ObjectId | IUser;
+  conversationId:mongoose.Types.ObjectId | IC;
   content:{
     type: "text" | "emoji" | "gif" | "sticker";
     text?: string;
