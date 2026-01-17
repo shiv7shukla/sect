@@ -5,6 +5,8 @@ import type {Request, Response} from "express"
 
 export const getMessages=asyncHandler(async(req:Request, res:Response)=>{
   const {id}=req.params;
+  const myId=req.user?._id;
+  if(!myId) return res.status(400).json({"msg":"userId is required"}); 
   if (!id) return res.status(400).json({"msg":"conversationId is required"});
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({ "msg": "invalid conversationId" });
   const conversationObjectId=new mongoose.Types.ObjectId(id);
@@ -17,8 +19,9 @@ export const getMessages=asyncHandler(async(req:Request, res:Response)=>{
   const messageInfo=messages
   .map(m=>{
     const senderInfo=m.senderId as {_id:mongoose.Types.ObjectId, username:string} | null;
-    const conversationInfo=m.conversationId as {lastMessageAt:Date, lastMessagePreview:string} | null;
+    const conversationInfo=m.conversationId as {participants:mongoose.Types.ObjectId[], lastMessageAt:Date, lastMessagePreview:string} | null;
     if (!senderInfo || !conversationInfo) return null;
+    if (!conversationInfo.participants.includes(myId)) return res.status(403).json({"msg": "unauthorized"});
     return {
       senderId:senderInfo._id,
       senderUsername:senderInfo.username,
