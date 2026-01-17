@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 //ts needs to know what fields a user has
 export interface IUser{
-  _id:mongoose.Schema.Types.ObjectId; //If a field always exists at runtime, it must exist in your TypeScript type — regardless of who generates it.
+  _id:mongoose.Types.ObjectId; //If a field always exists at runtime, it must exist in your TypeScript type — regardless of who generates it.
   email:string;
   username:string;
   password:string;

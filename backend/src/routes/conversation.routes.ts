@@ -6,4 +6,4 @@ import { getMessages } from '../controllers/message.controllers.js';
 export const conversationRouter=Router();
 
 conversationRouter.get("/", protectRoute, getConversations);
-conversationRouter.get("/:c_id", protectRoute, getMessages);
+conversationRouter.get("/:id", protectRoute, getMessages);

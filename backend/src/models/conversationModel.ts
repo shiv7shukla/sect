@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export interface IC{
+  _id:mongoose.Types.ObjectId;
   participants:mongoose.Types.ObjectId[];
   type:string;
   lastMessageAt:Date;
