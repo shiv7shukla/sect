@@ -55,11 +55,18 @@ export const sendMessages=asyncHandler(async(req:Request, res:Response)=>{
   const {id}=req.params;
   const senderId=req.user?._id;
   const {content}=req.body;
+  const validTypes = ["text", "emoji", "gif", "sticker"];
   
   if(!senderId) return res.status(401).json({"msg":"unauthorized"});
   if(!id) return res.status(400).json({"msg":"conversationId is required"});
   if(!mongoose.isValidObjectId(id)) return res.status(400).json({"msg": "invalid conversationId"});
-  
+  if(!content || typeof content !== "object") return res.status(400).json({"msg":"content is required"});
+  if(!content.type || !validTypes.includes(content.type)) return res.status(400).json({"msg":"content.type must be one of: text, emoji, gif, sticker"});
+  if(content.type==="text" && (!content.text || content.text.trim().length === 0)) return res.status(400).json({"msg":"text content cannot be empty"});
+  if(content.type==="emoji" && !content.emoji) return res.status(400).json({"msg":"emoji content is required"});
+  if(content.type==="gif" && !content.gifUrl) return res.status(400).json({"msg":"gifUrl is required"});
+  if(content.type==="sticker" && !content.stickerUrl) return res.status(400).json({"msg":"stickerUrl is required"});
+
   const conversationObjectId = new mongoose.Types.ObjectId(id);
   const conversation=await Conversation.findOne({
 
