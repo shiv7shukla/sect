@@ -55,11 +55,12 @@ export const sendMessages=asyncHandler(async(req:Request, res:Response)=>{
   const {id}=req.params;
   const senderId=req.user?._id;
   const {content}=req.body;
-  const conversationObjectId = new mongoose.Types.ObjectId(id);
-
+  
   if(!senderId) return res.status(401).json({"msg":"unauthorized"});
   if(!id) return res.status(400).json({"msg":"conversationId is required"});
   if(!mongoose.isValidObjectId(id)) return res.status(400).json({"msg": "invalid conversationId"});
+  
+  const conversationObjectId = new mongoose.Types.ObjectId(id);
   const conversation=await Conversation.findOne({
 
     _id:conversationObjectId,
