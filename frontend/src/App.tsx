@@ -7,6 +7,7 @@ import Navbar from './components/Navbar'
 import UserProfile from './pages/UserProfile'
 import { useShallow } from 'zustand/shallow'
 import { authStore } from './store/useAuthStore'
+import AuthForm from './components/AuthForm'
 
 const App = () => {
   const {authUser, ischeckingAuth, checkAuth}=authStore(useShallow((state)=>({
@@ -21,7 +22,8 @@ const App = () => {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={authUser?<HomePage />:<Navigate to="/signin"/>} />
+        {/* <Route path="/" element={authUser?<HomePage />:<Navigate to="/signin"/>} /> */}
+        <Route path="/" element={<AuthForm />} />
         <Route path="/signup" element={!authUser?<SignUp />:<Navigate to="/"/>} />
         <Route path="/signin" element={!authUser?<SignIn />:<Navigate to="/"/>} />
         <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
