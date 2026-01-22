@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import SignUp from './pages/SignUp'
@@ -10,6 +10,7 @@ import { authStore } from './store/useAuthStore'
 import AuthForm from './components/AuthForm'
 
 const App = () => {
+  const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
   const {authUser, ischeckingAuth, checkAuth}=authStore(useShallow((state)=>({
     authUser:state.authUser, ischeckingAuth:state.isCheckingAuth, checkAuth:state.checkAuth
   })));
@@ -23,7 +24,7 @@ const App = () => {
       <Navbar />
       <Routes>
         {/* <Route path="/" element={authUser?<HomePage />:<Navigate to="/signin"/>} /> */}
-        <Route path="/" element={<AuthForm />} />
+        <Route path="/" element={<AuthForm mode={mode} onModeChange={setMode} />} />
         <Route path="/signup" element={!authUser?<SignUp />:<Navigate to="/"/>} />
         <Route path="/signin" element={!authUser?<SignIn />:<Navigate to="/"/>} />
         <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
