@@ -11,8 +11,8 @@ import AuthForm from './components/AuthForm'
 
 const App = () => {
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
-  const {authUser, ischeckingAuth, checkAuth}=authStore(useShallow((state)=>({
-    authUser:state.authUser, ischeckingAuth:state.isCheckingAuth, checkAuth:state.checkAuth
+  const {authUser, status, checkAuth}=authStore(useShallow((state)=>({
+    authUser:state.authUser, status:state.status, checkAuth:state.checkAuth
   })));
 
   useEffect(()=>{

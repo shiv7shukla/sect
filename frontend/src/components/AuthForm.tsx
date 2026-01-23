@@ -61,18 +61,10 @@ const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
   const onSubmitSignIn:SubmitHandler<SignInData>=async(data)=>{await signin(data); signInForm.reset();};
   const onSubmitSignUp:SubmitHandler<SignUpData>=async(data)=>{await signup(data); signUpForm.reset();};
 
-  useEffect(() => {
-    signInForm.reset();
-    signInForm.clearErrors();
-    signUpForm.reset();
-    signUpForm.clearErrors();
-    clearError();
-  }, [mode]);
-
   if(mode==="signIn"){
     const {register, handleSubmit, formState:{errors, isSubmitting, touchedFields}}=signInForm;
     return(
-      <form onSubmit={handleSubmit(onSubmitSignIn)}>
+      <form key="signin-form" onSubmit={handleSubmit(onSubmitSignIn)}>
         <div>
           <label>Username</label>
           <input placeholder="Username" type="text" {...register("username")}></input>
@@ -102,7 +94,7 @@ const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
 
   const {register, handleSubmit, formState:{errors, isSubmitting, touchedFields}}=signUpForm;
   return (
-    <form onSubmit={handleSubmit(onSubmitSignUp)}>
+    <form key="signup-form" onSubmit={handleSubmit(onSubmitSignUp)}>
       <div>
         <label>Email</label>
         <input placeholder="Email" type="text" {...register("email")}></input>
