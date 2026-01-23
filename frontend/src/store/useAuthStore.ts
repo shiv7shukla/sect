@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
+import axios from "axios";
 
 export type AuthUser={
   _id:string;
@@ -66,10 +67,11 @@ export const authStore=create<AuthStore>((set)=>({
       console.log(res.data);
       set({ authUser: res.data, status: "authenticated" });
     } catch (err) {
+      const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       set({
         authUser: null,
         status: "unauthenticated",
-        error: err?.response?.data?.message ?? "Signup failed",
+        error: message ?? "Signup failed",
       });
     } finally {
       set({ isSigningUp: false });
@@ -84,11 +86,12 @@ export const authStore=create<AuthStore>((set)=>({
       console.log(res.data);
       set({ authUser: res.data, status: "authenticated" });
     } catch (err) {
+      const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       console.log(err);
       set({
         authUser: null,
         status: "unauthenticated",
-        error: err?.response?.data?.message ?? "Signin failed",
+        error: message ?? "Signin failed",
       });
     } finally {
       set({ isSigningIn: false });
@@ -102,8 +105,9 @@ export const authStore=create<AuthStore>((set)=>({
       await axiosInstance.post("/auth/logout");
       set({ authUser: null, status: "unauthenticated" });
     } catch (err) {
+      const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       set({
-        error: err?.response?.data?.message ?? "Logout failed",
+        error: message ?? "Logout failed",
       });
     } finally {
       set({ isLoggingOut: false });
