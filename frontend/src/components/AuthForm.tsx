@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import {z} from "zod"
 import {useForm} from "react-hook-form"
 import type { SubmitHandler } from 'react-hook-form'
@@ -50,13 +50,12 @@ type AuthFormProps={mode:"signIn"|"signUp";onModeChange: (mode: "signIn" | "sign
 const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
   const signInForm=useForm<SignInData>({defaultValues:{username:"", password:""}, resolver:zodResolver(signInSchema), mode: "onSubmit",});
   const signUpForm=useForm<SignUpData>({defaultValues:{email:"", username:"", password:""}, resolver:zodResolver(signUpSchema), mode: "onSubmit",});
-  const {signup, signin, isSigningUp, isSigningIn, error, clearError}=authStore(useShallow((state)=>({
+  const {signup, signin, isSigningUp, isSigningIn, error}=authStore(useShallow((state)=>({
     signup:state.signup,
     signin:state.signin,
     isSigningUp:state.isSigningUp,
     isSigningIn:state.isSigningIn,
     error:state.error,
-    clearError:state.clearError
   })));
   const onSubmitSignIn:SubmitHandler<SignInData>=async(data)=>{await signin(data); signInForm.reset();};
   const onSubmitSignUp:SubmitHandler<SignUpData>=async(data)=>{await signup(data); signUpForm.reset();};
