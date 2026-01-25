@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import {z} from "zod"
 import {useForm} from "react-hook-form"
 import type { SubmitHandler } from 'react-hook-form'
@@ -86,7 +86,7 @@ const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
           </button>
         </div>
         <div>
-          <button className='text-green-700' type="button" onClick={()=>onModeChange("signUp")}>Generate new Identity</button>
+          <button className='text-green-700' type="button" onClick={()=>{{onModeChange("signUp");clearError();}}}>Generate new Identity</button>
         </div>
       </form>
     )
@@ -123,7 +123,7 @@ const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
         </button>
       </div>
       <div>
-          <button className='text-green-700' type="button" onClick={()=>onModeChange("signIn")}>Already have an Identity?</button>
+          <button className='text-green-700' type="button" onClick={()=>{onModeChange("signIn");clearError();}}>Already have an Identity?</button>
       </div>
     </form>
   )
