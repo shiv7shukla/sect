@@ -1,58 +1,19 @@
 import React from 'react'
-import {z} from "zod"
 import {useForm} from "react-hook-form"
 import type { SubmitHandler } from 'react-hook-form'
 import {zodResolver} from "@hookform/resolvers/zod"
 import { authStore } from '../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow'
+import { signInSchema, signUpSchema, type SignInData, type SignUpData } from '../lib/auth.schema'
 
-const signUpSchema=z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, "Email is required")
-    .email({ message: "Email is invalid" }),
-  password: z
-    .string()
-    .trim()
-    .min(1, "Password is required")
-    .min(6, { message: "Password must be at least 6 characters" })
-    .max(12, { message: "Password cannot exceed 12 characters" }),
-  username: z
-    .string()
-    .trim()
-    .min(1, "Username is required")
-    .min(6, { message: "Username must be at least 6 characters" })
-    .max(12, { message: "Username cannot exceed 12 characters" })
-    .regex(/^[a-zA-Z0-9_]+$/, { message: "Username can only have letters, numbers and underscores" })
-});
-
-const signInSchema=z.object({
-    password: z
-      .string()
-      .trim()
-      .min(1, "Password is required")
-      .min(6, { message: "Password must be at least 6 characters" })
-      .max(12, { message: "Password cannot exceed 12 characters" }),
-    username: z
-      .string()
-      .trim()
-      .min(1, "Username is required")
-      .min(6, { message: "Username must be at least 6 characters" })
-      .max(12, { message: "Username cannot exceed 12 characters" })
-      .regex(/^[a-zA-Z0-9_]+$/, { message: "Username can only have letters, numbers and underscores" })
-});
-
-type SignUpData=z.infer<typeof signUpSchema>;
-type SignInData=z.infer<typeof signInSchema>;
-type AuthFormProps={mode:"signIn"|"signUp";onModeChange: (mode: "signIn" | "signUp") => void;};
-
-const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
+const AuthForm:React.FC=()=>{
   const signInForm=useForm<SignInData>({defaultValues:{username:"", password:""}, resolver:zodResolver(signInSchema), mode: "onSubmit",});
   const signUpForm=useForm<SignUpData>({defaultValues:{email:"", username:"", password:""}, resolver:zodResolver(signUpSchema), mode: "onSubmit",});
-  const {signup, signin, isSigningUp, isSigningIn, error, clearError}=authStore(useShallow((state)=>({
+  const {signup, signin, mode, setMode, isSigningUp, isSigningIn, error, clearError}=authStore(useShallow((state)=>({
     signup:state.signup,
     signin:state.signin,
+    mode:state.mode,
+    setMode:state.setMode,
     isSigningUp:state.isSigningUp,
     isSigningIn:state.isSigningIn,
     error:state.error,
@@ -64,68 +25,75 @@ const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
   if(mode==="signIn"){
     const {register, handleSubmit, formState:{errors, isSubmitting, touchedFields}}=signInForm;
     return(
-      <form key="signin-form" onSubmit={handleSubmit(onSubmitSignIn)}>
-        <div>
-          <label>Username</label>
-          <input placeholder="Username" type="text" {...register("username")}></input>
-          {touchedFields.username && errors.username && (
-            <p className="text-red-500">{errors.username.message}</p>
-          )}
-        </div>
-        <div>
-          <label>Password</label>
-          <input placeholder="Password" type="password" {...register("password")}></input>
-          {touchedFields.password && errors.password && (
-            <p className="text-red-500">{errors.password.message}</p>
-          )}
-          {error&&<p className='text-red-500'>{error}</p>}
-        </div>
-        <div>
-          <button className='bg-green-900' type="submit" disabled={isSubmitting}>
-            {isSubmitting || isSigningIn ?"Submitting":"Submit"}
-          </button>
-        </div>
-        <div>
-          <button className='text-green-700' type="button" onClick={()=>{{onModeChange("signUp");clearError();}}}>Generate new Identity</button>
-        </div>
-      </form>
+        <div className=''>
+        <form key="signin-form" onSubmit={handleSubmit(onSubmitSignIn)}>
+          <div className='flex flex-col gap-2 m-2'>
+            <label>Username</label>
+            <input className='p-3 bg-zinc-950 rounded-sm' placeholder="Username" type="text" {...register("username")}></input>
+            {touchedFields.username && errors.username && (
+              <p className="text-red-500">{errors.username.message}</p>
+            )}
+          </div>
+          <div className='flex flex-col gap-2 m-2'>
+            <label>Password</label>
+            <input className='p-3 bg-zinc-950 rounded-sm' placeholder="Password" type="password" {...register("password")}></input>
+            {touchedFields.password && errors.password && (
+              <p className="text-red-500">{errors.password.message}</p>
+            )}
+            {error&&<p className='text-red-500'>{error}</p>}
+          </div>
+          <div className='flex flex-col mt-6'>
+            <button className='text-xl text-black font-black bg-emerald-500 hover:bg-emerald-400 px-[30%] py-[2.75%] rounded-xl' type="submit" disabled={isSubmitting}>
+              {isSubmitting || isSigningIn ?"Accessing":"Access Terminal"}
+            </button>
+          </div>
+          <div className='flex justify-center mt-8'>
+            <p>
+              Need a secure line? 
+            </p>
+            <button className='text-green-500 underline' type="button" onClick={()=>{setMode("signUp");clearError();}}>Generate new Identity</button>
+          </div>
+        </form>
+      </div>
     )
   }
 
   const {register, handleSubmit, formState:{errors, isSubmitting, touchedFields}}=signUpForm;
   return (
-    <form key="signup-form" onSubmit={handleSubmit(onSubmitSignUp)}>
-      <div>
-        <label>Email</label>
-        <input placeholder="Email" type="text" {...register("email")}></input>
-        {touchedFields.email && errors.email && (
-            <p className="text-red-500">{errors.email.message}</p>
-          )}
-      </div>
-      <div>
-        <label>Username</label>
-        <input placeholder="Username" type="text" {...register("username")}></input>
-        {touchedFields.username && errors.username && (
-            <p className="text-red-500">{errors.username.message}</p>
-          )}
-      </div>
-      <div>
-        <label>Password</label>
-        <input placeholder="Password" type="password" {...register("password")}></input>
-        {touchedFields.password && errors.password && (
-            <p className="text-red-500">{errors.password.message}</p>
-          )}
-        {error&&<p className='text-red-500'>{error}</p>}
-      </div>
-      <div>
-        <button className='bg-green-600' type="submit" disabled={isSubmitting}>
-          {isSubmitting || isSigningUp ?"Submitting":"Submit"}
-        </button>
-      </div>
-      <div>
-          <button className='text-green-700' type="button" onClick={()=>{onModeChange("signIn");clearError();}}>Already have an Identity?</button>
-      </div>
-    </form>
+    <div>
+      <form key="signup-form" onSubmit={handleSubmit(onSubmitSignUp)}>
+        <div className='flex flex-col gap-2 m-2'>
+          <label className='block'>Email</label>
+          <input className='p-3 bg-zinc-950 rounded-sm' placeholder="Email" type="text" {...register("email")}></input>
+          {touchedFields.email && errors.email && (
+              <p className="text-red-500">{errors.email.message}</p>
+            )}
+        </div>
+        <div className='flex flex-col gap-2 m-2'>
+          <label className='block'>Username</label>
+          <input className='p-3 bg-zinc-950 rounded-sm' placeholder="Username" type="text" {...register("username")}></input>
+          {touchedFields.username && errors.username && (
+              <p className="text-red-500">{errors.username.message}</p>
+            )}
+        </div>
+        <div className='flex flex-col gap-2 m-2'>
+          <label className='block'>Password</label>
+          <input className='p-3 bg-zinc-950 rounded-sm' placeholder="Password" type="password" {...register("password")}></input>
+          {touchedFields.password && errors.password && (
+              <p className="text-red-500">{errors.password.message}</p>
+            )}
+          {error&&<p className='text-red-500'>{error}</p>}
+        </div>
+        <div className='flex flex-col mt-6'>
+          <button className='text-xl text-black font-black bg-emerald-500 hover:bg-emerald-400 px-[30%] py-[2.75%] rounded-xl' type="submit" disabled={isSubmitting}>
+            {isSubmitting || isSigningUp ?"Initializing Account":"Initialize Account"}
+          </button>
+        </div>
+        <div className='flex justify-center mt-4'>
+            <button className='text-green-500' type="button" onClick={()=>{setMode("signIn");clearError();}}>Already have an Identity?</button>
+        </div>
+      </form>
+    </div>
   )
 }
 
