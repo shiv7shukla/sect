@@ -11,9 +11,9 @@ const AuthPage = () => {
   })))
   return (
     <div className='h-screen w-screen bg-black px-[25%] py-[3%] flex flex-col justify-start align-center'>
-      <div className='h-[90vh] w-70 text-white px-[10%] py-[6%] bg-[#18181B] rounded-xl'>
+      <div className='h-[90vh] text-white px-[10%] py-[6%] bg-[#18181B] rounded-xl'>
         <div className='w-[57%] flex justify-between mb-4'>
-          <button className='opacity-60 hover:opacity-100'>
+          <button className='opacity-60 hover:opacity-100' onClick={() => window.history.back()}>
             <ArrowLeft />
           </button>
           <div>
