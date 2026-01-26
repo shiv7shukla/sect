@@ -58,7 +58,11 @@ const AuthForm: React.FC = () => {
   const isSignIn = mode === "signIn";
   const currentForm = isSignIn ? signInForm : signUpForm;
   const currentFields = isSignIn ? signInFields : signUpFields;
-  const onSubmit = isSignIn ? onSubmitSignIn : onSubmitSignUp;
+  const onSubmit: SubmitHandler<SignInData | SignUpData> = async (data) => {
+  if (isSignIn) await onSubmitSignIn(data as SignInData);
+  else await onSubmitSignUp(data as SignUpData);
+  };
+
   const isLoading = isSignIn ? isSigningIn : isSigningUp;
   
   const { register, handleSubmit, formState: { errors, isSubmitting, touchedFields } } = currentForm;
