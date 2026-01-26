@@ -74,6 +74,9 @@ export const authStore=create<AuthStore>((set)=>({
       const res = await axiosInstance.post("/auth/signup", data);
       console.log(res.data);
       set({ authUser: res.data, status: "authenticated" });
+      toast.success("Account created successfully!", {
+        description: `Welcome, ${data.username}!`,
+      });
     } catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       set({
@@ -81,6 +84,7 @@ export const authStore=create<AuthStore>((set)=>({
         status: "unauthenticated",
         error: message ?? "Signup failed",
       });
+      toast.error("Signup failed");
     } finally {
       set({ isSigningUp: false });
     }
@@ -93,6 +97,9 @@ export const authStore=create<AuthStore>((set)=>({
       const res = await axiosInstance.post("/auth/signin", data);
       console.log(res.data);
       set({ authUser: res.data, status: "authenticated" });
+      toast.success("Signed in successfully!", {
+        description: `Welcome back, ${data.username}!`,
+      });
     } catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       console.log(err);
@@ -101,7 +108,7 @@ export const authStore=create<AuthStore>((set)=>({
         status: "unauthenticated",
         error: message ?? "Signin failed",
       });
-      toast.error("Authentication Unsuccessful");
+      toast.error("Signin Failed");
     } finally {
       set({ isSigningIn: false });
     }
@@ -113,11 +120,13 @@ export const authStore=create<AuthStore>((set)=>({
     try{
       await axiosInstance.post("/auth/logout");
       set({ authUser: null, status: "unauthenticated" });
+      toast.success("Logged out successfully");
     } catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       set({
         error: message ?? "Logout failed",
       });
+      toast.error("Logout failed");
     } finally {
       set({ isLoggingOut: false });
     }

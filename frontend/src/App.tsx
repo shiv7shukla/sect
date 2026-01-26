@@ -9,6 +9,7 @@ import { useShallow } from 'zustand/shallow'
 import { authStore } from './store/useAuthStore'
 import AuthForm from './components/AuthForm'
 import AuthPage from './components/AuthPage'
+import { Toaster } from "./components/ui/sonner";
 
 const App = () => {
   const {authUser, status, checkAuth}=authStore(useShallow((state)=>({
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/signin" element={!authUser?<SignIn />:<Navigate to="/"/>} />
         <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
       </Routes>
+      <Toaster />
     </>
   )
 }
