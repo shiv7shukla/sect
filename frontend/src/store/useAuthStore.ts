@@ -2,29 +2,32 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
 
+export type AuthMode="signIn" | "signUp"
+
 export type AuthUser={
   _id:string;
   username:string;
   email:string;
 };
 
-type SignUpInput={
+export type SignUpInput={
   email:string;
   username:string;
   password:string;
 };
 
-type SignInInput={
+export type SignInInput={
   username:string;
   password:string;
 };
 
-type AuthStatus="checking" | "authenticated" | "unauthenticated";
+export type AuthStatus="checking" | "authenticated" | "unauthenticated";
 
-type AuthStore={
+export type AuthStore={
   authUser:AuthUser | null;
   status:AuthStatus;
   error:string | null;
+  mode:AuthMode;
 
   isSigningUp:boolean;
   isSigningIn:boolean;
@@ -36,20 +39,24 @@ type AuthStore={
   logout:()=>Promise<void>;
 
   clearError:()=>void;
+  setMode:(mode:AuthMode)=>void;
 };
 
 export const authStore=create<AuthStore>((set)=>({
   authUser: null,
   status: "unauthenticated",
   error: null,
+  mode:"signIn",
 
   isSigningUp: false,
   isSigningIn: false,
   isLoggingOut: false,
 
-  clearError: () => set({ error: null }),
+  clearError:()=>set({ error: null }),
 
-  checkAuth:async () => {
+  setMode:(mode)=>set({mode}),
+
+  checkAuth:async()=>{
     set({ status: "checking", error: null });
     try{
       const res = await axiosInstance.get("/auth/check");
@@ -59,7 +66,7 @@ export const authStore=create<AuthStore>((set)=>({
     }
   },
 
-  signup:async (data) => {
+  signup:async(data)=>{
     set({ isSigningUp: true, error: null });
 
     try{
@@ -78,7 +85,7 @@ export const authStore=create<AuthStore>((set)=>({
     }
   },
 
-  signin: async (data) => {
+  signin:async (data)=>{
     set({ isSigningIn: true, error: null });
 
     try{

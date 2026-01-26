@@ -1,132 +1,112 @@
 import React from 'react'
-import {z} from "zod"
 import {useForm} from "react-hook-form"
 import type { SubmitHandler } from 'react-hook-form'
 import {zodResolver} from "@hookform/resolvers/zod"
 import { authStore } from '../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow'
+import { signInSchema, signUpSchema, type SignInData, type SignUpData } from '../lib/auth.schema'
+import FormField from './FormField'
+import SubmitButton from './SubmitButton'
 
-const signUpSchema=z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, "Email is required")
-    .email({ message: "Email is invalid" }),
-  password: z
-    .string()
-    .trim()
-    .min(1, "Password is required")
-    .min(6, { message: "Password must be at least 6 characters" })
-    .max(12, { message: "Password cannot exceed 12 characters" }),
-  username: z
-    .string()
-    .trim()
-    .min(1, "Username is required")
-    .min(6, { message: "Username must be at least 6 characters" })
-    .max(12, { message: "Username cannot exceed 12 characters" })
-    .regex(/^[a-zA-Z0-9_]+$/, { message: "Username can only have letters, numbers and underscores" })
-});
+const signInFields = [
+  { name: 'username' as const, label: 'Username', type: 'text', placeholder: 'Username' },
+  { name: 'password' as const, label: 'Password', type: 'password', placeholder: 'Password' }
+] as const;
 
-const signInSchema=z.object({
-    password: z
-      .string()
-      .trim()
-      .min(1, "Password is required")
-      .min(6, { message: "Password must be at least 6 characters" })
-      .max(12, { message: "Password cannot exceed 12 characters" }),
-    username: z
-      .string()
-      .trim()
-      .min(1, "Username is required")
-      .min(6, { message: "Username must be at least 6 characters" })
-      .max(12, { message: "Username cannot exceed 12 characters" })
-      .regex(/^[a-zA-Z0-9_]+$/, { message: "Username can only have letters, numbers and underscores" })
-});
+const signUpFields = [
+  { name: 'email' as const, label: 'Email', type: 'text', placeholder: 'Email' },
+  { name: 'username' as const, label: 'Username', type: 'text', placeholder: 'Username' },
+  { name: 'password' as const, label: 'Password', type: 'password', placeholder: 'Password' }
+] as const;
 
-type SignUpData=z.infer<typeof signUpSchema>;
-type SignInData=z.infer<typeof signInSchema>;
-type AuthFormProps={mode:"signIn"|"signUp";onModeChange: (mode: "signIn" | "signUp") => void;};
+const AuthForm: React.FC = () => {
+  const signInForm = useForm<SignInData>({
+    defaultValues: { username: "", password: "" }, 
+    resolver: zodResolver(signInSchema), 
+    mode: "onSubmit"
+  });
+  
+  const signUpForm = useForm<SignUpData>({
+    defaultValues: { email: "", username: "", password: "" }, 
+    resolver: zodResolver(signUpSchema), 
+    mode: "onSubmit"
+  });
 
-const AuthForm:React.FC<AuthFormProps>=({mode, onModeChange})=> {
-  const signInForm=useForm<SignInData>({defaultValues:{username:"", password:""}, resolver:zodResolver(signInSchema), mode: "onSubmit",});
-  const signUpForm=useForm<SignUpData>({defaultValues:{email:"", username:"", password:""}, resolver:zodResolver(signUpSchema), mode: "onSubmit",});
-  const {signup, signin, isSigningUp, isSigningIn, error, clearError}=authStore(useShallow((state)=>({
-    signup:state.signup,
-    signin:state.signin,
-    isSigningUp:state.isSigningUp,
-    isSigningIn:state.isSigningIn,
-    error:state.error,
-    clearError:state.clearError
-  })));
-  const onSubmitSignIn:SubmitHandler<SignInData>=async(data)=>{await signin(data); signInForm.reset();};
-  const onSubmitSignUp:SubmitHandler<SignUpData>=async(data)=>{await signup(data); signUpForm.reset();};
+  const { signup, signin, mode, setMode, isSigningUp, isSigningIn, error, clearError } = authStore(
+    useShallow((state) => ({
+      signup: state.signup,
+      signin: state.signin,
+      mode: state.mode,
+      setMode: state.setMode,
+      isSigningUp: state.isSigningUp,
+      isSigningIn: state.isSigningIn,
+      error: state.error,
+      clearError: state.clearError
+    }))
+  );
 
-  if(mode==="signIn"){
-    const {register, handleSubmit, formState:{errors, isSubmitting, touchedFields}}=signInForm;
-    return(
-      <form key="signin-form" onSubmit={handleSubmit(onSubmitSignIn)}>
-        <div>
-          <label>Username</label>
-          <input placeholder="Username" type="text" {...register("username")}></input>
-          {touchedFields.username && errors.username && (
-            <p className="text-red-500">{errors.username.message}</p>
-          )}
-        </div>
-        <div>
-          <label>Password</label>
-          <input placeholder="Password" type="password" {...register("password")}></input>
-          {touchedFields.password && errors.password && (
-            <p className="text-red-500">{errors.password.message}</p>
-          )}
-          {error&&<p className='text-red-500'>{error}</p>}
-        </div>
-        <div>
-          <button className='bg-green-900' type="submit" disabled={isSubmitting}>
-            {isSubmitting || isSigningIn ?"Submitting":"Submit"}
+  const onSubmitSignIn: SubmitHandler<SignInData> = async (data) => {
+    await signin(data);
+    signInForm.reset();
+  };
+
+  const onSubmitSignUp: SubmitHandler<SignUpData> = async (data) => {
+    await signup(data);
+    signUpForm.reset();
+  };
+
+  const isSignIn = mode === "signIn";
+  const currentForm = isSignIn ? signInForm : signUpForm;
+  const currentFields = isSignIn ? signInFields : signUpFields;
+  const onSubmit: SubmitHandler<SignInData | SignUpData> = async (data) => {
+  if (isSignIn) await onSubmitSignIn(data as SignInData);
+  else await onSubmitSignUp(data as SignUpData);
+  };
+
+  const isLoading = isSignIn ? isSigningIn : isSigningUp;
+  
+  const { register, handleSubmit, formState: { errors, isSubmitting, touchedFields } } = currentForm;
+
+  return (
+    <div className={isSignIn ? '' : ''}>
+      <form key={`${mode}-form`} onSubmit={handleSubmit(onSubmit)}>
+        {currentFields.map((field) => (
+          <FormField
+            key={field.name}
+            name={field.name}
+            label={field.label}
+            type={field.type}
+            placeholder={field.placeholder}
+            register={register as any}
+            errors={errors}
+            touched={!!touchedFields[field.name]}
+          />
+        ))}
+        
+        {error && <p className='text-red-500 m-2'>{error}</p>}
+        
+        <SubmitButton
+          isSubmitting={isSubmitting || isLoading}
+          loadingText={isSignIn ? "Accessing" : "Initializing Account"}
+          submitText={isSignIn ? "Access Terminal" : "Initialize Account"}
+        />
+        
+        <div className={`flex justify-center ${isSignIn ? 'mt-8' : 'mt-4'}`}>
+          {isSignIn && <p>Need a secure line?</p>}
+          <button 
+            className={`text-green-500 ${isSignIn ? 'underline' : ''}`}
+            type="button" 
+            onClick={() => {
+              setMode(isSignIn ? "signUp" : "signIn");
+              clearError();
+            }}
+          >
+            {isSignIn ? "Generate new Identity" : "Already have an Identity?"}
           </button>
         </div>
-        <div>
-          <button className='text-green-700' type="button" onClick={()=>{{onModeChange("signUp");clearError();}}}>Generate new Identity</button>
-        </div>
       </form>
-    )
-  }
+    </div>
+  );
+};
 
-  const {register, handleSubmit, formState:{errors, isSubmitting, touchedFields}}=signUpForm;
-  return (
-    <form key="signup-form" onSubmit={handleSubmit(onSubmitSignUp)}>
-      <div>
-        <label>Email</label>
-        <input placeholder="Email" type="text" {...register("email")}></input>
-        {touchedFields.email && errors.email && (
-            <p className="text-red-500">{errors.email.message}</p>
-          )}
-      </div>
-      <div>
-        <label>Username</label>
-        <input placeholder="Username" type="text" {...register("username")}></input>
-        {touchedFields.username && errors.username && (
-            <p className="text-red-500">{errors.username.message}</p>
-          )}
-      </div>
-      <div>
-        <label>Password</label>
-        <input placeholder="Password" type="password" {...register("password")}></input>
-        {touchedFields.password && errors.password && (
-            <p className="text-red-500">{errors.password.message}</p>
-          )}
-        {error&&<p className='text-red-500'>{error}</p>}
-      </div>
-      <div>
-        <button className='bg-green-600' type="submit" disabled={isSubmitting}>
-          {isSubmitting || isSigningUp ?"Submitting":"Submit"}
-        </button>
-      </div>
-      <div>
-          <button className='text-green-700' type="button" onClick={()=>{onModeChange("signIn");clearError();}}>Already have an Identity?</button>
-      </div>
-    </form>
-  )
-}
-
-export default AuthForm
+export default AuthForm;
