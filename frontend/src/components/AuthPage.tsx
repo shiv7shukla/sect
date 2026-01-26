@@ -1,8 +1,9 @@
-import React from 'react'
-import { authStore } from '../store/useAuthStore'
+import React, { useEffect } from 'react';
+import { authStore } from '../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow'
-import { ArrowLeft, Shield } from 'lucide-react'
-import AuthForm from './AuthForm'
+import { ArrowLeft, Shield } from 'lucide-react';
+import AuthForm from './AuthForm';
+import { toast } from 'sonner';
 
 const AUTH_TEXT = {
   signIn: {
@@ -17,13 +18,13 @@ const AUTH_TEXT = {
 
 const AuthPage = () => {
   const { mode } = authStore(useShallow((state) => ({
-    mode: state.mode
+    mode: state.mode,
   })));
 
   const textContent = AUTH_TEXT[mode];
 
   return (
-    <div className='h-screen w-screen bg-[black] px-[25%] py-[3%] flex flex-col justify-start align-center'>
+    <div className='h-screen w-screen bg-white px-[25%] py-[3%] flex flex-col justify-start align-center'>
       <div className='h-[90vh] text-white px-[10%] py-[6%] bg-[#18181B] rounded-xl'>
         <div className='w-[57%] flex justify-between mb-4'>
           <button 

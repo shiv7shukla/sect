@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
@@ -100,6 +101,7 @@ export const authStore=create<AuthStore>((set)=>({
         status: "unauthenticated",
         error: message ?? "Signin failed",
       });
+      toast.error("Authentication Unsuccessful");
     } finally {
       set({ isSigningIn: false });
     }
