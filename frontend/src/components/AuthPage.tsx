@@ -24,7 +24,7 @@ const AuthPage = () => {
   const textContent = AUTH_TEXT[mode];
 
   return (
-    <div className='h-screen w-screen bg-white px-[25%] py-[3%] flex flex-col justify-start align-center'>
+    <div className='h-screen w-screen bg-black px-[25%] py-[3%] flex flex-col justify-start align-center'>
       <div className='h-[90vh] text-white px-[10%] py-[6%] bg-[#18181B] rounded-xl'>
         <div className='w-[57%] flex justify-between mb-4'>
           <button 
