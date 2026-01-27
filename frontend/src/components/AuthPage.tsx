@@ -3,7 +3,7 @@ import { authStore } from '../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow'
 import { ArrowLeft, Shield } from 'lucide-react';
 import AuthForm from './AuthForm';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const AUTH_TEXT = {
   signIn: {
@@ -17,11 +17,19 @@ const AUTH_TEXT = {
 } as const;
 
 const AuthPage = () => {
-  const { mode } = authStore(useShallow((state) => ({
+  const { mode, authUser } = authStore(useShallow((state) => ({
     mode: state.mode,
+    authUser:state.authUser
   })));
 
   const textContent = AUTH_TEXT[mode];
+  const navigate=useNavigate();
+
+  useEffect(() => {
+    console.log(authUser);
+    console.log()
+    if (authUser!==null) navigate("/chat", { replace: true });
+  }, [authUser]);
 
   return (
     <div className='h-screen w-screen bg-black px-[25%] py-[3%] flex flex-col justify-start align-center'>

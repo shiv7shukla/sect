@@ -1,10 +1,11 @@
 import React from 'react'
 
-const SignIn = () => {
+const Chats = () => {
   return (
     <div>
+      chats
     </div>
   )
 }
 
-export default SignIn
+export default Chats
