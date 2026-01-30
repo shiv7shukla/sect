@@ -85,7 +85,7 @@ export const authStore=create<AuthStore>((set)=>({
         status: "unauthenticated",
         error: message,
       });
-      toast.error("Signup failed");
+      toast.error(message);
     } finally {
       set({ isSigningUp: false });
     }

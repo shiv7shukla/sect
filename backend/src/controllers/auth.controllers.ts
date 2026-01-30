@@ -9,9 +9,9 @@ export const signinController=asyncHandler(async(req:Request, res:Response)=>{
   const {username, password}=req.body??{};
   if(!username || !password) return res.status(400).json({"message":"username and password are required"});
   const user=await User.findOne({username});
-  if (!user) return res.status(401).json({"message":"invalid credentials"});
+  if (!user) return res.status(401).json({"message":"Invalid credentials"});
   const pwd=await bcrypt.compare(password, user.password);
-  if (!pwd) return res.status(401).json({"message":"invalid credentials"});
+  if (!pwd) return res.status(401).json({"message":"Invalid credentials"});
   generateToken(user._id.toString(), res);
   return res.status(200).json({"message":"user logged in", "username":user.username, "email":user.email});
 })
@@ -20,7 +20,7 @@ export const signupController=asyncHandler(async(req:Request, res:Response)=>{
   const {email, username, password}=req.body??{};
   if(!email || !password || !username) return res.status(400).json({"message":"email, username and password are required"});
   const user=await User.findOne({email});
-  if(user) return res.status(409).json({"message":"user already exists"});
+  if(user) return res.status(409).json({"message":"User already exists"});
   if(password.length<6) return res.status(400).json({"message":"password too small"});
   const salt=await bcrypt.genSalt(10);
   const hashedpwd=await bcrypt.hash(password, salt);

@@ -32,7 +32,7 @@ const AuthForm: React.FC = () => {
     mode: "onSubmit"
   });
 
-  const { signup, signin, mode, setMode, isSigningUp, isSigningIn, error, clearError } = authStore(
+  const { signup, signin, mode, setMode, isSigningUp, isSigningIn, clearError } = authStore(
     useShallow((state) => ({
       signup: state.signup,
       signin: state.signin,
@@ -40,7 +40,6 @@ const AuthForm: React.FC = () => {
       setMode: state.setMode,
       isSigningUp: state.isSigningUp,
       isSigningIn: state.isSigningIn,
-      error: state.error,
       clearError: state.clearError
     }))
   );
@@ -82,8 +81,6 @@ const AuthForm: React.FC = () => {
             touched={!!touchedFields[field.name]}
           />
         ))}
-        
-        {error && <p className='text-red-500 m-2'>{error}</p>}
         
         <SubmitButton
           isSubmitting={isSubmitting || isLoading}
