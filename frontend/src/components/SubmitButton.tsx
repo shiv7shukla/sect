@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spinner } from './ui/spinner';
 
 interface SubmitButtonProps {
   isSubmitting: boolean;
@@ -13,7 +14,7 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({ isSubmitting, loadingText, 
       type="submit" 
       disabled={isSubmitting}
     >
-      {isSubmitting ? loadingText : submitText}
+      {isSubmitting ? (<><Spinner /> {loadingText}</>) : submitText}
     </button>
   </div>
 );
