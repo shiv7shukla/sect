@@ -10,12 +10,17 @@ interface SubmitButtonProps {
 const SubmitButton: React.FC<SubmitButtonProps> = ({ isSubmitting, loadingText, submitText }) => (
   <div className='flex flex-col mt-6'>
     <button 
-      className='text-xl text-black font-black bg-emerald-500 hover:bg-emerald-400 px-[30%] py-[2.75%] rounded-xl' 
-      type="submit" 
-      disabled={isSubmitting}
-    >
-      {isSubmitting ? (<><Spinner /> {loadingText}</>) : submitText}
-    </button>
+  className='flex items-center justify-center text-xl text-black font-black bg-emerald-500 hover:bg-emerald-400 px-[30%] py-[2.75%] rounded-xl' 
+  type="submit" 
+  disabled={isSubmitting}
+>
+  {isSubmitting ? (
+    <>
+      <Spinner className="mr-2" />
+      {loadingText}
+    </>
+  ) : submitText}
+</button>
   </div>
 );
 
