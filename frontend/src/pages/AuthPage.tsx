@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { authStore } from '../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow'
 import { ArrowLeft, Shield } from 'lucide-react';
-import AuthForm from './AuthForm';
+import AuthForm from '../components/AuthForm';
 import { useNavigate } from 'react-router-dom';
 
 const AUTH_TEXT = {

@@ -46,5 +46,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require('@toolwind/corner-shape')],
 };
