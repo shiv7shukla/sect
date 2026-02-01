@@ -6,9 +6,10 @@ import UserProfile from './pages/UserProfile'
 import { useShallow } from 'zustand/shallow'
 import { authStore } from './store/useAuthStore'
 import AuthForm from './components/AuthForm'
-import AuthPage from './components/AuthPage'
+import AuthPage from './pages/AuthPage'
 import { Toaster } from "./components/ui/sonner";
 import Chats from './pages/Chats'
+import Sidebar from './components/Sidebar'
 
 const App = () => {
   const {authUser, checkAuth}=authStore(useShallow((state)=>({
@@ -24,7 +25,7 @@ const App = () => {
       <Navbar />
       <Routes>
         {/* <Route path="/" element={authUser?<HomePage />:<Navigate to="/signin"/>} /> */}
-        <Route path="/" element={<AuthPage />} />
+        <Route path="/" element={<Sidebar />} />
         <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
         {/* <Route path="/chat" element={<Chats />} /> */}
       </Routes>
