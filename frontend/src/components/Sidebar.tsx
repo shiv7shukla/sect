@@ -1,7 +1,10 @@
 import { LogOut, Plus, Search, Shield } from 'lucide-react'
 import React from 'react'
+import { authStore } from '../store/useAuthStore'
 
 const Sidebar = () => {
+  const logout=authStore((state)=>state.logout)
+
   return (
     <>
       <div className='h-screen w-[22vw] bg-[#111318] p-4'>
@@ -15,7 +18,7 @@ const Sidebar = () => {
               <div className='text-slate-500 text-xs'>Secure Terminal</div>
             </div>
           </div>
-          <button className='group p-2 hover:bg-[#171A21] rounded-md cursor-pointer'>
+          <button onClick={logout} aria-label='logout' className='group p-2 hover:bg-[#171A21] rounded-md cursor-pointer'>
             <LogOut className='text-white opacity-50 group-hover:text-white group-hover:opacity-100' />
           </button>
         </div>
