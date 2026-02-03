@@ -1,3 +1,4 @@
+import cornerShape from '@toolwind/corner-shape'
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
@@ -44,7 +45,16 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        float: {
+          "0%, 100%" :{ transform: "translateY(0)" },
+          "50%" :{ transform: "translateY(-10px)" },
+        }
+      },
+      animation :{
+        float: "float 5s ease-in-out infinite",
+      },
     },
   },
-  plugins: [require('@toolwind/corner-shape')],
+  plugins: [cornerShape],
 };

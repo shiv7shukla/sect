@@ -10,6 +10,7 @@ import AuthPage from './pages/AuthPage'
 import { Toaster } from "./components/ui/sonner";
 import Chats from './pages/Chats'
 import Sidebar from './components/Sidebar'
+import ChatArea from './components/ChatArea'
 
 const App = () => {
   const {authUser, checkAuth}=authStore(useShallow((state)=>({
@@ -25,7 +26,7 @@ const App = () => {
       <Navbar />
       <Routes>
         {/* <Route path="/" element={authUser?<HomePage />:<Navigate to="/signin"/>} /> */}
-        <Route path="/" element={<Sidebar />} />
+        <Route path="/" element={<Chats />} />
         <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
         {/* <Route path="/chat" element={<Chats />} /> */}
       </Routes>
