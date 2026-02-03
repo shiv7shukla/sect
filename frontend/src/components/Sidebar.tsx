@@ -1,4 +1,4 @@
-import { LogOut, Plus, Search, Shield } from 'lucide-react'
+import { Copy, LogOut, Plus, Search, Shield } from 'lucide-react'
 import React from 'react'
 import { authStore } from '../store/useAuthStore'
 
@@ -18,15 +18,20 @@ const Sidebar = () => {
               <div className='text-slate-500 text-xs'>Secure Terminal</div>
             </div>
           </div>
-          <button onClick={logout} aria-label='logout' className='group p-2 hover:bg-[#171A21] rounded-md cursor-pointer'>
+          <button onClick={logout} aria-label='logout' className='group p-2 hover:bg-[#171A21] rounded-md'>
             <LogOut className='text-white opacity-50 group-hover:text-white group-hover:opacity-100' />
           </button>
         </div>
-        <div className='bg-[#171A21] h-[10vh] w-[20vw] rounded-lg border-zinc-800 border-2 mb-4'>
-          <div className='flex flex-col items-start justify-end gap-2 py-2 px-3'>
+        <div className='bg-[#171A21] h-[10vh] w-[20vw] rounded-lg border-zinc-800 border-2 mb-4 py-2 px-3'>
             <div className='text-slate-500 text-xs font-semibold'>Your UUID</div>
-            <div className='text-zinc-200 text-xs'>{}</div>
-          </div>
+            <div className='flex justify-between items-center text-zinc-200 text-xs'>
+              <div>
+                {"hello world"}
+              </div>
+              <button aria-label='copy' className='group p-2 hover:bg-[#171A21] rounded-md'>
+                <Copy className='h-4 w-4 text-white opacity-50 group-hover:text-emerald-600 group-hover:opacity-100' />
+              </button>
+            </div>
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className="relative w-full max-w-md">
