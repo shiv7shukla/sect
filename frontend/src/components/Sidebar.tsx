@@ -1,9 +1,26 @@
-import { Copy, LogOut, Plus, Search, Shield } from 'lucide-react'
-import React from 'react'
+import { Check, Copy, LogOut, Plus, Search, Shield } from 'lucide-react'
+import React, { useState } from 'react'
 import { authStore } from '../store/useAuthStore'
+import { useShallow } from 'zustand/shallow'
 
 const Sidebar = () => {
-  const logout=authStore((state)=>state.logout)
+  const {logout, authUser} = authStore(useShallow((state) => ({
+    logout: state.logout,
+    authUser: state.authUser,
+  })))
+
+  const [isCopied, setIsCopied] = useState(false)
+
+  const handleCopy = async () => {
+    if (!authUser?._id) return
+    try {
+      await navigator.clipboard.writeText(authUser._id)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy UUID', err)
+    }
+  }
 
   return (
     <>
@@ -28,8 +45,8 @@ const Sidebar = () => {
               <div>
                 {"hello world"}
               </div>
-              <button aria-label='copy' className='group p-2 hover:bg-[#171A21] rounded-md'>
-                <Copy className='h-4 w-4 text-white opacity-50 group-hover:text-emerald-600 group-hover:opacity-100' />
+              <button onClick={handleCopy} disabled={!authUser?._id} aria-label={isCopied ? 'copied' : 'copy'} className='group p-2 hover:bg-[#1F2329] rounded-md cursor-pointer'>
+                {isCopied ? (<Check className='h-4 w-4 text-emerald-600' />) : (<Copy className='h-4 w-4 text-white opacity-50 group-hover:text-emerald-600 group-hover:opacity-100' />)}
               </button>
             </div>
         </div>

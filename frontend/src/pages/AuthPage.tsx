@@ -26,8 +26,6 @@ const AuthPage = () => {
   const navigate=useNavigate();
 
   useEffect(() => {
-    console.log(authUser);
-    console.log()
     if (authUser!==null) navigate("/chat", { replace: true });
   }, [authUser]);
 
