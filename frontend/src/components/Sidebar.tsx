@@ -1,18 +1,26 @@
-import { Plus, Search, Shield } from 'lucide-react'
+import { LogOut, Plus, Search, Shield } from 'lucide-react'
 import React from 'react'
+import { authStore } from '../store/useAuthStore'
 
 const Sidebar = () => {
+  const logout=authStore((state)=>state.logout)
+
   return (
     <>
       <div className='h-screen w-[22vw] bg-[#111318] p-4'>
-        <div className='flex gap-4 mt-2 mb-6'>
-          <div className='h-9 w-9 bg-[#112625] border-solid border-2 border-emerald-800 corner-squircle rounded-full flex items-center justify-center'>
-              <Shield className='h-5 w-5 text-[#12BE85]' strokeWidth={2} />
+        <div className='flex justify-between items-start'>
+          <div className='flex gap-4 mt-2 mb-6'>
+            <div className='h-9 w-9 bg-[#112625] border-solid border-2 border-emerald-800 corner-squircle rounded-full flex items-center justify-center'>
+                <Shield className='h-5 w-5 text-[#12BE85]' strokeWidth={2} />
+            </div>
+            <div className='h-8 flex flex-col items-start justify-end'>
+              <div className='text-emerald-400 text-xl font-semibold'>sect</div>
+              <div className='text-slate-500 text-xs'>Secure Terminal</div>
+            </div>
           </div>
-          <div className='h-8 flex flex-col items-start justify-end'>
-            <div className='text-emerald-400 text-xl font-semibold'>sect</div>
-            <div className='text-slate-500 text-xs'>Secure Terminal</div>
-          </div>
+          <button onClick={logout} aria-label='logout' className='group p-2 hover:bg-[#171A21] rounded-md cursor-pointer'>
+            <LogOut className='text-white opacity-50 group-hover:text-white group-hover:opacity-100' />
+          </button>
         </div>
         <div className='bg-[#171A21] h-[10vh] w-[20vw] rounded-lg border-zinc-800 border-2 mb-4'>
           <div className='flex flex-col items-start justify-end gap-2 py-2 px-3'>
