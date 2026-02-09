@@ -24,11 +24,17 @@ export type Conversations = {
 export type ChatStore = {
   messages: Message[];
   conversations: Conversations[];
+
   isMessagesLoading: boolean;
   isUsersLoading: boolean;
+
+  selectedUser: string | null;
+
+  getUsers: () => Promise<void>;
+  getMessages: () => Promise<void>;
 }
 
-export const ChatStore = create<ChatStore>((set)) => ({
+export const chatStore = create<ChatStore>((set) => ({
   messages: [],
   conversations: [],
   selectedUser: null,
@@ -37,6 +43,11 @@ export const ChatStore = create<ChatStore>((set)) => ({
   isUsersLoading: false,
 
   getUsers: async () => {
-    set({isUsersLoading: true});
-  }
-})
+    set({ isUsersLoading: true });
+  },
+
+  getMessages: async () => {
+    set({ isMessagesLoading: true });
+  },
+
+}))
