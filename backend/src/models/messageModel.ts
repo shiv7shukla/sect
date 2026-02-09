@@ -3,6 +3,7 @@ import type { IUser } from "./userModel.js";
 import type { IC } from "./conversationModel.js";
 
 export interface IM{
+  _id:mongoose.Types.ObjectId;
   senderId:mongoose.Types.ObjectId | IUser;
   conversationId:mongoose.Types.ObjectId | IC;
   content:{

@@ -3,71 +3,71 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
 
-export type AuthMode="signIn" | "signUp"
+export type AuthMode = "signIn" | "signUp"
 
-export type AuthUser={
-  _id:string;
-  username:string;
-  email:string;
+export type AuthUser = {
+  _id: string;
+  username: string;
+  email: string;
 };
 
-export type SignUpInput={
-  email:string;
-  username:string;
-  password:string;
+export type SignUpInput = {
+  email: string;
+  username: string;
+  password: string;
 };
 
-export type SignInInput={
-  username:string;
-  password:string;
+export type SignInInput = {
+  username: string;
+  password: string;
 };
 
-export type AuthStatus="checking" | "authenticated" | "unauthenticated";
+export type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
-export type AuthStore={
-  authUser:AuthUser | null;
-  status:AuthStatus;
-  error:string | null;
-  mode:AuthMode;
+export type AuthStore = {
+  authUser: AuthUser | null;
+  status: AuthStatus;
+  error: string | null;
+  mode: AuthMode;
 
-  isSigningUp:boolean;
-  isSigningIn:boolean;
-  isLoggingOut:boolean;
+  isSigningUp: boolean;
+  isSigningIn: boolean;
+  isLoggingOut: boolean;
 
-  checkAuth:()=>Promise<void>;
-  signup:(data:SignUpInput)=>Promise<void>;
-  signin:(data:SignInInput)=>Promise<void>;
-  logout:()=>Promise<void>;
+  checkAuth: () => Promise<void>;
+  signup: (data:SignUpInput) => Promise<void>;
+  signin: (data:SignInInput) => Promise<void>;
+  logout: () => Promise<void>;
 
-  clearError:()=>void;
-  setMode:(mode:AuthMode)=>void;
+  clearError: () => void;
+  setMode: (mode:AuthMode) => void;
 };
 
-export const authStore=create<AuthStore>((set)=>({
+export const authStore=create<AuthStore>((set) => ({
   authUser: null,
-  status: "unauthenticated",
   error: null,
   mode:"signIn",
+  status: "unauthenticated",
 
   isSigningUp: false,
   isSigningIn: false,
   isLoggingOut: false,
 
-  clearError:()=>set({ error: null }),
+  clearError: () => set({ error: null }),
 
-  setMode:(mode)=>set({mode}),
+  setMode: (mode) => set({mode}),
 
-  checkAuth:async()=>{
+  checkAuth: async () => {
     set({ status: "checking", error: null });
     try{
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data, status: "authenticated" });
-    } catch (err) {
+    } catch {
       set({ authUser: null, status: "unauthenticated" });
     }
   },
 
-  signup:async(data)=>{
+  signup: async(data) => {
     set({ isSigningUp: true, error: null });
 
     try{
@@ -91,7 +91,7 @@ export const authStore=create<AuthStore>((set)=>({
     }
   },
 
-  signin:async (data)=>{
+  signin: async (data) => {
     set({ isSigningIn: true, error: null });
 
     try{
