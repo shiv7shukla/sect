@@ -62,7 +62,7 @@ export const authStore=create<AuthStore>((set) => ({
     try{
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data, status: "authenticated" });
-    } catch (err) {
+    } catch {
       set({ authUser: null, status: "unauthenticated" });
     }
   },
