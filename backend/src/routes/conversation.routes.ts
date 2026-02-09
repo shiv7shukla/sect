@@ -5,6 +5,6 @@ import { getMessages, sendMessages } from '../controllers/message.controllers.js
 
 export const conversationRouter = Router ();
 
-conversationRouter.get("/", protectRoute, getConversations);
+conversationRouter.get("/conversations", protectRoute, getConversations);
 conversationRouter.get("/:id", protectRoute, getMessages);
 conversationRouter.post("/send/:id", protectRoute, sendMessages)
