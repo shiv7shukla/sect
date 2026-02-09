@@ -45,9 +45,9 @@ export type AuthStore={
 
 export const authStore=create<AuthStore>((set)=>({
   authUser: null,
-  status: "unauthenticated",
   error: null,
   mode:"signIn",
+  status: "unauthenticated",
 
   isSigningUp: false,
   isSigningIn: false,
