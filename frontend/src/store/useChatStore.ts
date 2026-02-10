@@ -20,7 +20,9 @@ export type Message = {
     emoji?: string,      
     gifUrl?: string,     
     stickerUrl?: string
-  }
+  },
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type Conversations = {
@@ -80,8 +82,8 @@ export const chatStore = create<ChatStore>((set, get) => ({
   getMessages: async () => {
     set({ isMessagesLoading: true });
     try{
-      const { data: { message} } = await axiosInstance.get(`/conversations/messages/${get().selectedUser?.conversationId}`);
-      set({ messages: message, isMessagesLoading: false})
+      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${get().selectedUser?.conversationId}`);
+      set({ messages: data.messageInfo, isMessagesLoading: false})
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
