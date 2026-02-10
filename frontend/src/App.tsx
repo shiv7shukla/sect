@@ -30,7 +30,8 @@ const App = () => {
         <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
         {/* <Route path="/chat" element={<Chats />} /> */}
       </Routes>
-      <Toaster />
+      <Toaster /> 
+      {/* add toaster here so it can appear anywhere you want */}
     </>
   )
 }
