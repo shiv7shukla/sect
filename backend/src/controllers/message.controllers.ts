@@ -13,7 +13,6 @@ export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid conversationId"});
 
   const conversationObjectId = new mongoose.Types.ObjectId(id);
-
   const conversation = await Conversation.findOne({
     _id:conversationObjectId,
     participants:myId,
@@ -22,7 +21,7 @@ export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
     .lean();
 
   if(!conversation) return res.status(403).json({ "message":  "unauthorized" }); // either conversation doesn't exist or user is not a participant
-  const messages=await Message.find({ conversationId: conversationObjectId })
+  const messages = await Message.find({ conversationId: conversationObjectId })
     .sort({ createdAt: 1 })
     .populate("senderId", "_id username")
     .lean();
@@ -40,13 +39,13 @@ export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
   });
 
   return res.status(200).json({
-    message: {
-      id: conversation._id.toString(),
+    conversationInfo: {
+      conversationId: conversation._id.toString(),
       type: conversation.type,
       lastMessageAt: conversation.lastMessageAt,
       lastMessagePreview: conversation.lastMessagePreview,
     },
-    messages: messageInfo,
+    messageInfo: messageInfo,
   });
 });
 

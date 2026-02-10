@@ -3,16 +3,26 @@ import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
 
 export type Message = {
-  senderId: string;
-  content: {
-    type: "text" | "emoji" | "gif" | "sticker";
-    text?: string;
-    emoji?: string;
-    gifUrl?: string;
-    stickerUrl?: string;
-  };
-  createdAt?: string;
-  updatedAt?: string;
+  conversationInfo: {
+    conversationId: string,
+    type: string,
+    lastMessagePreview: string,
+    lastMessageAt: string,  
+  },
+
+  messageInfo: {
+    id: string,
+    senderId: string,
+    senderusername: string,
+    content: {
+      type: "text"| "emoji" | "gif" | "sticker",
+      text?: string,       
+      emoji?: string,      
+      gifUrl?: string,     
+      stickerUrl?: string
+    },
+    createdAt: string
+  }
 }
 
 export type Conversations = {
@@ -76,7 +86,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
       set({ messages: message, isMessagesLoading: false})
     }
     catch(err){
-      const message = axios.isAxiosError(err)? err?.response?.data.message: null;
+      const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isMessagesLoading: false});
     }
