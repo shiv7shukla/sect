@@ -2,27 +2,25 @@ import axios from "axios";
 import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
 
-export type Message = {
+export type getMessageAPIResponse = {
   conversationInfo: {
     conversationId: string,
     type: string,
     lastMessagePreview: string,
     lastMessageAt: string,  
   },
-
-  messageInfo: [{
-    id: string,
-    senderId: string,
-    senderusername: string,
-    content: {
-      type: "text"| "emoji" | "gif" | "sticker",
-      text?: string,       
-      emoji?: string,      
-      gifUrl?: string,     
-      stickerUrl?: string
-    },
-    createdAt: string
-  }]
+  messageInfo: Message[]
+}
+export type Message = {
+  senderId: string,
+  conversationId: string,
+  content: {
+    type: "text" | "emoji" | "sticker" | "gif"
+    text?: string,       
+    emoji?: string,      
+    gifUrl?: string,     
+    stickerUrl?: string
+  }
 }
 
 export type Conversations = {
