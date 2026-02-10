@@ -4,33 +4,33 @@ import { create } from "zustand";
 
 export type getMessageAPIResponse = {
   conversationInfo: {
-    conversationId: string,
-    type: string,
-    lastMessagePreview: string,
-    lastMessageAt: string,  
+    conversationId: string;
+    type: string;
+    lastMessagePreview: string;
+    lastMessageAt: string;
   },
   messageInfo: Message[]
 }
 export type Message = {
-  senderId: string,
-  senderUsername: string,
-  conversationId: string,
+  id: string;
+  senderId: string | null;
+  senderUsername: string;
   content: {
-    type: "text" | "emoji" | "sticker" | "gif"
-    text?: string,       
-    emoji?: string,      
-    gifUrl?: string,     
-    stickerUrl?: string
-  },
+    type: "text" | "emoji" | "gif" | "sticker";
+    text?: string;
+    emoji?: string;
+    gifUrl?: string;
+    stickerUrl?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }
 
 export type Conversations = {
-  conversationId: string,
-  type: string,
-  lastMessagePreview: string,
-  lastMessageAt: string,
+  conversationId: string;
+  type: string;
+  lastMessagePreview: string;
+  lastMessageAt: string;
   participant: {
     id: string,
     username: string,
@@ -38,7 +38,7 @@ export type Conversations = {
 }
 
 export type SelectedUser = {
-  conversationId: string,
+  conversationId: string;
   id: string
 }
 
