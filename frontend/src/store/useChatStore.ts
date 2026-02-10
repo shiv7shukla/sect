@@ -13,6 +13,7 @@ export type getMessageAPIResponse = {
 }
 export type Message = {
   senderId: string,
+  senderUsername: string,
   conversationId: string,
   content: {
     type: "text" | "emoji" | "sticker" | "gif"
@@ -21,8 +22,8 @@ export type Message = {
     gifUrl?: string,     
     stickerUrl?: string
   },
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type Conversations = {

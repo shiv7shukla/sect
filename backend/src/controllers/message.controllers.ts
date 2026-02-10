@@ -12,7 +12,7 @@ export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
   if (!id) return res.status(400).json({"message": "conversationId is required"});
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid conversationId"});
 
-  const conversationObjectId = new mongoose.Types.ObjectId(id);
+  const conversationObjectId = mongoose.Types.ObjectId.createFromHexString(id);
   const conversation = await Conversation.findOne({
     _id:conversationObjectId,
     participants:myId,
@@ -78,6 +78,6 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
   const receiverId=conversation.participants.filter(p=>p.toString()!==senderId.toString());
   const message=await Message.create({senderId, conversationId:conversationObjectId, content});
   if (!message) return res.status(500).json({"message": "unable to create new message"});
-  return res.status(201).json({message});
+  return res.status(201).json({createdMessage: message});
   //add real-time feature later on
 });
