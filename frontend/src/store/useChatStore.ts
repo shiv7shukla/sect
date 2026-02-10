@@ -10,7 +10,7 @@ export type Message = {
     lastMessageAt: string,  
   },
 
-  messageInfo: {
+  messageInfo: [{
     id: string,
     senderId: string,
     senderusername: string,
@@ -22,7 +22,7 @@ export type Message = {
       stickerUrl?: string
     },
     createdAt: string
-  }
+  }]
 }
 
 export type Conversations = {
