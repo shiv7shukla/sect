@@ -47,12 +47,12 @@ export type ChatStore = {
   conversations: Conversations [];
 
   isMessagesLoading: boolean;
-  isUsersLoading: boolean;
+  isConversationsLoading: boolean;
 
   selectedUser: SelectedUser | null;
   error: string | null;
 
-  getUsers: () => Promise<void>;
+  getConversations: () => Promise<void>;
   getMessages: () => Promise<void>;
   clearError : () => void;
 }
@@ -65,18 +65,18 @@ export const chatStore = create<ChatStore>((set, get) => ({
   error: null,
 
   isMessagesLoading: false,
-  isUsersLoading: false,
+  isConversationsLoading: true,
 
-  getUsers: async () => {
-    set({ isUsersLoading: true });
+  getConversations: async () => {
+    set({ isConversationsLoading: true });
     try{
       const { data: { chatInfo }} = await axiosInstance.get("/conversations");
-      set({ conversations:  chatInfo, isUsersLoading: false });
+      set({ conversations:  chatInfo, isConversationsLoading: false });
     }
     catch (err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
-      set ({ error: message, isUsersLoading: false});
+      set ({ error: message, isConversationsLoading: false});
     }
   },
 
