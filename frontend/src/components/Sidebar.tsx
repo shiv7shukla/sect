@@ -30,7 +30,7 @@ const Sidebar = () => {
     }
   }
 
-  // useEffect(() => { getConversations() }, [getConversations])
+  useEffect(() => { getConversations() }, [getConversations])
 
   return (
     <>

@@ -65,7 +65,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
   error: null,
 
   isMessagesLoading: false,
-  isConversationsLoading: true,
+  isConversationsLoading: false,
 
   getConversations: async () => {
     set({ isConversationsLoading: true });
