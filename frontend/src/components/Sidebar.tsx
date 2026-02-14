@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow'
 import { chatStore } from '../store/useChatStore'
 import { Skeleton } from './ui/skeleton'
 import AvatarSkeleton from './AvatarSkeleton'
+import ConversationList from './ConversationList'
 
 const Sidebar = () => {
   const onlineUsers = []
@@ -71,7 +72,8 @@ const Sidebar = () => {
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className='h-96'>
-          {isConversationsLoading && Array.from({length: 6}).map((_, i) => ( <AvatarSkeleton key={i} /> ))}
+          {/* {isConversationsLoading ? (Array.from({length: 6}).map((_, i) => ( <AvatarSkeleton key={i} /> ))) : (conversations.map((_, i) => <ConversationList />))} */}
+          <ConversationList />
         </div>
         <hr className="-mx-4 mt-4 border-t border-zinc-800 my-4" />
           <button className='h-[5vh] w-full bg-[#171A21] flex gap-2 justify-center items-center border-2 border-zinc-800 focus:outline-none hover:border-emerald-400 transition-colors rounded-xl'>
