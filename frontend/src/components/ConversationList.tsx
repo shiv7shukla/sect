@@ -1,14 +1,16 @@
 import { User } from 'lucide-react'
 import React from 'react'
+import { chatStore } from '../store/useChatStore';
 
 type ConversationListProps = {
   username: string;
   lastMessagePreview?: string;
   lastMessageAt?: string;
-  selectedUser: string | null;
 }
 
-const ConversationList = ({username, lastMessagePreview, lastMessageAt, selectedUser}: ConversationListProps) => {
+const ConversationList = ({username, lastMessagePreview, lastMessageAt}: ConversationListProps) => {
+  const {selectedUser} = chatStore((state) => state.selectedUser)
+
   return (
     <>
       <div className={`h-16 w-full flex items-center justify-evenly gap-2 rounded-xl mb-2 bg-transparent transition-colors duration-200 hover:bg-[#171A21] px-2 hover:cursor-pointer ${selectedUser !== null ? "border-l-2 border-l-emerald-400" : "border-l-transparent"}`}>

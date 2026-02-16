@@ -14,10 +14,11 @@ const Sidebar = () => {
     logout: state.logout,
     authUser: state.authUser,
   })))
-  const { conversations, getConversations, selectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
+  const { conversations, getConversations, selectedUser, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
     conversations: state.conversations,
     getConversations: state.getConversations,
     selectedUser: state.selectedUser,
+    setSelected: state.setSelectedUser,
     isConversationsLoading: state.isConversationsLoading,
   })))
   const handleCopy = async () => {
@@ -71,16 +72,21 @@ const Sidebar = () => {
           />
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
-        <div className='h-96'>
+        <div className='h-96 overflow-y-auto'>
           {isConversationsLoading ? 
             (Array.from({length: 6})
               .map((_, i) => 
                 (<AvatarSkeleton key={i} />))) : 
-                (conversations.map((_, i) => <ConversationList key = {conversations[i].conversationId} 
-                  selectedUser 
-                  lastMessagePreview = {conversations[i].lastMessagePreview} 
-                  lastMessageAt = {conversations[i].lastMessageAt} 
-                  username = {conversations[i].participant.username} 
+                (conversations.map((c) => <ConversationList
+                  onClick = {() => setSelectedUser({
+                    conversationId: c.conversationId, 
+                    id: c.participant.id, 
+                    username: c.participant.username
+                  })}
+                  key = {c.conversationId} 
+                  lastMessagePreview = {c.lastMessagePreview} 
+                  lastMessageAt = {c.lastMessageAt} 
+                  username = {c.participant.username} 
                 />))}
           <ConversationList />
         </div>
