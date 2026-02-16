@@ -9,7 +9,7 @@ type ConversationListProps = {
 }
 
 const ConversationList = ({username, lastMessagePreview, lastMessageAt}: ConversationListProps) => {
-  const {selectedUser} = chatStore((state) => state.selectedUser)
+  const {selectedUser} = chatStore((state) => ({selectedUser: state.selectedUser}))
 
   return (
     <>
