@@ -72,7 +72,16 @@ const Sidebar = () => {
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className='h-96'>
-          {/* {isConversationsLoading ? (Array.from({length: 6}).map((_, i) => ( <AvatarSkeleton key={i} /> ))) : (conversations.map((_, i) => <ConversationList />))} */}
+          {isConversationsLoading ? 
+            (Array.from({length: 6})
+              .map((_, i) => 
+                (<AvatarSkeleton key={i} />))) : 
+                (conversations.map((_, i) => <ConversationList key = {conversations[i].conversationId} 
+                  selectedUser 
+                  lastMessagePreview = {conversations[i].lastMessagePreview} 
+                  lastMessageAt = {conversations[i].lastMessageAt} 
+                  username = {conversations[i].participant.username} 
+                />))}
           <ConversationList />
         </div>
         <hr className="-mx-4 mt-4 border-t border-zinc-800 my-4" />

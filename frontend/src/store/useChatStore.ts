@@ -11,6 +11,7 @@ export type getMessageAPIResponse = {
   },
   messageInfo: Message[]
 }
+
 export type Message = {
   id: string;
   senderId: string | null;
