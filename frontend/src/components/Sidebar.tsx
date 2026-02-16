@@ -1,16 +1,26 @@
 import { Check, Copy, LogOut, Plus, Search, Shield } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { authStore } from '../store/useAuthStore'
 import { useShallow } from 'zustand/shallow'
+import { chatStore } from '../store/useChatStore'
+import { Skeleton } from './ui/skeleton'
+import AvatarSkeleton from './AvatarSkeleton'
+import ConversationList from './ConversationList'
 
 const Sidebar = () => {
-  const {logout, authUser} = authStore(useShallow((state) => ({
+  const onlineUsers = []
+  const [isCopied, setIsCopied] = useState(false)
+  const { logout, authUser } = authStore(useShallow((state) => ({
     logout: state.logout,
     authUser: state.authUser,
   })))
-
-  const [isCopied, setIsCopied] = useState(false)
-
+  const { conversations, getConversations, selectedUser, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
+    conversations: state.conversations,
+    getConversations: state.getConversations,
+    selectedUser: state.selectedUser,
+    setSelected: state.setSelectedUser,
+    isConversationsLoading: state.isConversationsLoading,
+  })))
   const handleCopy = async () => {
     if (!authUser?._id) return
     try {
@@ -21,6 +31,8 @@ const Sidebar = () => {
       console.error('Failed to copy UUID', err)
     }
   }
+
+  useEffect(() => { getConversations() }, [getConversations])
 
   return (
     <>
@@ -60,7 +72,24 @@ const Sidebar = () => {
           />
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
-        <div className='h-96'></div>
+        <div className='h-96 overflow-y-auto'>
+          {isConversationsLoading ? 
+            (Array.from({length: 6})
+              .map((_, i) => 
+                (<AvatarSkeleton key={i} />))) : 
+                (conversations.map((c) => <ConversationList
+                  onClick = {() => setSelectedUser({
+                    conversationId: c.conversationId, 
+                    id: c.participant.id, 
+                    username: c.participant.username
+                  })}
+                  key = {c.conversationId} 
+                  lastMessagePreview = {c.lastMessagePreview} 
+                  lastMessageAt = {c.lastMessageAt} 
+                  username = {c.participant.username} 
+                />))}
+          <ConversationList />
+        </div>
         <hr className="-mx-4 mt-4 border-t border-zinc-800 my-4" />
           <button className='h-[5vh] w-full bg-[#171A21] flex gap-2 justify-center items-center border-2 border-zinc-800 focus:outline-none hover:border-emerald-400 transition-colors rounded-xl'>
             <Plus className='text-white size-4' />
