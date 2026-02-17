@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { authStore } from '../store/useAuthStore'
 import { useShallow } from 'zustand/shallow'
 import { chatStore } from '../store/useChatStore'
-import { Skeleton } from './ui/skeleton'
 import AvatarSkeleton from './AvatarSkeleton'
 import ConversationList from './ConversationList'
 
@@ -14,11 +13,10 @@ const Sidebar = () => {
     logout: state.logout,
     authUser: state.authUser,
   })))
-  const { conversations, getConversations, selectedUser, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
+  const { conversations, getConversations, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
     conversations: state.conversations,
     getConversations: state.getConversations,
-    selectedUser: state.selectedUser,
-    setSelected: state.setSelectedUser,
+    setSelectedUser: state.setSelectedUser,
     isConversationsLoading: state.isConversationsLoading,
   })))
   const handleCopy = async () => {
@@ -36,7 +34,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className='h-screen w-[22vw] bg-[#111318] p-4'>
+      <div className='h-screen w-[22vw] bg-[#111318] p-4 border-r-2 border-r-zinc-800'>
         <div className='flex justify-between items-start'>
           <div className='flex gap-4 mt-2 mb-6'>
             <div className='h-9 w-9 bg-[#112625] border-solid border-2 border-emerald-800 corner-squircle rounded-full flex items-center justify-center'>
@@ -73,22 +71,23 @@ const Sidebar = () => {
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className='h-96 overflow-y-auto'>
-          {isConversationsLoading ? 
+          {/* {isConversationsLoading ? 
             (Array.from({length: 6})
               .map((_, i) => 
-                (<AvatarSkeleton key={i} />))) : 
-                (conversations.map((c) => <ConversationList
-                  onClick = {() => setSelectedUser({
-                    conversationId: c.conversationId, 
-                    id: c.participant.id, 
-                    username: c.participant.username
-                  })}
-                  key = {c.conversationId} 
-                  lastMessagePreview = {c.lastMessagePreview} 
-                  lastMessageAt = {c.lastMessageAt} 
-                  username = {c.participant.username} 
-                />))}
-          <ConversationList />
+                (<AvatarSkeleton key = {i} />))) : 
+                (conversations.map((c) => 
+                  <ConversationList
+                    onClick = {() => setSelectedUser({
+                      conversationId: c.conversationId, 
+                      id: c.participant.id, 
+                      username: c.participant.username
+                    })}
+                    key = {c.conversationId} 
+                    lastMessagePreview = {c.lastMessagePreview} 
+                    lastMessageAt = {c.lastMessageAt} 
+                    username = {c.participant.username} 
+                  />))} */}
+          {/* <ConversationList  /> */}
         </div>
         <hr className="-mx-4 mt-4 border-t border-zinc-800 my-4" />
           <button className='h-[5vh] w-full bg-[#171A21] flex gap-2 justify-center items-center border-2 border-zinc-800 focus:outline-none hover:border-emerald-400 transition-colors rounded-xl'>
