@@ -1,6 +1,7 @@
 import axios from "axios";
 import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
+// import { toast } from "sonner";
 
 export type getMessageAPIResponse = {
   conversationInfo: {
@@ -55,8 +56,9 @@ export type ChatStore = {
   error: string | null;
 
   getConversations: () => Promise<void>;
-  getMessages: () => Promise<void>;
+  getMessages: (selecteduser: SelectedUser) => Promise<void>;
   setSelectedUser: (selectedUser: SelectedUser) => void;
+  sendMessage: (text: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -80,19 +82,34 @@ export const chatStore = create<ChatStore>((set, get) => ({
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isConversationsLoading: false});
+      // toast.error(message)
     }
   },
 
-  getMessages: async () => {
+  getMessages: async (selectedUser: SelectedUser) => {
     set({ isMessagesLoading: true });
     try{
-      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${get().selectedUser?.conversationId}`);
+      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?.conversationId}`);
       set({ messages: data.messageInfo, isMessagesLoading: false})
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isMessagesLoading: false});
+      // toast.error(message)
+    }
+  },
+
+  sendMessage: async (text: string) => {
+    try{
+      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, text);
+      set(state => ({messages: [...state.messages, res.data]}))
+    }
+    catch(err){
+      const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
+      console.log(err)
+      set({error: message});
+      // toast.error(message)
     }
   },
 
