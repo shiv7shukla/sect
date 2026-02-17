@@ -75,8 +75,11 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
     .lean();
 
   if (!conversation) return res.status(403).json({"message": "unauthorized"});
-  const receiverId = conversation.participants.filter(p=>p.toString() !== senderId.toString());
+  const receiverId = conversation.participants.filter(p => p.toString() !== senderId.toString());
   const message = await Message.create({senderId, conversationId: conversationObjectId, content});
+  const preview = content.type === "text" ? content.text : `[${content.type}]`;
+  await Conversation.updateOne({ _id: conversationObjectId }, { lastMessageAt: message.createdAt, lastMessagePreview: preview }
+  );
   if (!message) return res.status(500).json({"message": "unable to create new message"});
   return res.status(201).json({createdMessage: message});
   //add real-time feature later on

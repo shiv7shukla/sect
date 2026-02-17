@@ -58,7 +58,7 @@ export type ChatStore = {
   getConversations: () => Promise<void>;
   getMessages: (selecteduser: SelectedUser) => Promise<void>;
   setSelectedUser: (selectedUser: SelectedUser) => void;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (text: string, type: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -100,9 +100,9 @@ export const chatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  sendMessage: async (text: string) => {
+  sendMessage: async (text: string, type: string) => {
     try{
-      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, text);
+      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, { content: { type: "text", text } });
       set(state => ({messages: [...state.messages, res.data]}))
     }
     catch(err){

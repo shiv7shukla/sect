@@ -29,7 +29,7 @@ const messageSchema=new mongoose.Schema<IM>({
       ref: "Conversation",
       required: true,
   },
-    // typ+payload pattern where one field tells the type and the other stores the actual data
+    // type+payload pattern where one field tells the type and the other stores the actual data
   content: {
       type: {
         type: String,
