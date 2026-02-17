@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Conversation } from "../models/conversationModel.js";
 import { Message } from "../models/messageModel.js";
+import { User } from "../models/userModel.js";
 
 export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const { id } = req.params; // conversationId
@@ -54,10 +55,13 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   const senderId = req.user?._id;
   const {content} = req.body;
   const validTypes = ["text", "emoji", "gif", "sticker"];
+  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
   if (!mongoose.isValidObjectId(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
+  const receiverExists = await User.exists({ _id: receiverObjectId });
+  if (!receiverExists) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
   if (!content.type || !validTypes.includes(content.type)) return res.status(400).json({"message": "content.type must be one of: text, emoji, gif, sticker"});
   if (content.type === "text" && (!content.text || content.text.trim().length === 0)) return res.status(400).json({"message": "text content cannot be empty"});
@@ -65,24 +69,18 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (content.type === "gif" && !content.gifUrl) return res.status(400).json({"message": "gifUrl is required"});
   if (content.type === "sticker" && !content.stickerUrl) return res.status(400).json({"message": "stickerUrl is required"});
 
-  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   // Prevent sending messages to yourself
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   let conversation = await Conversation
-    .findOne({ type: "direct", participants:{$all: [senderId, receiverObjectId]}, })
-    .select("_id participants")
+    .findOneAndUpdate({ type: "direct", participants: {$all: [senderId, receiverObjectId]}},{ $setOnInsert: { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: ""}}, {upsert: true, new: true, select: "_id participants"})
     .lean();
-  if (!conversation) {
-    // Create new conversation for first-time chat
-    conversation = await Conversation
-    .create({ participants: [senderId, receiverObjectId], type: "direct", lastMessageAt: new Date(), lastMessagePreview: "" });
-  }
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
     if (!message) return res.status(500).json({"message": "unable to create new message"});
 
-  const preview = content.type === "text" ? content.text : `[${content.type}]`;
+  let preview = content.type === "text" ? content.text : `[${content.type}]`;
+  preview = preview.length > 150 ? preview.slice(0, 150) + "...": preview;
   await Conversation
     .updateOne({ _id: conversation._id }, { lastMessageAt: message.createdAt, lastMessagePreview: preview }
   );

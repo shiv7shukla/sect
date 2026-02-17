@@ -11,23 +11,23 @@ export interface IC{
 }
 
 const conversationSchema=new mongoose.Schema<IC>({
-  participants:[{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User",
-    required:true
+  participants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
   }],
-  type:{
-    type:String,
-    enum:["direct", "group"],
-    default:"direct"
+  type: {
+    type: String,
+    enum: ["direct", "group"],
+    default: "direct"
   },
-  lastMessageAt:{
-      type:Date,
-      default:()=>new Date()
+  lastMessageAt: {
+      type: Date,
+      default: () => new Date()
     },
-  lastMessagePreview:{
-      type:String,
+  lastMessagePreview: {
+      type: String,
     },
-},{timestamps:true});
+},{timestamps: true});
 
-export const Conversation=mongoose.models.Conversation as mongoose.Model<IC>||mongoose.model<IC>("Conversation", conversationSchema);
+export const Conversation = mongoose.models.Conversation as mongoose.Model<IC>||mongoose.model<IC>("Conversation", conversationSchema);
