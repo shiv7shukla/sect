@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Conversation } from "../models/conversationModel.js";
 import { Message } from "../models/messageModel.js";
 
-export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
+export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const { id } = req.params; // conversationId
   const myId = req.user?._id;
 
@@ -49,15 +49,15 @@ export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
   });
 });
 
-export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
-  const {id} = req.params;
+export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
+  const {id: receiverId} = req.params;
   const senderId = req.user?._id;
   const {content} = req.body;
   const validTypes = ["text", "emoji", "gif", "sticker"];
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
-  if (!id) return res.status(400).json({"message": "conversationId is required"});
-  if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message":  "invalid conversationId"});
+  if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
+  if (!mongoose.isValidObjectId(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
   if (!content.type || !validTypes.includes(content.type)) return res.status(400).json({"message": "content.type must be one of: text, emoji, gif, sticker"});
   if (content.type === "text" && (!content.text || content.text.trim().length === 0)) return res.status(400).json({"message": "text content cannot be empty"});
@@ -65,22 +65,27 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
   if (content.type === "gif" && !content.gifUrl) return res.status(400).json({"message": "gifUrl is required"});
   if (content.type === "sticker" && !content.stickerUrl) return res.status(400).json({"message": "stickerUrl is required"});
 
-  const conversationObjectId = new mongoose.Types.ObjectId(id);
-  const conversation = await Conversation.findOne({
-
-    _id:conversationObjectId,
-    participants:senderId,
-  })
+  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+  // Prevent sending messages to yourself
+  if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
+  let conversation = await Conversation
+    .findOne({ type: "direct", participants:{$all: [senderId, receiverObjectId]}, })
     .select("_id participants")
     .lean();
+  if (!conversation) {
+    // Create new conversation for first-time chat
+    conversation = await Conversation
+    .create({ participants: [senderId, receiverObjectId], type: "direct", lastMessageAt: new Date(), lastMessagePreview: "" });
+  }
 
-  if (!conversation) return res.status(403).json({"message": "unauthorized"});
-  const receiverId = conversation.participants.filter(p => p.toString() !== senderId.toString());
-  const message = await Message.create({senderId, conversationId: conversationObjectId, content});
+  const message = await Message
+    .create({ senderId, conversationId: conversation._id, content });
+    if (!message) return res.status(500).json({"message": "unable to create new message"});
+
   const preview = content.type === "text" ? content.text : `[${content.type}]`;
-  await Conversation.updateOne({ _id: conversationObjectId }, { lastMessageAt: message.createdAt, lastMessagePreview: preview }
+  await Conversation
+    .updateOne({ _id: conversation._id }, { lastMessageAt: message.createdAt, lastMessagePreview: preview }
   );
-  if (!message) return res.status(500).json({"message": "unable to create new message"});
   return res.status(201).json({createdMessage: message});
   //add real-time feature later on
 });
