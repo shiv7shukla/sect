@@ -50,9 +50,9 @@ export const getMessages = asyncHandler(async(req: Request, res: Response)=>{
 });
 
 export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
-  const {id}=req.params;
-  const senderId=req.user?._id;
-  const {content}=req.body;
+  const {id} = req.params;
+  const senderId = req.user?._id;
+  const {content} = req.body;
   const validTypes = ["text", "emoji", "gif", "sticker"];
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
@@ -66,7 +66,7 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
   if (content.type === "sticker" && !content.stickerUrl) return res.status(400).json({"message": "stickerUrl is required"});
 
   const conversationObjectId = new mongoose.Types.ObjectId(id);
-  const conversation=await Conversation.findOne({
+  const conversation = await Conversation.findOne({
 
     _id:conversationObjectId,
     participants:senderId,
@@ -75,8 +75,8 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response)=>{
     .lean();
 
   if (!conversation) return res.status(403).json({"message": "unauthorized"});
-  const receiverId=conversation.participants.filter(p=>p.toString()!==senderId.toString());
-  const message=await Message.create({senderId, conversationId:conversationObjectId, content});
+  const receiverId = conversation.participants.filter(p=>p.toString() !== senderId.toString());
+  const message = await Message.create({senderId, conversationId: conversationObjectId, content});
   if (!message) return res.status(500).json({"message": "unable to create new message"});
   return res.status(201).json({createdMessage: message});
   //add real-time feature later on

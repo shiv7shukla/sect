@@ -9,7 +9,7 @@ type ConversationListProps = {
   onClick: () => void;
 }
 
-const ConversationList = ({username, lastMessagePreview, lastMessageAt}: ConversationListProps) => {
+const ConversationList = ({username, lastMessagePreview, lastMessageAt, onClick}: ConversationListProps) => {
   const {selectedUser} = chatStore((state) => ({selectedUser: state.selectedUser}))
 
   return (
