@@ -55,13 +55,12 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   const senderId = req.user?._id;
   const {content} = req.body;
   const validTypes = ["text", "emoji", "gif", "sticker"];
-  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
   if (!mongoose.isValidObjectId(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
-  const receiverExists = await User.exists({ _id: receiverObjectId });
-  if (!receiverExists) return res.status(404).json({"message": "receiver not found"});
+  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+  if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
   if (!content.type || !validTypes.includes(content.type)) return res.status(400).json({"message": "content.type must be one of: text, emoji, gif, sticker"});
   if (content.type === "text" && (!content.text || content.text.trim().length === 0)) return res.status(400).json({"message": "text content cannot be empty"});
@@ -72,12 +71,16 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   // Prevent sending messages to yourself
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   let conversation = await Conversation
-    .findOneAndUpdate({ type: "direct", participants: {$all: [senderId, receiverObjectId]}},{ $setOnInsert: { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: ""}}, {upsert: true, new: true, select: "_id participants"})
+    .findOneAndUpdate(
+      { type: "direct", participants: {$all: [senderId, receiverObjectId]}},
+      { $setOnInsert: 
+        { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: ""}},
+      {upsert: true, new: true, select: "_id participants"})
     .lean();
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
-    if (!message) return res.status(500).json({"message": "unable to create new message"});
+  if (!message) return res.status(500).json({"message": "unable to create new message"});
 
   let preview = content.type === "text" ? content.text : `[${content.type}]`;
   preview = preview.length > 150 ? preview.slice(0, 150) + "...": preview;
