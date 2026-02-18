@@ -66,7 +66,7 @@ const Sidebar = () => {
           <input
             type="text"
             placeholder="Search contacts..."
-            className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-12 pr-4 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
+            className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
           />
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
