@@ -3,10 +3,10 @@ import type { IUser } from "./userModel.js";
 import type { IC } from "./conversationModel.js";
 
 export interface IM{
-  _id:mongoose.Types.ObjectId;
-  senderId:mongoose.Types.ObjectId | IUser;
-  conversationId:mongoose.Types.ObjectId | IC;
-  content:{
+  _id: mongoose.Types.ObjectId;
+  senderId: mongoose.Types.ObjectId | IUser;
+  conversationId: mongoose.Types.ObjectId | IC;
+  content: {
     type: "text" | "emoji" | "gif" | "sticker";
     text?: string;
     emoji?: string;
@@ -17,7 +17,7 @@ export interface IM{
   updatedAt?: Date;
 }
 
-const messageSchema=new mongoose.Schema<IM>({
+const messageSchema = new mongoose.Schema<IM>({
   senderId:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
@@ -41,6 +41,6 @@ const messageSchema=new mongoose.Schema<IM>({
       gifUrl: String,     
       stickerUrl: String 
   },
-},{timestamps:true});
+},{timestamps: true});
 
-export const Message=mongoose.models.Message as mongoose.Model<IM>||mongoose.model<IM>("Message", messageSchema);
+export const Message = mongoose.models.Message as mongoose.Model<IM> || mongoose.model<IM>("Message", messageSchema);

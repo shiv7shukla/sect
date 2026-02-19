@@ -72,10 +72,10 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   let conversation = await Conversation
     .findOneAndUpdate(
-      { type: "direct", participants: {$all: [senderId, receiverObjectId]}},
+      { type: content.type, participants: {$all: [senderId, receiverObjectId]} },
       { $setOnInsert: 
-        { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: ""}},
-      {upsert: true, new: true, select: "_id participants"})
+        { type: content.type, participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: "" } },
+      { upsert: true, new: true, select: "_id participants"})
     .lean();
 
   const message = await Message
