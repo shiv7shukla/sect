@@ -24,8 +24,7 @@ export type Message = {
     gifUrl?: string;
     stickerUrl?: string;
   };
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
 }
 
 export type Conversations = {
@@ -102,13 +101,13 @@ export const chatStore = create<ChatStore>((set, get) => ({
 
   sendMessage: async (text: string, type: string) => {
     try{
-      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, { content: { type: "text", text } });
+      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, { content: { type: type, text } });
       set(state => ({messages: [...state.messages, res.data]}))
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err)
-      set({error: message});
+      set({ error: message });
       // toast.error(message)
     }
   },

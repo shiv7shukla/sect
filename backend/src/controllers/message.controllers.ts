@@ -72,21 +72,31 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   let conversation = await Conversation
     .findOneAndUpdate(
-      { type: "direct", participants: {$all: [senderId, receiverObjectId]}},
+      { type: "direct", participants: {$all: [senderId, receiverObjectId]} },
       { $setOnInsert: 
-        { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: ""}},
-      {upsert: true, new: true, select: "_id participants"})
+        { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: "" } },
+      { upsert: true, new: true, select: "_id participants"})
     .lean();
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
-  if (!message) return res.status(500).json({"message": "unable to create new message"});
+  const populatedMessage = await Message.findById(message._id)
+    .populate("senderId", "_id username")
+    .lean();
+  if (!populatedMessage) return res.status(500).json({"message": "unable to create new message"});
+  const sender = populatedMessage.senderId as { _id: mongoose.Types.ObjectId; username: string } | null;
 
   let preview = content.type === "text" ? content.text : `[${content.type}]`;
   preview = preview.length > 150 ? preview.slice(0, 150) + "...": preview;
   await Conversation
     .updateOne({ _id: conversation._id }, { lastMessageAt: message.createdAt, lastMessagePreview: preview }
   );
-  return res.status(201).json({createdMessage: message});
+  return res.status(201).json({
+    id: populatedMessage._id.toString(),
+    senderId: sender?._id?.toString() ?? null,
+    senderUsername: sender?.username ?? "Deleted User",
+    content: populatedMessage.content,
+    createdAt: populatedMessage.createdAt?.toString(),
+  });
   //add real-time feature later on
 });
