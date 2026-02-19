@@ -24,8 +24,7 @@ export type Message = {
     gifUrl?: string;
     stickerUrl?: string;
   };
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
 }
 
 export type Conversations = {
