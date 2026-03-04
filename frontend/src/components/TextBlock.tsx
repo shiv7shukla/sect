@@ -3,7 +3,6 @@ import { useShallow } from 'zustand/shallow'
 import { authStore } from '../store/useAuthStore'
 
 type TextBlockProps = {
-  key: string,
   text: string,
   createdAt: string,
   senderUsername: string,
@@ -17,8 +16,8 @@ const TextBlock = ({text, createdAt, senderUsername}: TextBlockProps) => {
   return (
     <>
       <div className={`h-16 w-fit flex flex-col justify-between gap-2 px-3 py-2  ${senderUsername === authUser?.username? "bg-emerald-400": "bg-[#1E2229]"}  rounded-xl`}>
-        <p className={`text-md ${senderUsername === authUser?.username? "text-white": "text-black"}`}>{text}</p>
-        <p className='text-xs text-gray-400'>{createdAt}</p>
+        <p className={`text-md ${senderUsername !== authUser?.username? "text-white": "text-black"}`}>{text}</p>
+        <time className='text-xs text-gray-400'>{createdAt}</time>
       </div>
     </>
   )

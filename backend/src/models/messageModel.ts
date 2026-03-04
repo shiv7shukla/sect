@@ -7,7 +7,7 @@ export interface IM{
   senderId: mongoose.Types.ObjectId | IUser;
   conversationId: mongoose.Types.ObjectId | IC;
   content: {
-    text?: string;
+    text: string;
   };
   createdAt?: Date;
   updatedAt?: Date;
@@ -27,16 +27,9 @@ const messageSchema = new mongoose.Schema<IM>({
   },
     // type+payload pattern where one field tells the type and the other stores the actual data
   content: {
-      type: {
-        type: String,
-        enum: ["text", "emoji", "gif", "sticker"],
-        required: true,
-      },
-      text: String,       
-      emoji: String,      
-      gifUrl: String,     
-      stickerUrl: String 
+      text: String,
+      required: true       
   },
-},{timestamps: true});
+}, {timestamps: true});
 
 export const Message = mongoose.models.Message as mongoose.Model<IM> || mongoose.model<IM>("Message", messageSchema);
