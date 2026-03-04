@@ -1,9 +1,15 @@
-import { Lock } from 'lucide-react'
 import React from 'react'
+import { Lock } from 'lucide-react'
 import TextArea from './TextArea'
 import TextBlock from './TextBlock'
+import { chatStore, type Message } from '../store/useChatStore'
+import { useShallow } from 'zustand/shallow'
 
 const MessageArea = () => {
+  const { messages } = chatStore(useShallow((state) => ({
+    messages: state.messages,
+  })))
+
   return (
     <div className='h-[90%] w-full flex flex-col justify-between border-t-2 border-t-zinc-800 bg-[#0C0E12]'>
       <div className='flex justify-center '>
@@ -14,7 +20,15 @@ const MessageArea = () => {
       </div>
       <div>
         <div className='flex flex-col gap-2 p-4'>
-          <TextBlock />
+          {messages.map((message: Message) => {
+            return(
+              <TextBlock 
+                key={message.id} 
+                senderUsername={message.senderUsername} 
+                createdAt={message.createdAt} 
+                text={message.content.text} 
+              />
+            )})}
         </div>
         <TextArea />
       </div>

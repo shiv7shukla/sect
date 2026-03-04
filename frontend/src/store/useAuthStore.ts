@@ -102,7 +102,7 @@ export const authStore=create<AuthStore>((set) => ({
         description: `Welcome back, ${data.username}!`,
       });
     } catch (err) {
-      const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
+      const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
       console.log(err);
       set({
         authUser: null,

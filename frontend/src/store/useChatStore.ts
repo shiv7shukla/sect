@@ -18,11 +18,7 @@ export type Message = {
   senderId: string | null;
   senderUsername: string;
   content: {
-    type: "text" | "emoji" | "gif" | "sticker";
-    text?: string;
-    emoji?: string;
-    gifUrl?: string;
-    stickerUrl?: string;
+    text: string;
   };
   createdAt: string;
 }
