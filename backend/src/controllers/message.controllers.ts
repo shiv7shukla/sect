@@ -61,12 +61,10 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
-  console.log(content);
 
   // Prevent sending messages to yourself
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   const participants = [senderId, receiverObjectId].sort();
-  console.log(participants)
   let conversation = await Conversation
     .findOneAndUpdate({ 
         type: "direct", 
@@ -75,10 +73,6 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
         $setOnInsert: {
           type: "direct", 
           participants, 
-        },
-        $set: {
-          lastMessageAt: new Date(), 
-          lastMessagePreview: content.text
         }}, { 
           upsert: true, 
           new: true, 
@@ -88,6 +82,13 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
+  await Conversation.updateOne({
+    _id: conversation._id
+  }, {
+    $set: {
+          lastMessageAt: new Date(), 
+          lastMessagePreview: content.text
+        }})
   const populatedMessage = await Message.findById(message._id)
     .populate("senderId", "_id username")
     .lean();
@@ -99,7 +100,7 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
     senderId: sender?._id?.toString() ?? null,
     senderUsername: sender?.username ?? "Deleted User",
     content: populatedMessage.content,
-    createdAt: populatedMessage.createdAt?.toString(),
+    createdAt: populatedMessage.createdAt,
   });
   //add real-time feature later on
 });
