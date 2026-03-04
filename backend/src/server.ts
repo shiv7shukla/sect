@@ -6,19 +6,19 @@ import { ENV } from "./config/env.js";
 import { connectDB } from "./lib/db.js";
 import mongoose from "mongoose";
 
-const __dirname=path.resolve();
+const __dirname = path.resolve();
 
-if(ENV.NODE_ENV==="PRODUCTION")
+if(ENV.NODE_ENV === "PRODUCTION")
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
-const startServer=async()=>{
+const startServer = async () => {
   try{
       await connectDB();
       console.log("Mongo connected to:", mongoose.connection.name);
-      app.listen(ENV.PORT,()=>{console.log("Backend running on port", ENV.PORT)});
+      app.listen(ENV.PORT, () => { console.log("Backend running on port", ENV.PORT) });
     }
-    catch(error){
-      console.error("Eror starting the server", error);
+  catch(error){
+      console.error("Error starting the server", error);
     }
   }
 startServer();

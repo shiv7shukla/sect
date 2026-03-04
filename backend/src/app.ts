@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { conversationRouter } from "./routes/conversation.routes.js";
 import { errorHandler } from "./utils/errorHandler.js";
 
-const app=express();
+const app = express();
 
 app.use(cors({ origin:"http://localhost:5173", credentials:true }));
 app.use(cookieParser());
