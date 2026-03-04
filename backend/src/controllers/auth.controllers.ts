@@ -6,7 +6,7 @@ import { generateToken } from "../utils/generateToken.js";
 import bcrypt from "bcryptjs";
 
 export const signinController = asyncHandler(async(req:Request, res:Response) => {
-  const {username, password}=req.body??{};
+  const { username, password } = req.body??{};
   if(!username || !password) return res.status(400).json({"message": "username and password are required"});
   const user=await User.findOne({username});
   if (!user) return res.status(401).json({"message": "Invalid credentials"});
@@ -17,9 +17,9 @@ export const signinController = asyncHandler(async(req:Request, res:Response) =>
 })
 
 export const signupController = asyncHandler(async(req:Request, res:Response) => {
-  const {email, username, password}=req.body??{};
+  const {email, username, password} = req.body??{};
   if(!email || !password || !username) return res.status(400).json({"message": "email, username and password are required"});
-  const user=await User.findOne({email});
+  const user = await User.findOne({email});
   if(user) return res.status(409).json({"message": "User already exists"});
   if(password.length<6) return res.status(400).json({"message": "password too small"});
   const salt=await bcrypt.genSalt(10);

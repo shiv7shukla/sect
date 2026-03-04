@@ -51,10 +51,9 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
 });
 
 export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
-  const {id: receiverId} = req.params;
+  const {receiverId} = req.params;
   const senderId = req.user?._id;
   const {content} = req.body;
-  const validTypes = ["text", "emoji", "gif", "sticker"];
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
@@ -62,19 +61,15 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
-  if (!content.type || !validTypes.includes(content.type)) return res.status(400).json({"message": "content.type must be one of: text, emoji, gif, sticker"});
-  if (content.type === "text" && (!content.text || content.text.trim().length === 0)) return res.status(400).json({"message": "text content cannot be empty"});
-  if (content.type === "emoji" && !content.emoji) return res.status(400).json({"message": "emoji content is required"});
-  if (content.type === "gif" && !content.gifUrl) return res.status(400).json({"message": "gifUrl is required"});
-  if (content.type === "sticker" && !content.stickerUrl) return res.status(400).json({"message": "stickerUrl is required"});
 
   // Prevent sending messages to yourself
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
+  const participants = [senderId, receiverObjectId].sort();
   let conversation = await Conversation
     .findOneAndUpdate(
-      { type: "direct", participants: {$all: [senderId, receiverObjectId]} },
+      { type: "direct", participants },
       { $setOnInsert: 
-        { type: "direct", participants:[senderId, receiverObjectId], lastMessageAt: new Date(), lastMessagePreview: "" } },
+        { type: "direct", participants, lastMessageAt: new Date(), lastMessagePreview: "" } },
       { upsert: true, new: true, select: "_id participants"})
     .lean();
 

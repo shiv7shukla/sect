@@ -7,4 +7,4 @@ export const conversationRouter = Router ();
 
 conversationRouter.get("/", protectRoute, getConversations);
 conversationRouter.get("/messages/:id", protectRoute, getMessages);
-conversationRouter.post("/send/:id", protectRoute, sendMessages)
+conversationRouter.post("/send/:receiverId", protectRoute, sendMessages)
