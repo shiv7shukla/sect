@@ -61,16 +61,29 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
+  console.log(content);
 
   // Prevent sending messages to yourself
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   const participants = [senderId, receiverObjectId].sort();
+  console.log(participants)
   let conversation = await Conversation
-    .findOneAndUpdate(
-      { type: "direct", participants },
-      { $setOnInsert: 
-        { type: "direct", participants, lastMessageAt: new Date(), lastMessagePreview: "" } },
-      { upsert: true, new: true, select: "_id participants"})
+    .findOneAndUpdate({ 
+        type: "direct", 
+        participants 
+      }, { 
+        $setOnInsert: {
+          type: "direct", 
+          participants, 
+        },
+        $set: {
+          lastMessageAt: new Date(), 
+          lastMessagePreview: content.text
+        }}, { 
+          upsert: true, 
+          new: true, 
+          select: "_id participants"
+        })
     .lean();
 
   const message = await Message
@@ -81,11 +94,6 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (!populatedMessage) return res.status(500).json({"message": "unable to create new message"});
   const sender = populatedMessage.senderId as { _id: mongoose.Types.ObjectId; username: string } | null;
 
-  let preview = content.type === "text" ? content.text : `[${content.type}]`;
-  preview = preview.length > 150 ? preview.slice(0, 150) + "...": preview;
-  await Conversation
-    .updateOne({ _id: conversation._id }, { lastMessageAt: message.createdAt, lastMessagePreview: preview }
-  );
   return res.status(201).json({
     id: populatedMessage._id.toString(),
     senderId: sender?._id?.toString() ?? null,
