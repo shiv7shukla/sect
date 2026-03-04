@@ -7,11 +7,7 @@ export interface IM{
   senderId: mongoose.Types.ObjectId | IUser;
   conversationId: mongoose.Types.ObjectId | IC;
   content: {
-    type: "text" | "emoji" | "gif" | "sticker";
     text?: string;
-    emoji?: string;
-    gifUrl?: string;
-    stickerUrl?: string;
   };
   createdAt?: Date;
   updatedAt?: Date;
