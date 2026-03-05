@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dns from "node:dns";
 
 // Fix for Windows Mobile Hotspot DNS SRV resolution issues
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 export const connectDB = async() => {
   try {
