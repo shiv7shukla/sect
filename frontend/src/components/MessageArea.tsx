@@ -4,6 +4,7 @@ import TextArea from './TextArea'
 import TextBlock from './TextBlock'
 import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
+import { formatMessageTime } from '../lib/utils'
 
 const MessageArea = () => {
   const { messages } = chatStore(useShallow((state) => ({
@@ -25,7 +26,7 @@ const MessageArea = () => {
               <TextBlock 
                 key={message.id} 
                 senderUsername={message.senderUsername} 
-                createdAt={message.createdAt} 
+                createdAt={formatMessageTime(message.createdAt)} 
                 text={message.content.text} 
               />
             )})}
