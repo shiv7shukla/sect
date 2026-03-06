@@ -8,7 +8,7 @@ export type getMessageAPIResponse = {
     conversationId: string;
     type: string;
     lastMessagePreview: string;
-    lastMessageAt: Date;
+    lastMessageAt: string;
   },
   messageInfo: Message[]
 }
@@ -20,7 +20,7 @@ export type Message = {
   content: {
     text: string;
   };
-  createdAt: Date;
+  createdAt: string;
 }
 
 export type Conversations = {

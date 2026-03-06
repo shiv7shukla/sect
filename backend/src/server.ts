@@ -1,5 +1,5 @@
 import "dotenv/config";
-import app from "./app.js";
+import { app, server } from "./lib/socket.js";
 import path from "path";
 import express from "express";
 import { ENV } from "./config/env.js";
@@ -15,7 +15,7 @@ const startServer = async () => {
   try{
       await connectDB();
       console.log("Mongo connected to:", mongoose.connection.name);
-      app.listen(ENV.PORT, () => { console.log("Backend running on port", ENV.PORT) });
+      server.listen(ENV.PORT, () => { console.log("Backend running on port", ENV.PORT) });
     }
   catch(error){
       console.error("Error starting the server", error);
