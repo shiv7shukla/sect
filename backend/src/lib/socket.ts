@@ -17,10 +17,9 @@ const io = new Server(server, {
 
 export function getReceiverSocketId(userId: string){ return userSocketMap[userId]};
 
-interface Dictionary {
-  [key: string]: string;
-}
-const userSocketMap: Dictionary = {}; //{userId: socketId}
+type UserSocketMap = Partial<Record<string, string>>;
+
+const userSocketMap: UserSocketMap = {}; //{userId: socketId}
 
 io.use(async (socket, next) => {
   try{
