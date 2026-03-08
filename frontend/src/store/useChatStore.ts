@@ -1,6 +1,7 @@
 import axios from "axios";
 import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
+import { authStore } from "./useAuthStore";
 // import { toast } from "sonner";
 
 export type getMessageAPIResponse = {
@@ -54,6 +55,8 @@ export type ChatStore = {
   getMessages: (selecteduser: SelectedUser) => Promise<void>;
   setSelectedUser: (selectedUser: SelectedUser) => void;
   sendMessage: (text: string, type: string) => Promise<void>;
+  subscribeToMessages: () => void;
+  unSubscribeFromMessages: () => void;
   clearError: () => void;
 }
 
@@ -106,6 +109,23 @@ export const chatStore = create<ChatStore>((set, get) => ({
       set({ error: message });
       // toast.error(message)
     }
+  },
+
+  subscribeToMessages: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    const socket = authStore.getState().socket;
+    socket?.on("newMessage", (newMessage) => {
+      if (newMessage.senderId !== selectedUser.id) return;
+      
+      set({ messages: [...get().messages, newMessage]})
+    })
+  },
+
+  unSubscribeFromMessages: () => {
+    const socket = authStore.getState().socket;
+    socket?.off("newMessage");
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),

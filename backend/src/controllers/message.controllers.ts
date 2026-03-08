@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Conversation } from "../models/conversationModel.js";
 import { Message } from "../models/messageModel.js";
 import { User } from "../models/userModel.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 
 export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const { id } = req.params; // conversationId
@@ -51,9 +52,9 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
 });
 
 export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
-  const {receiverId} = req.params;
+  const { receiverId } = req.params;
   const senderId = req.user?._id;
-  const {content} = req.body;
+  const { content } = req.body;
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
@@ -82,25 +83,30 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
-  await Conversation.updateOne({
+  await Conversation
+  .updateOne({
     _id: conversation._id
   }, {
     $set: {
           lastMessageAt: new Date(), 
           lastMessagePreview: content.text
         }})
-  const populatedMessage = await Message.findById(message._id)
+  const populatedMessage = await Message
+    .findById(message._id)
     .populate("senderId", "_id username")
     .lean();
   if (!populatedMessage) return res.status(500).json({"message": "unable to create new message"});
   const sender = populatedMessage.senderId as { _id: mongoose.Types.ObjectId; username: string } | null;
-
-  return res.status(201).json({
+  const newMessage = {
     id: populatedMessage._id.toString(),
     senderId: sender?._id?.toString() ?? null,
     senderUsername: sender?.username ?? "Deleted User",
     content: populatedMessage.content,
     createdAt: populatedMessage.createdAt,
-  });
-  //add real-time feature later on
+  };
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) io.to(receiverSocketId).emit("newMessage", newMessage);
+
+  return res.status(201).json(newMessage);
 });

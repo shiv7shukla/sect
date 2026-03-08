@@ -4,10 +4,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { conversationRouter } from "./routes/conversation.routes.js";
 import { errorHandler } from "./utils/errorHandler.js";
+import { app } from "./lib/socket.js"
 
-const app = express();
-
-app.use(cors({ origin:"http://localhost:5173", credentials:true }));
+app.use(cors({ origin: process.env.NODE_ENV === "production"? true: "http://localhost:5173", credentials:true }));
 app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRouter);
