@@ -159,7 +159,8 @@ export const authStore = create<AuthStore>((set, get) => ({
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
     
-    const socket = io("http://localhost:3000/", {
+    const socketBaseUrl = axiosInstance.defaults.baseURL? new URL(axiosInstance.defaults.baseURL, window.location.origin).origin: window.location.origin;
+    const socket = io(socketBaseUrl, {
       query: { userId: authUser._id }
     });
 
@@ -172,6 +173,11 @@ export const authStore = create<AuthStore>((set, get) => ({
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket?.disconnect();
+    if (get().socket?.connected) {
+      const socket = get().socket;
+      socket?.off("getOnlineUsers");
+      socket?.disconnect();
+      set({ socket: null, onlineUsers: [] });
+    }
   }
 }));

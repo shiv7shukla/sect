@@ -6,9 +6,10 @@ type TextBlockProps = {
   text: string,
   createdAt: string,
   senderUsername: string,
+  ref?: React.Ref<HTMLDivElement>
 }
 
-const TextBlock = ({text, createdAt, senderUsername}: TextBlockProps, ) => {
+const TextBlock = ({text, createdAt, senderUsername, ref}: TextBlockProps, ) => {
   const { authUser } = authStore(useShallow((state) => ({
     authUser: state.authUser
   })))
