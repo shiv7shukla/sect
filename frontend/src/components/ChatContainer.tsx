@@ -20,10 +20,8 @@ const ChatContainer = ({children}: ChatContainerProps) => {
   })))
 
   useEffect(() => {
-    if (selectedUser){
-      getMessages(selectedUser);
-      subscribetoMessages();
-    }
+    if (selectedUser)
+      getMessages(selectedUser).then(() => subscribetoMessages() );
 
     return () => unsubscribeFromMessages();
   }, [selectedUser, getMessages, subscribetoMessages, unsubscribeFromMessages]);
