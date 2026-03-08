@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { app, server } from "./lib/socket.js";
+import { server } from "./lib/socket.js";
+import app from "./app.js"
 import path from "path";
 import express from "express";
 import { ENV } from "./config/env.js";
@@ -21,4 +22,5 @@ const startServer = async () => {
       console.error("Error starting the server", error);
     }
   }
+
 startServer();

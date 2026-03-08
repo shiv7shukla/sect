@@ -10,16 +10,23 @@ type ChatContainerProps = {
 
 const ChatContainer = ({children}: ChatContainerProps) => {
 
-  const {messages, isMessagesLoading, getMessages, selectedUser} = chatStore(useShallow((state) => ({
+  const {messages, isMessagesLoading, getMessages, selectedUser, subscribetoMessages, unsubscribeFromMessages} = chatStore(useShallow((state) => ({
     messages: state.messages,
     isMessagesLoading: state.isMessagesLoading,
     getMessages: state.getMessages,
-    selectedUser: state.selectedUser
+    selectedUser: state.selectedUser,
+    subscribetoMessages: state.subscribeToMessages,
+    unsubscribeFromMessages: state.unSubscribeFromMessages,
   })))
 
   useEffect(() => {
-    if (selectedUser) getMessages(selectedUser);
-  }, [selectedUser, getMessages])
+    if (selectedUser){
+      getMessages(selectedUser);
+      subscribetoMessages();
+    }
+
+    return () => unsubscribeFromMessages();
+  }, [selectedUser, getMessages, subscribetoMessages, unsubscribeFromMessages]);
 
   if (isMessagesLoading) return <MessageSkeleton />
 

@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
+import { io, Socket } from "socket.io-client";
 
 export type AuthMode = "signIn" | "signUp"
 
@@ -29,6 +30,9 @@ export type AuthStore = {
   status: AuthStatus;
   error: string | null;
   mode: AuthMode;
+  socket: Socket | null;
+
+  onlineUsers: string[];
 
   isSigningUp: boolean;
   isSigningIn: boolean;
@@ -38,16 +42,21 @@ export type AuthStore = {
   signup: (data:SignUpInput) => Promise<void>;
   signin: (data:SignInInput) => Promise<void>;
   logout: () => Promise<void>;
-
+  
+  connectSocket: () => void;
+  disconnectSocket: () => void;
   clearError: () => void;
   setMode: (mode:AuthMode) => void;
 };
 
-export const authStore=create<AuthStore>((set) => ({
+export const authStore = create<AuthStore>((set, get) => ({
   authUser: null,
   error: null,
+  socket: null,
   mode:"signIn",
   status: "unauthenticated",
+  
+  onlineUsers: [],
 
   isSigningUp: false,
   isSigningIn: false,
@@ -62,7 +71,9 @@ export const authStore=create<AuthStore>((set) => ({
     try{
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data, status: "authenticated" });
-    } catch {
+      get().connectSocket();
+    } 
+    catch {
       set({ authUser: null, status: "unauthenticated" });
     }
   },
@@ -77,8 +88,9 @@ export const authStore=create<AuthStore>((set) => ({
       toast.success("Account created successfully!", {
         description: `Welcome, ${data.username}!`,
       });
-    } catch (err) {
-      const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
+    } 
+    catch (err) {
+      const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
       console.log(message, " xyz", err);
       set({
         authUser: null,
@@ -86,9 +98,12 @@ export const authStore=create<AuthStore>((set) => ({
         error: message,
       });
       toast.error(message);
-    } finally {
+    } 
+    finally {
       set({ isSigningUp: false });
     }
+
+    get().connectSocket();
   },
 
   signin: async (data) => {
@@ -101,7 +116,8 @@ export const authStore=create<AuthStore>((set) => ({
       toast.success("Signed in successfully!", {
         description: `Welcome back, ${data.username}!`,
       });
-    } catch (err) {
+    } 
+    catch (err) {
       const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
       console.log(err);
       set({
@@ -110,9 +126,12 @@ export const authStore=create<AuthStore>((set) => ({
         error: message ?? "Signin failed",
       });
       toast.error("Signin Failed");
-    } finally {
+    } 
+    finally {
       set({ isSigningIn: false });
     }
+
+    get().connectSocket();
   },
 
   logout: async () => {
@@ -122,14 +141,37 @@ export const authStore=create<AuthStore>((set) => ({
       await axiosInstance.post("/auth/logout");
       set({ authUser: null, status: "unauthenticated" });
       toast.success("Logged out successfully");
-    } catch (err) {
+      get().disconnectSocket();
+    } 
+    catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
       set({
         error: message ?? "Logout failed",
       });
       toast.error("Logout failed");
-    } finally {
+    } 
+    finally {
       set({ isLoggingOut: false });
     }
   },
+
+  connectSocket: () => {
+    const { authUser } = get();
+    if (!authUser || get().socket?.connected) return;
+    
+    const socket = io("http://localhost:3000/", {
+      query: { userId: authUser._id }
+    });
+
+    set({ socket: socket });
+
+    socket.connect();
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds});
+    })
+  },
+
+  disconnectSocket: () => {
+    if (get().socket?.connected) get().socket?.disconnect();
+  }
 }));

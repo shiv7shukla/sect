@@ -5,11 +5,21 @@ import TextBlock from './TextBlock'
 import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
 import { formatMessageTime } from '../lib/utils'
+import { authStore } from '../store/useAuthStore'
 
 const MessageArea = () => {
   const { messages } = chatStore(useShallow((state) => ({
     messages: state.messages,
-  })))
+  })));
+  const { onlineusers } = authStore(useShallow((state) => ({
+    onlineusers: state.onlineUsers
+  })));
+  const messageEndRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (messageEndRef.current && messages)
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [messages])
 
   return (
     <div className='h-[90%] w-full flex flex-col justify-between border-t-2 border-t-zinc-800 bg-[#0C0E12]'>
@@ -27,7 +37,8 @@ const MessageArea = () => {
                 key={message.id} 
                 senderUsername={message.senderUsername} 
                 createdAt={formatMessageTime(message.createdAt)} 
-                text={message.content.text} 
+                text={message.content.text}
+                ref={messageEndRef} 
               />
             )})}
         </div>

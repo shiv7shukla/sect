@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatMessageTime(date: Date) {
+export function formatMessageTime(date: string) {
   return new Date(date).toLocaleDateString("en-IN", {
     hour: "2-digit",
     minute: "2-digit",
