@@ -75,6 +75,7 @@ export const authStore = create<AuthStore>((set, get) => ({
     } 
     catch {
       set({ authUser: null, status: "unauthenticated" });
+      get().disconnectSocket();
     }
   },
 

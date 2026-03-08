@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 
 const __dirname = path.resolve();
 
-if(ENV.NODE_ENV === "PRODUCTION")
+if(ENV.NODE_ENV === "production")
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
 const startServer = async () => {
