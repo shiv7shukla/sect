@@ -6,7 +6,7 @@ import MessageArea from '../components/MessageArea'
 import { chatStore } from '../store/useChatStore'
 
 const Chats = () => {
-  const { selectedUser } = chatStore((state) => state.selectedUser)
+  const  selectedUser = chatStore((state) => state.selectedUser)
 
   return (
     <div className='flex'>

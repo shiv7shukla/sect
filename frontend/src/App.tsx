@@ -26,7 +26,7 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={authUser? <HomePage />: <Navigate to="/authenticate"/>} />
-        <Route path="/authenticate" element={authUser? <AuthPage />: <Navigate to="/chats" />} />
+        <Route path="/authenticate" element={!authUser? <AuthPage />: <Navigate to="/chats" />} />
         <Route path="/chats" element={<Chats />} />
         {/* <Route path="/chat" element={<Chats />} /> */}
       </Routes>
