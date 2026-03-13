@@ -25,9 +25,9 @@ const App = () => {
     <>
       <Navbar />
       <Routes>
-        {/* <Route path="/" element={authUser?<HomePage />:<Navigate to="/signin"/>} /> */}
-        <Route path="/" element={<Chats />} />
-        <Route path="/profile" element={!authUser?<UserProfile />:<Navigate to="/signin"/>} />
+        <Route path="/" element={authUser? <HomePage />: <Navigate to="/authenticate"/>} />
+        <Route path="/authenticate" element={authUser? <AuthPage />: <Navigate to="/chats" />} />
+        <Route path="/chats" element={<Chats />} />
         {/* <Route path="/chat" element={<Chats />} /> */}
       </Routes>
       <Toaster /> 
