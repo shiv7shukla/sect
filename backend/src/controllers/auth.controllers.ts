@@ -31,7 +31,7 @@ export const signupController = asyncHandler(async(req:Request, res:Response) =>
 })
 
 export const logoutController = asyncHandler(async(req:Request, res:Response) => {
-  res.cookie("jwt", "", {maxAge: 0, httpOnly: true, secure: ENV.NODE_ENV !== "DEVELOPMENT", sameSite: "strict"});
+  res.cookie("jwt", "", {maxAge: 0, httpOnly: true, secure: ENV.NODE_ENV === "production", sameSite: "strict"});
   return res.status(200).json({"message": "logged out successfully"});
 })
 

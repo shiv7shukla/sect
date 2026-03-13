@@ -49,7 +49,7 @@ const Sidebar = () => {
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className='h-96 overflow-y-auto'>
-          {isConversationsLoading ? 
+          {/* {isConversationsLoading ? 
             (Array.from({length: 6})
               .map((_, i) => 
                 (<AvatarSkeleton key = {i} />))) : 
@@ -64,7 +64,7 @@ const Sidebar = () => {
                     lastMessagePreview = {c.lastMessagePreview} 
                     lastMessageAt = {c.lastMessageAt} 
                     username = {c.participant.username} 
-                  />))}
+                  />))} */}
           {/* <ConversationList  /> */}
         </div>
       </div>
