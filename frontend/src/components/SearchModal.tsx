@@ -1,18 +1,31 @@
 import React from 'react'
 import { Search, X } from 'lucide-react'
+import useDebounce from '../hooks/useDebounce';
 
 type SearchModalProps = { showModal: boolean; onClose: () => void }
 
 const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
-  if (!showModal) return null
+  const [inputVal, setInputVal] = React.useState("");
+  const debouncedVal = useDebounce(inputVal, 3000);
+
+  if (!showModal) return null;
+
+  function change(e: KeyboardEvent) { 
+    const input = e.target as HTMLInputElement; 
+    setInputVal(input.value); 
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="h-96 w-full flex flex-col justify-between gap-2 bg-[#111318] border border-zinc-800 rounded-xl p-6 max-w-md mx-4">
+      <div 
+      className="h-96 w-full flex flex-col justify-between gap-2 bg-[#111318] border border-zinc-800 rounded-xl p-6 max-w-md mx-4">
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-white text-lg font-semibold">Search Contacts</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <button type="button" 
+                    onClick={onClose} 
+                    className="text-gray-400 hover:text-white"
+            >
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -21,6 +34,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
             <input
               type="text"
               placeholder="Search contacts..."
+              onChange={(e) => change(e)}
               className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
               autoFocus
             />

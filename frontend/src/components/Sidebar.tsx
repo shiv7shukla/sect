@@ -9,7 +9,7 @@ import ConversationList from './ConversationList'
 type SidebarProps = { toggleModal: () => void }
 
 const Sidebar = ({toggleModal}: SidebarProps) => {
-  
+
   const onlineUsers = []
   const { logout, } = authStore(useShallow((state) => ({
     logout: state.logout,
@@ -48,7 +48,7 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
           <input
             type="text"
             placeholder="Search contacts..."
-            onClick={()=>toggleModal()}
+            onClick={toggleModal}
             className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
           />
         </div>
