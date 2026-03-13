@@ -6,11 +6,14 @@ import { chatStore } from '../store/useChatStore'
 import AvatarSkeleton from './AvatarSkeleton'
 import ConversationList from './ConversationList'
 
-const Sidebar = () => {
-  // const onlineUsers = []
+type SidebarProps = { toggleModal: () => void }
+
+const Sidebar = ({toggleModal}: SidebarProps) => {
+  
+  const onlineUsers = []
   const { logout, } = authStore(useShallow((state) => ({
     logout: state.logout,
-    // authUser: state.authUser,
+    authUser: state.authUser,
   })))
   const { conversations, getConversations, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
     conversations: state.conversations,
@@ -19,7 +22,8 @@ const Sidebar = () => {
     isConversationsLoading: state.isConversationsLoading,
   })))
 
-  React.useEffect(() => { getConversations() }, [getConversations])
+  React.useEffect(() => { getConversations() }, [getConversations]);
+  
 
   return (
     <>
@@ -44,12 +48,13 @@ const Sidebar = () => {
           <input
             type="text"
             placeholder="Search contacts..."
+            onClick={()=>toggleModal()}
             className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
           />
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className='h-96 overflow-y-auto'>
-          {/* {isConversationsLoading ? 
+          {isConversationsLoading ? 
             (Array.from({length: 6})
               .map((_, i) => 
                 (<AvatarSkeleton key = {i} />))) : 
@@ -64,7 +69,7 @@ const Sidebar = () => {
                     lastMessagePreview = {c.lastMessagePreview} 
                     lastMessageAt = {c.lastMessageAt} 
                     username = {c.participant.username} 
-                  />))} */}
+                  />))}
           {/* <ConversationList  /> */}
         </div>
       </div>
