@@ -3,7 +3,6 @@ import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
 import { authStore } from "./useAuthStore";
 import { toast } from "sonner";
-// import { toast } from "sonner";
 
 export type getMessageAPIResponse = {
   conversationInfo: {
@@ -81,7 +80,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isConversationsLoading: false});
-      toast.error(message)
+      toast.error(message?? "Failed to load conversations")
     }
   },
 
@@ -95,7 +94,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isMessagesLoading: false});
-      // toast.error(message)
+      toast.error(message?? "Failed to load messages")
     }
   },
 
@@ -108,7 +107,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err)
       set({ error: message });
-      // toast.error(message)
+      toast.error(message?? "Failed to send messages")
     }
   },
 
