@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { type ChangeEvent } from 'react'
 import { Search, X } from 'lucide-react'
 import useDebounce from '../hooks/useDebounce';
 
@@ -10,7 +10,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
 
   if (!showModal) return null;
 
-  function change(e: KeyboardEvent) { 
+  function change(e: ChangeEvent) { 
     const input = e.target as HTMLInputElement; 
     setInputVal(input.value); 
   }
