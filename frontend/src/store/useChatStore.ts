@@ -2,7 +2,7 @@ import axios from "axios";
 import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
 import { authStore } from "./useAuthStore";
-// import { toast } from "sonner";
+import { toast } from "sonner";
 
 export type getMessageAPIResponse = {
   conversationInfo: {
@@ -74,13 +74,13 @@ export const chatStore = create<ChatStore>((set, get) => ({
     set({ isConversationsLoading: true });
     try{
       const { data: { chatInfo }} = await axiosInstance.get("/conversations");
-      set({ conversations:  chatInfo, isConversationsLoading: false });
+      set({ conversations:  chatInfo?? [], isConversationsLoading: false });
     }
     catch (err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isConversationsLoading: false});
-      // toast.error(message)
+      toast.error(message?? "Failed to load conversations")
     }
   },
 
@@ -88,13 +88,13 @@ export const chatStore = create<ChatStore>((set, get) => ({
     set({ isMessagesLoading: true });
     try{
       const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?.conversationId}`);
-      set({ messages: data.messageInfo, isMessagesLoading: false})
+      set({ messages: data.messageInfo?? [], isMessagesLoading: false})
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isMessagesLoading: false});
-      // toast.error(message)
+      toast.error(message?? "Failed to load messages")
     }
   },
 
@@ -107,7 +107,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err)
       set({ error: message });
-      // toast.error(message)
+      toast.error(message?? "Failed to send messages")
     }
   },
 

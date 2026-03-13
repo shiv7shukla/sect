@@ -9,7 +9,7 @@ export const generateToken = (id:string, res:Response) => {
     maxAge: 7*24*60*60*1000,  //the age for cookie's lifetime must be in ms
     httpOnly: true,
     sameSite: "lax",
-    secure: ENV.NODE_ENV === "PRODUCTION",
+    secure: ENV.NODE_ENV === "production",
   })
 
   return token;
