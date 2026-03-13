@@ -88,7 +88,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
     set({ isMessagesLoading: true });
     try{
       const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?.conversationId}`);
-      set({ messages: data.messageInfo, isMessagesLoading: false})
+      set({ messages: data.messageInfo?? [], isMessagesLoading: false})
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
