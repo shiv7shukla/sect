@@ -1,5 +1,5 @@
-import { Check, Copy, LogOut, Plus, Search, Shield } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { LogOut, Search, Shield } from 'lucide-react'
 import { authStore } from '../store/useAuthStore'
 import { useShallow } from 'zustand/shallow'
 import { chatStore } from '../store/useChatStore'
@@ -7,11 +7,10 @@ import AvatarSkeleton from './AvatarSkeleton'
 import ConversationList from './ConversationList'
 
 const Sidebar = () => {
-  const onlineUsers = []
-  const [isCopied, setIsCopied] = useState(false)
-  const { logout, authUser } = authStore(useShallow((state) => ({
+  // const onlineUsers = []
+  const { logout, } = authStore(useShallow((state) => ({
     logout: state.logout,
-    authUser: state.authUser,
+    // authUser: state.authUser,
   })))
   const { conversations, getConversations, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
     conversations: state.conversations,
@@ -20,7 +19,7 @@ const Sidebar = () => {
     isConversationsLoading: state.isConversationsLoading,
   })))
 
-  useEffect(() => { getConversations() }, [getConversations])
+  React.useEffect(() => { getConversations() }, [getConversations])
 
   return (
     <>
@@ -68,11 +67,6 @@ const Sidebar = () => {
                   />))}
           {/* <ConversationList  /> */}
         </div>
-        <hr className="-mx-4 mt-4 border-t border-zinc-800 my-4" />
-          <button className='h-[5vh] w-full bg-[#171A21] flex gap-2 justify-center items-center border-2 border-zinc-800 focus:outline-none hover:border-emerald-400 transition-colors rounded-xl'>
-            <Plus className='text-white size-4' />
-            <div className='text-white text-sm'>Add Contact by UUID</div>
-          </button>
       </div>
     </>
   )
