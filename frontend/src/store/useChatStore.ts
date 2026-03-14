@@ -59,13 +59,14 @@ export type ChatStore = {
   selectedUser: SelectedUser | null;
 
   getConversations: () => Promise<void>;
+  searchUsers: (searchquery: string) => Promise<void>;
   getMessages: (selecteduser: SelectedUser) => Promise<void>;
-  setSelectedUser: (selectedUser: SelectedUser) => void;
   sendMessage: (text: string, type: string) => Promise<void>;
+
+  clearError: () => void;
   subscribeToMessages: () => void;
   unSubscribeFromMessages: () => void;
-  searchUsers: (query: string) => void;
-  clearError: () => void;
+  setSelectedUser: (selectedUser: SelectedUser) => void;
 }
 
 export const chatStore = create<ChatStore>((set, get) => ({
@@ -111,7 +112,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
   sendMessage: async (text: string, type: string) => {
     try{
       const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, { content: { type: type, text } });
-      set(state => ({messages: [...state.messages, res.data]}))
+      set(state => ({ messages: [...state.messages, res.data ]}))
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
@@ -121,10 +122,18 @@ export const chatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  searchUsers: async (query: string) => {
+  searchUsers: async (searchquery: string) => {
     set({ isSearching: true });
-    try{
 
+    try{
+      const { data } = await axiosInstance.get("/conversations/search/", { params: { searchquery }});
+      set({ queriedUsers: data.results, isSearching: false});
+    }
+    catch(err){
+      const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
+      console.log(err)
+      set({ error: message });
+      toast.error(message?? "Failed to search for users");
     }
   },
 

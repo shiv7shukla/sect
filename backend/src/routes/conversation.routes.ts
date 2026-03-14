@@ -8,4 +8,4 @@ export const conversationRouter = Router ();
 conversationRouter.get("/", protectRoute, getConversations);
 conversationRouter.get("/messages/:id", protectRoute, getMessages);
 conversationRouter.post("/send/:receiverId", protectRoute, sendMessages);
-conversationRouter.get("/searchUsers", protectRoute, searchUsers);
+conversationRouter.get("/search", protectRoute, searchUsers);
