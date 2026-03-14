@@ -41,16 +41,13 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
 })
 
 export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
-  const id = req.user?._id.toString();
-  const searchQuery = req.query.searchQuery as string;
-  try{
-    const results = await User
-    .find({ username: { $regex: searchQuery, $options: "i" }})
-    .select("-password");
+  let searchQuery = req.query.searchQuery as string;
+  searchQuery = searchQuery.trim();
+  const results = await User
+  .find({ username: { $regex: searchQuery, $options: "i", $ne: searchQuery }})
+  .select("-password -email")
+  .limit(10)
+  .lean();
 
-    return res.status(200).json({results});
-  }
-  catch{
-    res.status(500).json({"message": "Search failed"});
-  }
+  return res.status(200).json({ results });
 });

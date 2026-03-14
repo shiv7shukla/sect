@@ -38,11 +38,17 @@ export type Conversations = {
 export type SelectedUser = {
   id: string,
   username: string
-  conversationId?: string;
+  conversationId: string;
+}
+
+export type QueriedUser = {
+  id: string,
+  username: string
 }
 
 export type ChatStore = {
   messages: Message [];
+  queriedUsers: QueriedUser [];
   conversations: Conversations [];
 
   isSearching: boolean
@@ -51,7 +57,6 @@ export type ChatStore = {
 
   error: string | null;
   selectedUser: SelectedUser | null;
-  queriedUsers: SelectedUser | null;
 
   getConversations: () => Promise<void>;
   getMessages: (selecteduser: SelectedUser) => Promise<void>;
@@ -65,11 +70,13 @@ export type ChatStore = {
 
 export const chatStore = create<ChatStore>((set, get) => ({
   messages: [],
+  queriedUsers: [],
   conversations: [],
 
-  selectedUser: null,
   error: null,
+  selectedUser: null,
 
+  isSearching: false,
   isMessagesLoading: false,
   isConversationsLoading: false,
 

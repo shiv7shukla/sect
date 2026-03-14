@@ -59,13 +59,13 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
   if (!mongoose.isValidObjectId(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
+  if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"}); // Prevent sending messages to yourself
   const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
-  if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"}); // Prevent sending messages to yourself
 
   const participants = [senderId, receiverObjectId].sort();
-  
+
   let conversation = await Conversation
     .findOneAndUpdate({ 
         type: "direct", 
