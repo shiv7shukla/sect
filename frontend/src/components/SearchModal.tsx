@@ -1,12 +1,20 @@
 import React, { type ChangeEvent } from 'react'
 import { Search, X } from 'lucide-react'
 import useDebounce from '../hooks/useDebounce';
+import { chatStore } from '../store/useChatStore';
+import { useShallow } from 'zustand/shallow';
+import ConversationList from './ConversationList';
 
 type SearchModalProps = { showModal: boolean; onClose: () => void }
 
 const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   const [inputVal, setInputVal] = React.useState("");
   const debouncedVal = useDebounce(inputVal, 3000);
+  const { isSearching, searchUsers, queriedUsers } = chatStore(useShallow((state) => ({
+    isSearching: state.isSearching,
+    searchUsers: state.searchUsers,
+    queriedUsers: state.queriedUsers
+  })))
 
   function change(e: ChangeEvent) { 
     const input = e.target as HTMLInputElement; 
@@ -14,8 +22,9 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   }
 
   React.useEffect(() => {
-    //call api
-  }, [debouncedVal])
+    console.log(debouncedVal.trim());
+    if (debouncedVal.trim()) searchUsers(debouncedVal);
+  }, [debouncedVal, searchUsers]);
 
   return !showModal ? null : (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -44,11 +53,20 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center text-center px-6">
-          <div className="w-14 h-14 rounded-2xl bg-secondary/75 border border-border/50 flex items-center justify-center mb-3">
-            <Search className="w-7 h-7 text-muted-foreground/80" />
-          </div>
-          <p className="text-sm text-muted-foreground mb-1">Find people on sect</p>
-          <p className="text-xs text-muted-foreground/60">Type a username to discover users</p>
+          {isSearching? 
+            (queriedUsers
+              .map((q) => 
+                <ConversationList 
+                  username={q.username}
+                  key={q.id}
+                />)):
+          <>
+            <div className="w-14 h-14 rounded-2xl bg-secondary/75 border border-border/50 flex items-center justify-center mb-3">
+              <Search className="w-7 h-7 text-muted-foreground/80" />
+            </div>
+            <p className="text-sm text-muted-foreground mb-1">Find people on sect</p>
+            <p className="text-xs text-muted-foreground/60">Type a username to discover users</p>
+          </>}
         </div>
         {/* Add search results here if needed */}
       </div>

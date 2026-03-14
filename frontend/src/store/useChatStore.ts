@@ -69,7 +69,7 @@ export type ChatStore = {
   setSelectedUser: (selectedUser: SelectedUser) => void;
 }
 
-export const chatStore = create<ChatStore>((set, get) => ({
+export const chatStore = create<ChatStore>(( set, get ) => ({
   messages: [],
   queriedUsers: [],
   conversations: [],
@@ -122,18 +122,18 @@ export const chatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  searchUsers: async (searchquery: string) => {
+  searchUsers: async (searchQuery: string) => {
     set({ isSearching: true });
 
     try{
-      const { data } = await axiosInstance.get("/conversations/search/", { params: { searchquery }});
+      const { data } = await axiosInstance.get("/conversations/search/", { params: { searchQuery }});
       set({ queriedUsers: data.results, isSearching: false});
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err)
-      set({ error: message });
-      toast.error(message?? "Failed to search for users");
+      set({ error: message, isSearching: false });
+      toast.error("Failed to search for users");
     }
   },
 

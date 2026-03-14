@@ -45,7 +45,7 @@ export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
   searchQuery = searchQuery.trim();
   const results = await User
   .find({ username: { $regex: searchQuery, $options: "i", $ne: searchQuery }})
-  .select("-password -email")
+  .select("username _id")
   .limit(10)
   .lean();
 

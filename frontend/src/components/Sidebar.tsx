@@ -10,7 +10,7 @@ type SidebarProps = { toggleModal: () => void }
 
 const Sidebar = ({toggleModal}: SidebarProps) => {
 
-  const onlineUsers = []
+  // const onlineUsers = []
   const { logout, } = authStore(useShallow((state) => ({
     logout: state.logout,
     authUser: state.authUser,

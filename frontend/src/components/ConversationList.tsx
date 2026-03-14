@@ -1,5 +1,4 @@
 import { User } from 'lucide-react'
-import React from 'react'
 import { chatStore } from '../store/useChatStore';
 
 type ConversationListProps = {
@@ -9,8 +8,8 @@ type ConversationListProps = {
   onClick: () => void;
 }
 
-const ConversationList = ({username, lastMessagePreview, lastMessageAt, onClick}: ConversationListProps) => {
-  const {selectedUser} = chatStore((state) => ({selectedUser: state.selectedUser}))
+const ConversationList = ({ username, lastMessagePreview, lastMessageAt, onClick }: ConversationListProps) => {
+  const { selectedUser } = chatStore((state) => ({ selectedUser: state.selectedUser }))
 
   return (
     <>
