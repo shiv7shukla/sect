@@ -5,7 +5,7 @@ import { User } from "../models/userModel.js";
 import { generateToken } from "../utils/generateToken.js";
 import bcrypt from "bcryptjs";
 
-export const signinController = asyncHandler(async(req:Request, res:Response) => {
+export const signinController = asyncHandler(async(req: Request, res: Response) => {
   const { username, password } = req.body??{};
   if(!username || !password) return res.status(400).json({"message": "username and password are required"});
   const user=await User.findOne({username});
@@ -16,7 +16,7 @@ export const signinController = asyncHandler(async(req:Request, res:Response) =>
   return res.status(200).json({"message": "user logged in", "username":user.username, "email":user.email});
 })
 
-export const signupController = asyncHandler(async(req:Request, res:Response) => {
+export const signupController = asyncHandler(async(req: Request, res: Response) => {
   const {email, username, password} = req.body??{};
   if(!email || !password || !username) return res.status(400).json({"message": "email, username and password are required"});
   const user = await User.findOne({email});

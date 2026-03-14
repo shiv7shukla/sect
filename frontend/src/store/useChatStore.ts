@@ -36,20 +36,22 @@ export type Conversations = {
 }
 
 export type SelectedUser = {
-  conversationId: string;
   id: string,
   username: string
+  conversationId?: string;
 }
 
 export type ChatStore = {
   messages: Message [];
   conversations: Conversations [];
 
+  isSearching: boolean
   isMessagesLoading: boolean;
   isConversationsLoading: boolean;
 
-  selectedUser: SelectedUser | null;
   error: string | null;
+  selectedUser: SelectedUser | null;
+  queriedUsers: SelectedUser | null;
 
   getConversations: () => Promise<void>;
   getMessages: (selecteduser: SelectedUser) => Promise<void>;
@@ -57,6 +59,7 @@ export type ChatStore = {
   sendMessage: (text: string, type: string) => Promise<void>;
   subscribeToMessages: () => void;
   unSubscribeFromMessages: () => void;
+  searchUsers: (query: string) => void;
   clearError: () => void;
 }
 
@@ -108,6 +111,13 @@ export const chatStore = create<ChatStore>((set, get) => ({
       console.log(err)
       set({ error: message });
       toast.error(message?? "Failed to send messages")
+    }
+  },
+
+  searchUsers: async (query: string) => {
+    set({ isSearching: true });
+    try{
+
     }
   },
 

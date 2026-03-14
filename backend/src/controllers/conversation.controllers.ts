@@ -1,6 +1,7 @@
 import { asyncHandler } from './../utils/asyncHandler.js';
 import type { Request, Response } from "express"
 import { Conversation } from "../models/conversationModel.js";
+import { User } from '../models/userModel.js';
 
 export const getConversations = asyncHandler( async( req: Request, res: Response) => {
   const userId = req.user!._id.toString();
@@ -38,3 +39,18 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
   else return res.status(200).json({"message": "No conversations found" });
 
 })
+
+export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
+  const id = req.user?._id.toString();
+  const searchQuery = req.query.searchQuery as string;
+  try{
+    const results = await User
+    .find({ username: { $regex: searchQuery, $options: "i" }})
+    .select("-password");
+
+    return res.status(200).json({results});
+  }
+  catch{
+    res.status(500).json({"message": "Search failed"});
+  }
+});
