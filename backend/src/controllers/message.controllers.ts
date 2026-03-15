@@ -10,7 +10,7 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const { id } = req.params; // receiverId
   const myId = req.user?._id;
 
-  if (myId?.toString() === id) res.status(400).json({"message": "cannot send message to yourself"});
+  if (myId?.toString() === id) return res.status(400).json({"message": "cannot send message to yourself"});
   if (!myId) return res.status(401).json({"message": "unauthorized"});
   if (!id) return res.status(400).json({"message": "receiverId is required"});
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid receiverId"});
@@ -20,7 +20,10 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const conversation = await Conversation
   .findOneAndUpdate({
     type: "direct",
-    participants: { $all: [myId, receiverObjectId]},
+    participants: {
+      $all: [myId, receiverObjectId], 
+      $size: 2
+    },
   },
   {
     $setOnInsert: {
@@ -84,7 +87,8 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
     .findOneAndUpdate({ 
         type: "direct", 
         participants: { 
-          $all: participants 
+          $all: participants,
+          $size: 2
         } 
       }, { 
         $setOnInsert: {

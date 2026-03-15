@@ -5,7 +5,7 @@ type ConversationListProps = {
   username: string;
   lastMessagePreview?: string;
   lastMessageAt?: string;
-  onClick: () => void;
+  onClick: () => Promise<void> | void;
 }
 
 const ConversationList = ({ username, lastMessagePreview, lastMessageAt, onClick }: ConversationListProps) => {

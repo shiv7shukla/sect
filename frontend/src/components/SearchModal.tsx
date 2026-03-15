@@ -1,7 +1,7 @@
 import React, { type ChangeEvent } from 'react'
 import { Search, X } from 'lucide-react'
 import useDebounce from '../hooks/useDebounce';
-import { chatStore } from '../store/useChatStore';
+import { chatStore, type SelectedUser } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
 import ConversationList from './ConversationList';
 
@@ -10,11 +10,22 @@ type SearchModalProps = { showModal: boolean; onClose: () => void }
 const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   const [inputVal, setInputVal] = React.useState("");
   const debouncedVal = useDebounce(inputVal, 3000);
-  const { isSearching, searchUsers, queriedUsers } = chatStore(useShallow((state) => ({
-    isSearching: state.isSearching,
+  const { searchUsers, queriedUsers, getMessages, setSelectedUser } = chatStore(useShallow((state) => ({
     searchUsers: state.searchUsers,
-    queriedUsers: state.queriedUsers
+    getMessages: state.getMessages,
+    queriedUsers: state.queriedUsers,
+    setSelectedUser: state.selectedUser
   })))
+  const queriedUserClick = async(user: SelectedUser) => {
+    const selected = { 
+      id: user.id, 
+      username: user.username, 
+      conversationId: user.conversationId ?? "" 
+    };
+    setSelectedUser(selected);
+    await getMessages(selected);
+    onClose();
+  }
 
   function change(e: ChangeEvent) { 
     const input = e.target as HTMLInputElement; 
@@ -53,12 +64,17 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center text-center px-6">
-          {isSearching? 
+          {queriedUsers.length > 0? 
             (queriedUsers
               .map((q) => 
                 <ConversationList 
-                  username={q.username}
                   key={q.id}
+                  username={q.username}
+                  onClick={queriedUserClick({
+                    id:q.id,
+                    username:q.username,
+                    conversationId:q.conversationId
+                  })}
                 />)):
           <>
             <div className="w-14 h-14 rounded-2xl bg-secondary/75 border border-border/50 flex items-center justify-center mb-3">
@@ -68,7 +84,6 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
             <p className="text-xs text-muted-foreground/60">Type a username to discover users</p>
           </>}
         </div>
-        {/* Add search results here if needed */}
       </div>
     </div>
   )

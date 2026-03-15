@@ -38,20 +38,14 @@ export type Conversations = {
 export type SelectedUser = {
   id: string,
   username: string
-  conversationId: string;
-}
-
-export type QueriedUser = {
-  id: string,
-  username: string
+  conversationId?: string;
 }
 
 export type ChatStore = {
   messages: Message [];
-  queriedUsers: QueriedUser [];
+  queriedUsers: SelectedUser [];
   conversations: Conversations [];
 
-  isSearching: boolean
   isMessagesLoading: boolean;
   isConversationsLoading: boolean;
 
@@ -77,7 +71,6 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   error: null,
   selectedUser: null,
 
-  isSearching: false,
   isMessagesLoading: false,
   isConversationsLoading: false,
 
@@ -98,7 +91,7 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   getMessages: async (selectedUser: SelectedUser) => {
     set({ isMessagesLoading: true });
     try{
-      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?.conversationId}`);
+      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?.id}`);
       set({ messages: data.messageInfo?? [], isMessagesLoading: false})
     }
     catch(err){
@@ -123,16 +116,15 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   },
 
   searchUsers: async (searchQuery: string) => {
-    set({ isSearching: true });
 
     try{
       const { data } = await axiosInstance.get("/conversations/search/", { params: { searchQuery }});
-      set({ queriedUsers: data.results, isSearching: false});
+      set({ queriedUsers: data.results});
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err)
-      set({ error: message, isSearching: false });
+      set({ error: message });
       toast.error("Failed to search for users");
     }
   },
@@ -154,7 +146,7 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
     socket?.off("newMessage");
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser: SelectedUser) => set({ selectedUser }),
 
   clearError: () => set({ error: null})
 
