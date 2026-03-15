@@ -64,7 +64,7 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
                   <ConversationList
                     onClick = {() => setSelectedUser({
                       conversationId: c.conversationId, 
-                      id: c.participant.id, 
+                      _id: c.participant.id, 
                       username: c.participant.username
                     })}
                     key = {c.conversationId} 

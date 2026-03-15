@@ -1,4 +1,4 @@
-import React, { type ChangeEvent } from 'react'
+import React from 'react'
 import { Search, X } from 'lucide-react'
 import useDebounce from '../hooks/useDebounce';
 import { chatStore, type SelectedUser } from '../store/useChatStore';
@@ -9,7 +9,7 @@ type SearchModalProps = { showModal: boolean; onClose: () => void }
 
 const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   const [inputVal, setInputVal] = React.useState("");
-  const debouncedVal = useDebounce(inputVal, 300);
+  let debouncedVal = useDebounce(inputVal, 300);
   const { searchUsers, queriedUsers, getMessages, setSelectedUser } = chatStore(useShallow((state) => ({
     searchUsers: state.searchUsers,
     getMessages: state.getMessages,
@@ -18,7 +18,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   })))
   const queriedUserClick = async(user: SelectedUser) => {
     const selected = { 
-      id: user.id, 
+      _id: user._id, 
       username: user.username, 
       conversationId: user.conversationId ?? "" 
     };
@@ -27,14 +27,9 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
     onClose();
   }
 
-  function change(e: ChangeEvent) { 
-    const input = e.target as HTMLInputElement; 
-    setInputVal(input.value); 
-  }
-
   React.useEffect(() => {
-    if (debouncedVal.trim()) searchUsers(debouncedVal);
-  }, [debouncedVal, searchUsers]);
+    if (debouncedVal.trim()) searchUsers(debouncedVal.trim());
+  }, [debouncedVal, searchUsers, inputVal]);
 
   return !showModal ? null : (
     <div 
@@ -60,20 +55,21 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
             <input
-              type="text"
-              placeholder="Search contacts..."
-              onChange={(e) => change(e)}
-              className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
               autoFocus
+              type="text"
+              value={inputVal}
+              placeholder="Search contacts..."
+              onChange={(e) => setInputVal(e.target.value)}
+              className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-10 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
             />
           </div>
         </div>
         <div className="flex flex-col items-center justify-center text-center px-6">
-          {queriedUsers.length > 0? 
+          {inputVal.trim().length > 0 && queriedUsers.length > 0? 
             (queriedUsers
               .map((q) => 
                 <ConversationList 
-                  key={q.id}
+                  key={q._id}
                   username={q.username}
                   onClick={() => queriedUserClick(q)}
                 />)):

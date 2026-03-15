@@ -36,7 +36,7 @@ export type Conversations = {
 }
 
 export type SelectedUser = {
-  id: string,
+  _id: string,
   username: string
   conversationId?: string;
 }
@@ -91,8 +91,12 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   getMessages: async (selectedUser: SelectedUser) => {
     set({ isMessagesLoading: true });
     try{
-      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?.id}`);
-      set({ messages: data.messageInfo?? [], isMessagesLoading: false})
+      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?._id}`);
+      set({ 
+        messages: data.messageInfo?? [], 
+        isMessagesLoading: false,
+        selectedUser: {...selectedUser, conversationId: data.conversationInfo.conversationId}
+      })
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
@@ -104,7 +108,7 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
 
   sendMessage: async (text: string, type: string) => {
     try{
-      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?.id}`, { content: { type: type, text } });
+      const res = await axiosInstance.post(`/conversations/send/${get().selectedUser?._id}`, { content: { type: type, text } });
       set(state => ({ messages: [...state.messages, res.data ]}))
     }
     catch(err){
@@ -135,7 +139,7 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
 
     const socket = authStore.getState().socket;
     socket?.on("newMessage", (newMessage) => {
-      if (newMessage.senderId !== selectedUser.id) return;
+      if (newMessage.senderId !== selectedUser._id) return;
       
       set({ messages: [...get().messages, newMessage]})
     })
