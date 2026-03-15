@@ -37,15 +37,21 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   }, [debouncedVal, searchUsers]);
 
   return !showModal ? null : (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div 
+      onClick={onClose}
+      onKeyDown={(e) => e.key === 'Escape' && onClose()}
+      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+    >
       <div 
-      className="h-96 w-full flex flex-col justify-between gap-2 bg-[#111318] border border-zinc-800 rounded-xl p-6 max-w-md mx-4">
+        onClick={(e) => e.stopPropagation()}
+        className="h-96 w-full flex flex-col justify-between gap-2 bg-[#111318] border border-zinc-800 rounded-xl p-6 max-w-md mx-4"
+      >
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-white text-lg font-semibold">Search Contacts</h2>
             <button 
               type="button" 
-              onClick={onClose} 
+              onClick={onClose}
               className="text-gray-400 hover:text-white"
             >
               <X className="h-5 w-5" />
