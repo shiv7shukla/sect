@@ -7,23 +7,37 @@ import { User } from "../models/userModel.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 
 export const getMessages = asyncHandler(async(req: Request, res: Response) => {
-  const { id } = req.params; // conversationId
+  const { id } = req.params; // receiverId
   const myId = req.user?._id;
 
+  if (myId?.toString() === id) res.status(400).json({"message": "cannot send message to yourself"});
   if (!myId) return res.status(401).json({"message": "unauthorized"});
-  if (!id) return res.status(400).json({"message": "conversationId is required"});
-  if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid conversationId"});
+  if (!id) return res.status(400).json({"message": "receiverId is required"});
+  if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid receiverId"});
+  const receiverObjectId = new mongoose.Types.ObjectId(id);
+  if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
 
-  const conversationObjectId = mongoose.Types.ObjectId.createFromHexString(id);
-  const conversation = await Conversation.findOne({
-    _id:conversationObjectId,
-    participants:myId,
+  const conversation = await Conversation
+  .findOneAndUpdate({
+    type: "direct",
+    participants: { $all: [myId, receiverObjectId]},
+  },
+  {
+    $setOnInsert: {
+      type: "direct",
+      participants: [myId, receiverObjectId],
+      lastMessageAt: new Date(),
+      lastMessagePreview: ""
+    }
+  },
+  {
+    new: true, //return the document (new or existing)
+    upsert: true //create if not found
   })
-    .select("_id type participants lastMessageAt lastMessagePreview")
-    .lean();
+  .select("_id type participants lastMessageAt lastMessagePreview")
+  .lean();
 
-  if(!conversation) return res.status(403).json({ "message":  "unauthorized" }); // either conversation doesn't exist or user is not a participant
-  const messages = await Message.find({ conversationId: conversationObjectId })
+  const messages = await Message.find({ conversationId: conversation._id })
     .sort({ createdAt: 1 })
     .populate("senderId", "_id username")
     .lean();
@@ -69,7 +83,9 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   let conversation = await Conversation
     .findOneAndUpdate({ 
         type: "direct", 
-        participants 
+        participants: { 
+          $all: participants 
+        } 
       }, { 
         $setOnInsert: {
           type: "direct", 

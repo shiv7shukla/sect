@@ -3,7 +3,7 @@ import type { Request, Response } from "express"
 import { Conversation } from "../models/conversationModel.js";
 import { User } from '../models/userModel.js';
 
-export const getConversations = asyncHandler( async( req: Request, res: Response) => {
+export const getConversations = asyncHandler( async( req: Request, res: Response ) => {
   const userId = req.user!._id.toString();
 
   const conversations = await Conversation
@@ -37,7 +37,6 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
     return res.status(200).json({ chatInfo });
   }
   else return res.status(200).json({"message": "No conversations found" });
-
 })
 
 export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
