@@ -9,12 +9,12 @@ type SearchModalProps = { showModal: boolean; onClose: () => void }
 
 const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   const [inputVal, setInputVal] = React.useState("");
-  const debouncedVal = useDebounce(inputVal, 3000);
+  const debouncedVal = useDebounce(inputVal, 300);
   const { searchUsers, queriedUsers, getMessages, setSelectedUser } = chatStore(useShallow((state) => ({
     searchUsers: state.searchUsers,
     getMessages: state.getMessages,
     queriedUsers: state.queriedUsers,
-    setSelectedUser: state.selectedUser
+    setSelectedUser: state.setSelectedUser
   })))
   const queriedUserClick = async(user: SelectedUser) => {
     const selected = { 
@@ -33,7 +33,6 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   }
 
   React.useEffect(() => {
-    console.log(debouncedVal.trim());
     if (debouncedVal.trim()) searchUsers(debouncedVal);
   }, [debouncedVal, searchUsers]);
 
@@ -70,11 +69,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
                 <ConversationList 
                   key={q.id}
                   username={q.username}
-                  onClick={queriedUserClick({
-                    id:q.id,
-                    username:q.username,
-                    conversationId:q.conversationId
-                  })}
+                  onClick={() => queriedUserClick(q)}
                 />)):
           <>
             <div className="w-14 h-14 rounded-2xl bg-secondary/75 border border-border/50 flex items-center justify-center mb-3">

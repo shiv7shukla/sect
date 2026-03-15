@@ -50,7 +50,6 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
             readOnly
             aria-haspopup='dialog'
             aria-controls='search-modal'
-            onFocus={toggleModal}
             onClick={toggleModal}
             className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
           />

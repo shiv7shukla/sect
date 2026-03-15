@@ -13,8 +13,8 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   if (myId?.toString() === id) return res.status(400).json({"message": "cannot send message to yourself"});
   if (!myId) return res.status(401).json({"message": "unauthorized"});
   if (!id) return res.status(400).json({"message": "receiverId is required"});
-  if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid receiverId"});
-  const receiverObjectId = new mongoose.Types.ObjectId(id);
+  if (!mongoose.isObjectIdOrHexString(id)) return res.status(400).json({"message": "invalid receiverId"});
+  const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(id);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
 
   const conversation = await Conversation
@@ -75,9 +75,9 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
-  if (!mongoose.isValidObjectId(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
+  if (!mongoose.isObjectIdOrHexString(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"}); // Prevent sending messages to yourself
-  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+  const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
 
