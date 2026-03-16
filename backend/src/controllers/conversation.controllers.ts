@@ -42,20 +42,16 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
 export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
   let searchQuery = req.query.searchQuery as string;
   const userId = req.user?._id;
+  if (!userId) return res.status(401).json({"message": "unauthorized"});
   searchQuery = searchQuery.trim();
-  const username = await User
-  .findById(userId)
-  .select("username");
-  let results = await User
-  .find({ username: { $regex: searchQuery, $options: "i", $ne: searchQuery }})
+  const results = await User
+  .find({ 
+    _id: {$ne: userId}, 
+    username: {$regex: searchQuery, $options: "i"}
+  })
   .select("username _id")
   .limit(10)
   .lean();
-  if (results){
-    results = results.map((user) => {
-      if (user.username !== username?.username)
-        return user;
-  })}
   console.log(results);
 
   return res.status(200).json({ results });

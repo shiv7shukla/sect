@@ -10,8 +10,8 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const { receiverId } = req.params; // receiverId
   const myId = req.user?._id;
 
-  if (myId?.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   if (!myId) return res.status(401).json({"message": "unauthorized"});
+  if (myId?.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
   if (!mongoose.isObjectIdOrHexString(receiverId)) return res.status(400).json({"message": "invalid receiverId"});
   const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);

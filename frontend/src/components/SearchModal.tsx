@@ -26,6 +26,8 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
     await getMessages(selected);
     onClose();
   }
+  const textInput = React.useRef<HTMLInputElement>(null);
+  const clearInput = () => textInput.current?.value = "";
 
   React.useEffect(() => {
     if (debouncedVal.trim()) searchUsers(debouncedVal.trim());
@@ -34,7 +36,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   return !showModal ? null : (
     <div 
       onClick={onClose}
-      onKeyDown={(e) => e.key === 'Escape' && onClose()}
+      onKeyDown={(e) => e.key === 'Escape' && onClose() && clearInput()}
       className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
     >
       <div 
@@ -46,7 +48,11 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
             <h2 className="text-white text-lg font-semibold">Search Contacts</h2>
             <button 
               type="button" 
-              onClick={onClose}
+              onClick={
+                ()=>{
+                  onClose(); 
+                  clearInput();
+                }}
               className="text-gray-400 hover:text-white"
             >
               <X className="h-5 w-5" />
@@ -57,6 +63,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
             <input
               autoFocus
               type="text"
+              ref={textInput}
               value={inputVal}
               placeholder="Search contacts..."
               onChange={(e) => setInputVal(e.target.value)}
