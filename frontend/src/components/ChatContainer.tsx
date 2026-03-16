@@ -10,7 +10,7 @@ type ChatContainerProps = {
 
 const ChatContainer = ({children}: ChatContainerProps) => {
 
-  const {messages, isMessagesLoading, getMessages, selectedUser, subscribetoMessages, unsubscribeFromMessages} = chatStore(useShallow((state) => ({
+  const { isMessagesLoading, getMessages, selectedUser, subscribetoMessages, unsubscribeFromMessages} = chatStore(useShallow((state) => ({
     messages: state.messages,
     isMessagesLoading: state.isMessagesLoading,
     getMessages: state.getMessages,
@@ -22,14 +22,13 @@ const ChatContainer = ({children}: ChatContainerProps) => {
   useEffect(() => {
     if (selectedUser)
       getMessages(selectedUser).then(() => subscribetoMessages() );
-
     return () => unsubscribeFromMessages();
   }, [selectedUser, getMessages, subscribetoMessages, unsubscribeFromMessages]);
 
-  if (isMessagesLoading) return <MessageSkeleton />
+  if (isMessagesLoading) return (<div className='h-screen w-[78vw]'><MessageSkeleton /></div>);
 
   return (
-    <div className='flex flex-col'>
+    <div className='h-screen w-[78vw] bg-yellow-200 flex flex-col'>
       <div className='h-20 w-[78vw] bg-[#111318] py-4 px-6 '>
           <div className='h-10 w-full flex gap-2'>
             <div className='h-12 w-12 rounded-full bg-[#171A21] relative'>
@@ -37,7 +36,7 @@ const ChatContainer = ({children}: ChatContainerProps) => {
             </div>
               <div className='h-12 w-[83%] bg-transparent flex flex-col'>
                 <div className='w-full text-white text-base'>
-                  Shiv Shukla
+                  {selectedUser?.username}
                 </div>
                 <div className='w-full text-emerald-400 text-xs'>
                   <Lock className='text-emerald-400 inline-block mr-2' size = {12} />End-to-end encrypted

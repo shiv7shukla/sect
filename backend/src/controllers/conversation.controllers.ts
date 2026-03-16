@@ -16,9 +16,9 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
     //arrays are always truthy in JS so check for empty arrays using their length
 
     const chatInfo = conversations
-    .filter( c => c.type === "direct" )
-    .map(c => { const otherUser = (c.participants as any [])
-        .find( p => p._id.toString() !== userId ) //.find() finishes immediately and returns a value, so if (!otherUser) runs right after and checks that returned value.
+    .filter(c =>c.type === "direct")
+    .map(c => {const otherUser = (c.participants as any [])
+        .find(p => p._id.toString() !== userId) //.find() finishes immediately and returns a value, so if (!otherUser) runs right after and checks that returned value.
 
         if (!otherUser) return null;
         return {
@@ -52,7 +52,6 @@ export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
   .select("username _id")
   .limit(10)
   .lean();
-  console.log(results);
 
   return res.status(200).json({ results });
 });

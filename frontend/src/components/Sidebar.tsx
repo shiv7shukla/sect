@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow'
 import { chatStore } from '../store/useChatStore'
 import AvatarSkeleton from './AvatarSkeleton'
 import ConversationList from './ConversationList'
+import { formatMessageTime } from '../lib/utils'
 
 type SidebarProps = { toggleModal: () => void }
 
@@ -66,7 +67,7 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
                     })}
                     key={c.conversationId} 
                     userId= {c.participant.id}
-                    lastMessageAt={c.lastMessageAt} 
+                    lastMessageAt={formatMessageTime(c.lastMessageAt)} 
                     username={c.participant.username}
                     lastMessagePreview={c.lastMessagePreview} 
                   />))}

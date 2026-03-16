@@ -92,9 +92,10 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
     set({ isMessagesLoading: true });
     try{
       const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?._id}`);
+      console.log(data);
       set({ 
-        messages: data.messageInfo?? [], 
         isMessagesLoading: false,
+        messages: data.messageInfo?? [], 
         selectedUser: {...selectedUser, conversationId: data.conversationInfo.conversationId}
       })
     }
