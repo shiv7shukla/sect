@@ -67,10 +67,11 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
                       _id: c.participant.id, 
                       username: c.participant.username
                     })}
-                    key = {c.conversationId} 
-                    lastMessagePreview = {c.lastMessagePreview} 
-                    lastMessageAt = {c.lastMessageAt} 
-                    username = {c.participant.username} 
+                    key={c.conversationId} 
+                    userId= {c.participant.id}
+                    lastMessageAt={c.lastMessageAt} 
+                    username={c.participant.username}
+                    lastMessagePreview={c.lastMessagePreview} 
                   />))}
           {/* <ConversationList  /> */}
         </div>

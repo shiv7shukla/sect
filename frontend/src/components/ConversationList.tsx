@@ -2,19 +2,21 @@ import { User } from 'lucide-react'
 import { chatStore } from '../store/useChatStore';
 
 type ConversationListProps = {
+  userId: string,
   username: string;
-  lastMessagePreview?: string;
   lastMessageAt?: string;
+  lastMessagePreview?: string;
   onClick: () => Promise<void> | void;
 }
 
-const ConversationList = ({ username, lastMessagePreview, lastMessageAt, onClick }: ConversationListProps) => {
-  const selectedUser = chatStore((state) => ({ selectedUser: state.selectedUser }))
+const ConversationList = ({ userId, username, lastMessagePreview, lastMessageAt, onClick }: ConversationListProps) => {
+  const selectedUserId = chatStore((state) => ( state.selectedUser?._id ));
+  const isSelected = selectedUserId === userId;
 
   return (
     <>
       <div 
-        className={`h-16 w-full flex items-center justify-evenly gap-2 rounded-xl mb-2 bg-transparent transition-colors duration-200 hover:bg-[#171A21] px-2 hover:cursor-pointer ${selectedUser !== null ? 
+        className={`h-16 w-full flex items-center justify-evenly gap-2 rounded-xl mb-2 bg-transparent transition-colors duration-200 hover:bg-[#171A21] px-2 hover:cursor-pointer ${isSelected? 
         "border-l-2 border-l-emerald-400" : 
         "border-l-transparent"}`}
         onClick={onClick}

@@ -120,15 +120,19 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   },
 
   searchUsers: async (searchQuery: string) => {
-
+    const query = searchQuery.trim();
+    if (!query){
+      set({ queriedUsers: [] });
+      return ;
+    }
     try{
-      const { data } = await axiosInstance.get("/conversations/search/", { params: { searchQuery }});
+      const { data } = await axiosInstance.get("/conversations/search/", { params: { searchQuery: query }});
       set({ queriedUsers: data.results});
     }
     catch(err){
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err)
-      set({ error: message });
+      set({ error: message, queriedUsers: [] });
       toast.error("Failed to search for users");
     }
   },

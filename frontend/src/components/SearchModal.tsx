@@ -29,7 +29,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
 
   React.useEffect(() => {
     if (debouncedVal.trim()) searchUsers(debouncedVal.trim());
-  }, [debouncedVal, searchUsers, inputVal]);
+  }, [debouncedVal, searchUsers]);
 
   return !showModal ? null : (
     <div 
@@ -65,11 +65,12 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center text-center px-6">
-          {inputVal.trim().length > 0 && queriedUsers.length > 0? 
+          {debouncedVal.trim().length > 0 && queriedUsers.length > 0? 
             (queriedUsers
               .map((q) => 
                 <ConversationList 
                   key={q._id}
+                  userId={q._id}
                   username={q.username}
                   onClick={() => queriedUserClick(q)}
                 />)):
