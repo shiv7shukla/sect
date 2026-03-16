@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export interface IC{
   _id: mongoose.Types.ObjectId;
   participants: mongoose.Types.ObjectId[];
+  participantsKey: string;
   type: string;
   lastMessageAt: Date;
   lastMessagePreview: string;
@@ -16,6 +17,11 @@ const conversationSchema = new mongoose.Schema<IC>({
     ref: "User",
     required: true
   }],
+  participantsKey: { 
+    type: String,
+    unique: true,
+    required: true
+  }, 
   type: {
     type: String,
     enum: ["direct", "group"],
@@ -30,6 +36,6 @@ const conversationSchema = new mongoose.Schema<IC>({
     },
 },{timestamps: true});
 
-conversationSchema.index({type: 1, participants:1}, {unique: true});
+conversationSchema.index({type: 1, participantsKey:1}, {unique: true});
 
 export const Conversation = mongoose.models.Conversation as mongoose.Model<IC>||mongoose.model<IC>("Conversation", conversationSchema);

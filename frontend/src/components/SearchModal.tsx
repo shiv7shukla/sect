@@ -26,8 +26,7 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
     await getMessages(selected);
     onClose();
   }
-  const textInput = React.useRef<HTMLInputElement>(null);
-  const clearInput = () => textInput.current?.value = "";
+  const clearInput = () => setInputVal("");
 
   React.useEffect(() => {
     if (debouncedVal.trim()) searchUsers(debouncedVal.trim());
@@ -63,7 +62,6 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
             <input
               autoFocus
               type="text"
-              ref={textInput}
               value={inputVal}
               placeholder="Search contacts..."
               onChange={(e) => setInputVal(e.target.value)}

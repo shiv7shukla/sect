@@ -17,19 +17,19 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
 
+  const participants = [myId, receiverObjectId].sort();
+  const participantsKey = participants.map(id => id.toString()).join("_");
+
   const conversation = await Conversation
   .findOneAndUpdate({
     type: "direct",
-    participants: {
-      $all: [myId, receiverObjectId], 
-      $size: 2
-    },
+    participantsKey
   },
   {
     $setOnInsert: {
       type: "direct",
-      participants: [myId, receiverObjectId],
-      lastMessageAt: new Date(),
+      participants,
+      participantsKey,
       lastMessagePreview: ""
     }
   },
@@ -82,18 +82,17 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
 
   const participants = [senderId, receiverObjectId].sort();
+  const participantsKey = participants.map(id => id.toString()).join("_");
 
   let conversation = await Conversation
     .findOneAndUpdate({ 
-        type: "direct", 
-        participants: { 
-          $all: participants,
-          $size: 2
-        } 
+        type: "direct",
+        participantsKey
       }, { 
         $setOnInsert: {
           type: "direct", 
-          participants, 
+          participants,
+          participantsKey 
         }}, { 
           upsert: true, 
           new: true, 
@@ -108,7 +107,7 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
     _id: conversation._id
   }, {
     $set: {
-          lastMessageAt: new Date(), 
+          lastMessageAt: message.createdAt, 
           lastMessagePreview: content.text
         }})
   const populatedMessage = await Message

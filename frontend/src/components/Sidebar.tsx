@@ -11,10 +11,7 @@ type SidebarProps = { toggleModal: () => void }
 const Sidebar = ({toggleModal}: SidebarProps) => {
 
   // const onlineUsers = []
-  const { logout, } = authStore(useShallow((state) => ({
-    logout: state.logout,
-    authUser: state.authUser,
-  })))
+  const { logout, } = authStore(useShallow((state) => ({ logout: state.logout })))
   const { conversations, getConversations, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
     conversations: state.conversations,
     getConversations: state.getConversations,
