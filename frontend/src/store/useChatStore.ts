@@ -100,7 +100,10 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
       })
     }
     catch(err){
-      if (axios.isCancel(err)) return ;
+      if (axios.isCancel(err)){
+        set ({isMessagesLoading: false});
+        return ;
+      } 
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isMessagesLoading: false});

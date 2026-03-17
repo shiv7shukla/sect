@@ -19,8 +19,9 @@ const ChatContainer = ({children}: ChatContainerProps) => {
     unsubscribeFromMessages: state.unSubscribeFromMessages,
   })))
 
+  const selectedUserId = selectedUser?._id;
   useEffect(() => {
-    if (!selectedUser) return;
+    if (!selectedUserId) return;
 
     let active = true;
     const controller = new AbortController();
@@ -34,7 +35,7 @@ const ChatContainer = ({children}: ChatContainerProps) => {
       controller.abort();
       unsubscribeFromMessages();
     }
-  }, [selectedUser, getMessages, subscribetoMessages, unsubscribeFromMessages]);
+  }, [selectedUserId, getMessages, subscribetoMessages, unsubscribeFromMessages]);
 
   if (isMessagesLoading) return (<div className='h-screen w-[78vw]'><MessageSkeleton /></div>);
 
