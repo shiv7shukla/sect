@@ -102,14 +102,21 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
-  await Conversation
-  .updateOne({
-    _id: conversation._id
-  }, {
+  await Conversation.findOneAndUpdate(
+  {
+    _id: conversation._id,
+    $or: [
+      { lastMessageAt: { $exists: false } },           // no preview yet (new conversation)
+      { lastMessageAt: { $lt: message.createdAt! } }    // this message is newer
+    ]
+  },
+  {
     $set: {
-          lastMessageAt: message.createdAt, 
-          lastMessagePreview: content.text
-        }})
+      lastMessageAt: message.createdAt,
+      lastMessagePreview: content.text        
+    }
+  }
+);
   const populatedMessage = await Message
     .findById(message._id)
     .populate("senderId", "_id username")
