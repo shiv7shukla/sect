@@ -66,10 +66,9 @@ export type ChatStore = {
 }
 
 export const chatStore = create<ChatStore>(( set, get ) => ({
-  essages: [],
+  messages: [],
   queriedUsers: [],
   conversations: [],
-  messages: [],
 
   error: null,
   selectedUser: null,

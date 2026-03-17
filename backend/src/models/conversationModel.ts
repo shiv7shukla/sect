@@ -29,7 +29,6 @@ const conversationSchema = new mongoose.Schema<IC>({
   },
   lastMessageAt: {
       type: Date,
-      default: () => new Date()
     },
   lastMessagePreview: {
       type: String,
