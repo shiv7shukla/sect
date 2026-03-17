@@ -11,7 +11,6 @@ type ChatContainerProps = {
 const ChatContainer = ({children}: ChatContainerProps) => {
 
   const { isMessagesLoading, getMessages, selectedUser, subscribetoMessages, unsubscribeFromMessages} = chatStore(useShallow((state) => ({
-    messages: state.messages,
     isMessagesLoading: state.isMessagesLoading,
     getMessages: state.getMessages,
     selectedUser: state.selectedUser,
