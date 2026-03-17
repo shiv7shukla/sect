@@ -28,7 +28,7 @@ const ChatContainer = ({children}: ChatContainerProps) => {
   if (isMessagesLoading) return (<div className='h-screen w-[78vw]'><MessageSkeleton /></div>);
 
   return (
-    <div className='h-screen w-[78vw] bg-yellow-200 flex flex-col'>
+    <div className='h-screen w-[78vw] flex flex-col'>
       <div className='h-20 w-[78vw] bg-[#111318] py-4 px-6 '>
           <div className='h-10 w-full flex gap-2'>
             <div className='h-12 w-12 rounded-full bg-[#171A21] relative'>
