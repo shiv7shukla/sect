@@ -1,8 +1,9 @@
 import { asyncHandler } from './../utils/asyncHandler.js';
 import type { Request, Response } from "express"
 import { Conversation } from "../models/conversationModel.js";
+import { User } from '../models/userModel.js';
 
-export const getConversations = asyncHandler( async( req: Request, res: Response) => {
+export const getConversations = asyncHandler( async( req: Request, res: Response ) => {
   const userId = req.user!._id.toString();
 
   const conversations = await Conversation
@@ -15,9 +16,9 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
     //arrays are always truthy in JS so check for empty arrays using their length
 
     const chatInfo = conversations
-    .filter( c => c.type === "direct" )
-    .map(c => { const otherUser = (c.participants as any [])
-        .find( p => p._id.toString() !== userId ) //.find() finishes immediately and returns a value, so if (!otherUser) runs right after and checks that returned value.
+    .filter(c =>c.type === "direct")
+    .map(c => {const otherUser = (c.participants as any [])
+        .find(p => p._id.toString() !== userId) //.find() finishes immediately and returns a value, so if (!otherUser) runs right after and checks that returned value.
 
         if (!otherUser) return null;
         return {
@@ -36,5 +37,21 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
     return res.status(200).json({ chatInfo });
   }
   else return res.status(200).json({"message": "No conversations found" });
-
 })
+
+export const searchUsers = asyncHandler( async(req: Request, res: Response) => {
+  let searchQuery = req.query.searchQuery as string;
+  const userId = req.user?._id;
+  if (!userId) return res.status(401).json({"message": "unauthorized"});
+  searchQuery = searchQuery.trim();
+  const results = await User
+  .find({ 
+    _id: {$ne: userId}, 
+    username: {$regex: searchQuery, $options: "i"}
+  })
+  .select("username _id")
+  .limit(10)
+  .lean();
+
+  return res.status(200).json({ results });
+});

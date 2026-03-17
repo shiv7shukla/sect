@@ -7,23 +7,40 @@ import { User } from "../models/userModel.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 
 export const getMessages = asyncHandler(async(req: Request, res: Response) => {
-  const { id } = req.params; // conversationId
+  const { receiverId } = req.params; // receiverId
   const myId = req.user?._id;
 
   if (!myId) return res.status(401).json({"message": "unauthorized"});
-  if (!id) return res.status(400).json({"message": "conversationId is required"});
-  if (!mongoose.isValidObjectId(id)) return res.status(400).json({"message": "invalid conversationId"});
+  if (myId?.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
+  if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
+  if (!mongoose.isObjectIdOrHexString(receiverId)) return res.status(400).json({"message": "invalid receiverId"});
+  const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);
+  if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
 
-  const conversationObjectId = mongoose.Types.ObjectId.createFromHexString(id);
-  const conversation = await Conversation.findOne({
-    _id:conversationObjectId,
-    participants:myId,
+  const participants = [myId, receiverObjectId].sort();
+  const participantsKey = participants.map(id => id.toString()).join("_");
+
+  const conversation = await Conversation
+  .findOneAndUpdate({
+    type: "direct",
+    participantsKey
+  },
+  {
+    $setOnInsert: {
+      type: "direct",
+      participants,
+      participantsKey,
+      lastMessagePreview: ""
+    }
+  },
+  {
+    new: true, //return the document (new or existing)
+    upsert: true //create if not found
   })
-    .select("_id type participants lastMessageAt lastMessagePreview")
-    .lean();
+  .select("_id type participants lastMessageAt lastMessagePreview")
+  .lean();
 
-  if(!conversation) return res.status(403).json({ "message":  "unauthorized" }); // either conversation doesn't exist or user is not a participant
-  const messages = await Message.find({ conversationId: conversationObjectId })
+  const messages = await Message.find({ conversationId: conversation._id })
     .sort({ createdAt: 1 })
     .populate("senderId", "_id username")
     .lean();
@@ -58,22 +75,24 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
-  if (!mongoose.isValidObjectId(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
-  const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+  if (!mongoose.isObjectIdOrHexString(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
+  if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"}); // Prevent sending messages to yourself
+  const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);
   if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
 
-  // Prevent sending messages to yourself
-  if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"});
   const participants = [senderId, receiverObjectId].sort();
+  const participantsKey = participants.map(id => id.toString()).join("_");
+
   let conversation = await Conversation
     .findOneAndUpdate({ 
-        type: "direct", 
-        participants 
+        type: "direct",
+        participantsKey
       }, { 
         $setOnInsert: {
           type: "direct", 
-          participants, 
+          participants,
+          participantsKey 
         }}, { 
           upsert: true, 
           new: true, 
@@ -83,14 +102,21 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   const message = await Message
     .create({ senderId, conversationId: conversation._id, content });
-  await Conversation
-  .updateOne({
-    _id: conversation._id
-  }, {
+  await Conversation.findOneAndUpdate(
+  {
+    _id: conversation._id,
+    $or: [
+      { lastMessageAt: { $exists: false } },           // no preview yet (new conversation)
+      { lastMessageAt: { $lt: message.createdAt! } }    // this message is newer
+    ]
+  },
+  {
     $set: {
-          lastMessageAt: new Date(), 
-          lastMessagePreview: content.text
-        }})
+      lastMessageAt: message.createdAt,
+      lastMessagePreview: content.text        
+    }
+  }
+);
   const populatedMessage = await Message
     .findById(message._id)
     .populate("senderId", "_id username")

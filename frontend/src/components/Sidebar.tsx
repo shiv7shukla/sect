@@ -5,13 +5,14 @@ import { useShallow } from 'zustand/shallow'
 import { chatStore } from '../store/useChatStore'
 import AvatarSkeleton from './AvatarSkeleton'
 import ConversationList from './ConversationList'
+import { formatMessageTime } from '../lib/utils'
 
-const Sidebar = () => {
+type SidebarProps = { toggleModal: () => void }
+
+const Sidebar = ({toggleModal}: SidebarProps) => {
+
   // const onlineUsers = []
-  const { logout, } = authStore(useShallow((state) => ({
-    logout: state.logout,
-    // authUser: state.authUser,
-  })))
+  const { logout, } = authStore(useShallow((state) => ({ logout: state.logout })))
   const { conversations, getConversations, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
     conversations: state.conversations,
     getConversations: state.getConversations,
@@ -19,7 +20,8 @@ const Sidebar = () => {
     isConversationsLoading: state.isConversationsLoading,
   })))
 
-  React.useEffect(() => { getConversations() }, [getConversations])
+  React.useEffect(() => { getConversations() }, [getConversations]);
+  
 
   return (
     <>
@@ -42,14 +44,17 @@ const Sidebar = () => {
         <div className="relative w-full max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
           <input
-            type="text"
             placeholder="Search contacts..."
+            readOnly
+            aria-haspopup='dialog'
+            aria-controls='search-modal'
+            onClick={toggleModal}
             className="w-full bg-[#171A21] border-2 border-zinc-800 rounded-xl py-2 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400 transition-colors"
           />
         </div>
         <hr className="-mx-4 border-t border-zinc-800 my-4" />
         <div className='h-96 overflow-y-auto'>
-          {/* {isConversationsLoading ? 
+          {isConversationsLoading ? 
             (Array.from({length: 6})
               .map((_, i) => 
                 (<AvatarSkeleton key = {i} />))) : 
@@ -57,14 +62,15 @@ const Sidebar = () => {
                   <ConversationList
                     onClick = {() => setSelectedUser({
                       conversationId: c.conversationId, 
-                      id: c.participant.id, 
+                      _id: c.participant.id, 
                       username: c.participant.username
                     })}
-                    key = {c.conversationId} 
-                    lastMessagePreview = {c.lastMessagePreview} 
-                    lastMessageAt = {c.lastMessageAt} 
-                    username = {c.participant.username} 
-                  />))} */}
+                    key={c.conversationId} 
+                    userId= {c.participant.id}
+                    lastMessageAt={formatMessageTime(c.lastMessageAt)} 
+                    username={c.participant.username}
+                    lastMessagePreview={c.lastMessagePreview} 
+                  />))}
           {/* <ConversationList  /> */}
         </div>
       </div>

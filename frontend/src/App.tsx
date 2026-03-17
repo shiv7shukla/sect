@@ -10,9 +10,9 @@ import Chats from './pages/Chats'
 import { Spinner } from './components/ui/spinner'
 
 const App = () => {
-  const { authUser, checkAuth, status }=authStore(useShallow((state)=>({
-    authUser:state.authUser, 
-    checkAuth:state.checkAuth,
+  const { authUser, checkAuth, status } = authStore(useShallow((state)=>({
+    authUser: state.authUser, 
+    checkAuth: state.checkAuth,
     status: state.status
   })));
 
