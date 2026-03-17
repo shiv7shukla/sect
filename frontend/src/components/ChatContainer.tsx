@@ -20,9 +20,20 @@ const ChatContainer = ({children}: ChatContainerProps) => {
   })))
 
   useEffect(() => {
-    if (selectedUser)
-      getMessages(selectedUser).then(() => subscribetoMessages() );
-    return () => unsubscribeFromMessages();
+    if (!selectedUser) return;
+
+    let active = true;
+    const controller = new AbortController();
+    const loadAndSubscribe = async() => {
+      await getMessages(selectedUser, controller.signal);
+      if (active) subscribetoMessages();
+    }
+    loadAndSubscribe();
+    return () => {
+      active = false;
+      controller.abort();
+      unsubscribeFromMessages();
+    }
   }, [selectedUser, getMessages, subscribetoMessages, unsubscribeFromMessages]);
 
   if (isMessagesLoading) return (<div className='h-screen w-[78vw]'><MessageSkeleton /></div>);

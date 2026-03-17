@@ -25,7 +25,7 @@ const ConversationList = ({ userId, username, lastMessagePreview, lastMessageAt,
         <div className='h-12 w-12 rounded-full bg-[#171A21] relative'><User className='text-white absolute right-3 top-3' size={24} /></div>
         <div className='h-12 w-[83%] bg-transparent flex flex-col justify-start '>
           <div className='w-full text-white text-base self-start'>{username}</div>
-          <div className='w-full text-slate-500 text-sm justify-between'>
+          <div className='w-full text-slate-500 text-sm'>
             <div>{(lastMessagePreview)?.trim() || "No messages yet"}</div>
             <div>{lastMessageAt}</div>
           </div>

@@ -54,7 +54,7 @@ export type ChatStore = {
 
   getConversations: () => Promise<void>;
   searchUsers: (searchquery: string) => Promise<void>;
-  getMessages: (selecteduser: SelectedUser) => Promise<void>;
+  getMessages: (selecteduser: SelectedUser, signal?: AbortSignal) => Promise<void>;
   sendMessage: (text: string, type: string) => Promise<void>;
 
   clearError: () => void;
@@ -88,10 +88,10 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
     }
   },
 
-  getMessages: async (selectedUser: SelectedUser) => {
+  getMessages: async (selectedUser: SelectedUser, signal?: AbortSignal) => {
     set({ isMessagesLoading: true });
     try{
-      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?._id}`);
+      const { data } = await axiosInstance.get<getMessageAPIResponse>(`/conversations/messages/${selectedUser?._id}`, {signal});
       console.log(data);
       set({ 
         isMessagesLoading: false,
@@ -100,10 +100,11 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
       })
     }
     catch(err){
+      if (axios.isCancel(err)) return ;
       const message = axios.isAxiosError(err)? err?.response?.data?.message: null;
       console.log(err);
       set ({ error: message, isMessagesLoading: false});
-      toast.error(message?? "Failed to load messages")
+      toast.error(message?? "Failed to load messages");
     }
   },
 
