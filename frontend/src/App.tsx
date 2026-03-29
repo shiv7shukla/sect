@@ -16,7 +16,7 @@ const App = () => {
     status: state.status
   })));
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 

@@ -72,7 +72,6 @@ export const authStore = create<AuthStore>((set, get) => ({
       const res = await axiosInstance.get("/auth/check");
       set({authUser: res.data, status: "authenticated"});
       get().connectSocket();
-      console.log("checking done", get().status);
     } 
     catch {
       set({authUser: null, status: "unauthenticated"});
@@ -113,7 +112,7 @@ export const authStore = create<AuthStore>((set, get) => ({
 
     try{
       const res = await axiosInstance.post("/auth/signin", data);
-      set({ authUser: res.data, status: "authenticated" });
+      set({authUser: res.data, status: "authenticated"});
       toast.success("Signed in successfully!", {
         description: `Welcome back, ${data.username}!`,
       });
@@ -130,7 +129,7 @@ export const authStore = create<AuthStore>((set, get) => ({
       toast.error("Signin Failed");
     } 
     finally {
-      set({ isSigningIn: false });
+      set({isSigningIn: false});
     }
 
   },
@@ -163,8 +162,11 @@ export const authStore = create<AuthStore>((set, get) => ({
     
     const socketBaseUrl = import.meta.env.VITE_API_BASE_URL;
     const socket = io(socketBaseUrl);
-    
-    socket.emit("setup", authUser);
+
+    set({socket});
+    socket.on("connect", () => {
+      socket.emit("setup", authUser);
+    })
   },
 
   disconnectSocket: () => {
