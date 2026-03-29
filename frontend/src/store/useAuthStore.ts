@@ -131,7 +131,6 @@ export const authStore = create<AuthStore>((set, get) => ({
     finally {
       set({isSigningIn: false});
     }
-
   },
 
   logout: async () => {
@@ -160,10 +159,11 @@ export const authStore = create<AuthStore>((set, get) => ({
     const {authUser} = get();
     if (!authUser || get().socket?.connected) return;
     
-    const socketBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    const socketBaseUrl = "http://localhost:3000";
     const socket = io(socketBaseUrl);
 
     set({socket});
+    
     socket.on("connect", () => {
       socket.emit("setup", authUser);
     })
