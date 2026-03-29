@@ -67,14 +67,15 @@ export const authStore = create<AuthStore>((set, get) => ({
   setMode: (mode) => set({mode}),
 
   checkAuth: async () => {
-    set({ status: "checking", error: null });
+    set({status: "checking", error: null});
     try{
       const res = await axiosInstance.get("/auth/check");
-      set({ authUser: res.data, status: "authenticated" });
+      set({authUser: res.data, status: "authenticated"});
       get().connectSocket();
+      console.log("checking done", get().status);
     } 
     catch {
-      set({ authUser: null, status: "unauthenticated" });
+      set({authUser: null, status: "unauthenticated"});
       get().disconnectSocket();
     }
   },
@@ -101,7 +102,7 @@ export const authStore = create<AuthStore>((set, get) => ({
       toast.error(message);
     } 
     finally {
-      set({ isSigningUp: false });
+      set({isSigningUp: false});
     }
 
     get().connectSocket();
@@ -112,11 +113,11 @@ export const authStore = create<AuthStore>((set, get) => ({
 
     try{
       const res = await axiosInstance.post("/auth/signin", data);
-      console.log(res.data);
       set({ authUser: res.data, status: "authenticated" });
       toast.success("Signed in successfully!", {
         description: `Welcome back, ${data.username}!`,
       });
+      get().connectSocket();
     } 
     catch (err) {
       const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
@@ -132,7 +133,6 @@ export const authStore = create<AuthStore>((set, get) => ({
       set({ isSigningIn: false });
     }
 
-    get().connectSocket();
   },
 
   logout: async () => {
@@ -157,20 +157,14 @@ export const authStore = create<AuthStore>((set, get) => ({
   },
 
   connectSocket: () => {
-    const { authUser } = get();
+    console.log("running");
+    const {authUser} = get();
     if (!authUser || get().socket?.connected) return;
     
-    const socketBaseUrl = axiosInstance.defaults.baseURL? new URL(axiosInstance.defaults.baseURL, window.location.origin).origin: window.location.origin;
-    const socket = io(socketBaseUrl, {
-      query: { userId: authUser._id }
-    });
-
-    set({ socket: socket });
-
-    socket.connect();
-    socket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds});
-    })
+    const socketBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    const socket = io(socketBaseUrl);
+    
+    socket.emit("setup", authUser);
   },
 
   disconnectSocket: () => {
@@ -178,7 +172,7 @@ export const authStore = create<AuthStore>((set, get) => ({
       const socket = get().socket;
       socket?.off("getOnlineUsers");
       socket?.disconnect();
-      set({ socket: null, onlineUsers: [] });
+      set({socket: null, onlineUsers: []});
     }
   }
 }));

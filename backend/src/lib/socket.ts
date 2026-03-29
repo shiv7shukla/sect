@@ -15,39 +15,12 @@ const io = new Server(server, {
   }
 });
 
-export function getReceiverSocketId(userId: string){ return userSocketMap[userId]};
-
-type UserSocketMap = Partial<Record<string, string>>;
-
-const userSocketMap: UserSocketMap = {}; //{userId: socketId}
-
-io.use(async (socket, next) => {
-  try{
-    const cookies = cookie.parse(socket.handshake.headers.cookie || "");
-    const token = cookies.jwt;
-    if (!token) return next(new Error("Unauthorized - token not provided"));
-
-    const decoded = jwt.verify(token, ENV.JWT_SECRET) as { id: string };
-    const user =  await User.findById(decoded.id).select("-password");
-    if (!user) return next(new Error("Unauthorized - token not provided"));
-
-    socket.data.userId = decoded.id;
-    next();
-  }
-  catch{ next(new Error("Unauthorized - token not provided")); }
-});
-
 io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
-  const userId = socket.data.userId;
-  if (userId) userSocketMap[userId as string] = socket.id;
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-  socket.on("disconnect", () => {
-    console.log("a user disconnected", socket.id);
-    if (userId && userSocketMap[userId as string] === socket.id) delete userSocketMap[userId as string];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  socket.on("setup", (userData) => {
+    console.log(userData);
+    socket.join(userData._id);
+    socket.emit("connected");
   })
-});
+})
 
 export { io, app, server };

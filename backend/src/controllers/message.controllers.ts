@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Conversation } from "../models/conversationModel.js";
 import { Message } from "../models/messageModel.js";
 import { User } from "../models/userModel.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+// import { getReceiverSocketId, io } from "../lib/socket.js";
 
 export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const { receiverId } = req.params; // receiverId
@@ -131,8 +131,8 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
     createdAt: populatedMessage.createdAt,
   };
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) io.to(receiverSocketId).emit("newMessage", newMessage);
+    // const receiverSocketId = getReceiverSocketId(receiverId);
+    // if (receiverSocketId) io.to(receiverSocketId).emit("newMessage", newMessage);
 
   return res.status(201).json(newMessage);
 });
