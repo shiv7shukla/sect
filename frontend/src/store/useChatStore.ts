@@ -119,13 +119,13 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
     try {
       const res = await axiosInstance.post(
         `/conversations/send/${get().selectedUser?._id}`,
-        { content: { type, text } }
+        {content: {type, text}}
       );
-      set(state => ({ messages: [...state.messages, res.data] }));
+      set(state => ({messages: [...state.messages, res.data]}));
     } catch (err) {
       const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
       console.log(err);
-      set({ error: message });
+      set({error: message});
       toast.error(message ?? "Failed to send messages");
     }
   },

@@ -1,23 +1,50 @@
 import { SendHorizontal } from 'lucide-react'
-import React, { useId } from 'react'
+import React from 'react'
+import { chatStore } from '../store/useChatStore';
+import { useShallow } from 'zustand/shallow';
+import useDebounce from '../hooks/useDebounce';
 
 const TextArea = () => {
   const [text, setText] = React.useState("");
+  const debouncedText = useDebounce(text, 300);
   const isTyping = text.length > 0;
-  const id = useId();
-  const gradientId = `gradientId-${id}`
+  const id = React.useId();
+  const gradientId = `gradientId-${id}`;
+  const {sendMessage, selectedUser, conversations} = chatStore(useShallow((state) => ({
+    sendMessage: state.sendMessage,
+    selectedUser: state.selectedUser,
+    conversations: state.conversations
+  })));
+  const selectedConversation = conversations.filter(c => c.conversationId === selectedUser?.conversationId);
+  const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isTyping) return;
+    if (e.key === "Enter"){
+      e.preventDefault();
+      sendMessage(debouncedText, selectedConversation[0].conversationId);
+    }
+  }, [sendMessage, isTyping, debouncedText, selectedConversation]);
 
   return (
     <div className='h-28 w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-4 px-4'>
       <div className='w-full flex gap-4 '>
         <input 
-        type="text" 
-        value={text}
-        onChange={(e)=>setText(e.target.value)}
-        placeholder='Type a secure message...' 
-        className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 placeholder:text-gray-500 text-white' />
-        <button className={`h-10 w-10 bg-emerald-400 rounded-xl ${isTyping? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} transition-all duration-300`} disabled={!isTyping}>
-          <SendHorizontal className={`size-6 text-black translate-x-2 ${isTyping? "-rotate-90": "rotate-0" } transition-transform duration-300`}/>
+          type="text" 
+          // value={text}
+          onKeyDown={(e) => handleKeyDown(e)}
+          placeholder='Type a secure message...' 
+          onChange={(e) => setText(e.target.value)}
+          className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 placeholder:text-gray-500 text-white'
+        />
+        <button 
+          className={`h-10 w-10 bg-emerald-400 rounded-xl 
+            ${isTyping? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
+            transition-all duration-300`} 
+            disabled={!isTyping}>
+            <SendHorizontal 
+              className={`size-6 text-black translate-x-2 
+                ${isTyping? "-rotate-90": "rotate-0"} 
+                transition-transform duration-300`}
+              onClick={() => sendMessage(debouncedText, selectedConversation[0].conversationId)}/>
         </button>
       </div>
       <footer className='flex gap-2'>

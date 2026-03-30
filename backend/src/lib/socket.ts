@@ -26,6 +26,10 @@ io.on("connection", (socket) => {
     socket.join(conversationId);
     console.log("user joined conversation" + conversationId);
   });
+
+  socket.on("new message", (newMessage) => {
+    
+  })
 })
 
 export { io, app, server };

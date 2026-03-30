@@ -7,21 +7,20 @@ import AvatarSkeleton from './AvatarSkeleton'
 import ConversationList from './ConversationList'
 import { formatMessageTime } from '../lib/utils'
 
-type SidebarProps = { toggleModal: () => void }
+type SidebarProps = {toggleModal: () => void}
 
 const Sidebar = ({toggleModal}: SidebarProps) => {
 
   // const onlineUsers = []
-  const { logout, } = authStore(useShallow((state) => ({ logout: state.logout })))
-  const { conversations, getConversations, setSelectedUser, isConversationsLoading } = chatStore(useShallow((state) => ({
+  const {logout} = authStore(useShallow((state) => ({logout: state.logout})))
+  const {conversations, getConversations, setSelectedUser, isConversationsLoading} = chatStore(useShallow((state) => ({
     conversations: state.conversations,
     getConversations: state.getConversations,
     setSelectedUser: state.setSelectedUser,
     isConversationsLoading: state.isConversationsLoading,
   })))
 
-  React.useEffect(() => { getConversations() }, [getConversations]);
-  
+  React.useEffect(() => {getConversations()}, [getConversations]);
 
   return (
     <>

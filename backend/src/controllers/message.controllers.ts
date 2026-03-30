@@ -7,7 +7,7 @@ import { User } from "../models/userModel.js";
 // import { getReceiverSocketId, io } from "../lib/socket.js";
 
 export const getMessages = asyncHandler(async(req: Request, res: Response) => {
-  const { receiverId } = req.params; // receiverId
+  const {receiverId} = req.params; // receiverId
   const myId = req.user?._id;
 
   if (!myId) return res.status(401).json({"message": "unauthorized"});
@@ -69,9 +69,9 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
 });
 
 export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
-  const { receiverId } = req.params;
+  const {receiverId} = req.params;
   const senderId = req.user?._id;
-  const { content } = req.body;
+  const {content} = req.body;
   
   if (!senderId) return res.status(401).json({"message": "unauthorized"});
   if (!receiverId) return res.status(400).json({"message": "receiverId is required"});
@@ -86,7 +86,7 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   let conversation = await Conversation
     .findOneAndUpdate({ 
-        type: "direct",
+        type: content.type,
         participantsKey
       }, { 
         $setOnInsert: {
@@ -102,6 +102,7 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   const message = await Message
     .create({senderId, conversationId: conversation._id, content});
+
   await Conversation.findOneAndUpdate(
   {
     _id: conversation._id,
@@ -117,12 +118,16 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
     }
   }
 );
-  const populatedMessage = await Message
+  
+const populatedMessage = await Message
     .findById(message._id)
     .populate("senderId", "_id username")
     .lean();
+  
   if (!populatedMessage) return res.status(500).json({"message": "unable to create new message"});
+  
   const sender = populatedMessage.senderId as { _id: mongoose.Types.ObjectId; username: string } | null;
+  
   const newMessage = {
     id: populatedMessage._id.toString(),
     senderId: sender?._id?.toString() ?? null,
