@@ -93,11 +93,11 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   getMessages: async (selectedUser: SelectedUser, signal?: AbortSignal) => {
     set({ isMessagesLoading: true });
     try {
-      const { data } = await axiosInstance.get<getMessageAPIResponse>(
+      const {data} = await axiosInstance.get<getMessageAPIResponse>(
         `/conversations/messages/${selectedUser?._id}`,
-        { signal }
+        {signal}
       );
-      console.log(data);
+
       set({
         isMessagesLoading: false,
         messages: data.messageInfo ?? [],
@@ -105,12 +105,12 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
       });
     } catch (err) {
       if (axios.isCancel(err)) {
-        set({ isMessagesLoading: false });
+        set({isMessagesLoading: false});
         return;
       }
       const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
       console.log(err);
-      set({ error: message, isMessagesLoading: false });
+      set({error: message, isMessagesLoading: false});
       toast.error(message ?? "Failed to load messages");
     }
   },
@@ -150,18 +150,13 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
   },
 
   subscribeToMessages: () => {
-    const { selectedUser } = get();
+    const {selectedUser} = get();
     if (!selectedUser) return;
 
     const socket = authStore.getState().socket;
-
-    const listener = (newMessage: Message) => {
-      if (newMessage.senderId !== selectedUser._id) return;
-      set({ messages: [...get().messages, newMessage] });
-    };
-
-    socket?.on("newMessage", listener);
-    set({ messageListener: listener });
+    if (!socket) return;
+    
+    socket.emit("start conversation", selectedUser.conversationId);
   },
 
   unSubscribeFromMessages: () => {

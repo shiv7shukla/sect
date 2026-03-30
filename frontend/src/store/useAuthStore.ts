@@ -162,10 +162,10 @@ export const authStore = create<AuthStore>((set, get) => ({
     const socketBaseUrl = "http://localhost:3000";
     const socket = io(socketBaseUrl);
 
-    set({socket});
-    
     socket.on("connect", () => {
-      socket.emit("setup", authUser);
+      socket.emit("setup", authUser, () => {
+        set({socket});
+      });
     })
   },
 

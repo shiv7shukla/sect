@@ -101,13 +101,13 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
     .lean();
 
   const message = await Message
-    .create({ senderId, conversationId: conversation._id, content });
+    .create({senderId, conversationId: conversation._id, content});
   await Conversation.findOneAndUpdate(
   {
     _id: conversation._id,
     $or: [
-      { lastMessageAt: { $exists: false } },           // no preview yet (new conversation)
-      { lastMessageAt: { $lt: message.createdAt! } }    // this message is newer
+      {lastMessageAt: {$exists: false}},           // no preview yet (new conversation)
+      {lastMessageAt: {$lt: message.createdAt!}}    // this message is newer
     ]
   },
   {

@@ -17,11 +17,15 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("setup", (userData) => {
-    console.log(userData);
+  socket.on("setup", (userData, callback) => {
     socket.join(userData._id);
-    socket.emit("connected");
-  })
+    callback();
+  });
+
+  socket.on("start conversation", (conversationId) => {
+    socket.join(conversationId);
+    console.log("user joined conversation" + conversationId);
+  });
 })
 
 export { io, app, server };
