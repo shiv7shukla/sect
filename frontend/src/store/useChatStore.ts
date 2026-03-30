@@ -65,7 +65,7 @@ export type ChatStore = {
   setSelectedUser: (selectedUser: SelectedUser) => void;
 }
 
-export const chatStore = create<ChatStore>(( set, get ) => ({
+export const chatStore = create<ChatStore>((set, get) => ({
   messages: [],
   queriedUsers: [],
   conversations: [],
@@ -115,21 +115,6 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
     }
   },
 
-  sendMessage: async (text: string, type: string) => {
-    try {
-      const res = await axiosInstance.post(
-        `/conversations/send/${get().selectedUser?._id}`,
-        {content: {type, text}}
-      );
-      set(state => ({messages: [...state.messages, res.data]}));
-    } catch (err) {
-      const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
-      console.log(err);
-      set({error: message});
-      toast.error(message ?? "Failed to send messages");
-    }
-  },
-
   searchUsers: async (searchQuery: string) => {
     const query = searchQuery.trim();
     if (!query) {
@@ -146,6 +131,21 @@ export const chatStore = create<ChatStore>(( set, get ) => ({
       console.log(err);
       set({ error: message, queriedUsers: [] });
       toast.error("Failed to search for users");
+    }
+  },
+
+  sendMessage: async (text: string, type: string) => {
+    try {
+      const res = await axiosInstance.post(
+        `/conversations/send/${get().selectedUser?._id}`,
+        {content: {type, text}}
+      );
+      set(state => ({messages: [...state.messages, res.data]}));
+    } catch (err) {
+      const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
+      console.log(err);
+      set({error: message});
+      toast.error(message ?? "Failed to send messages");
     }
   },
 

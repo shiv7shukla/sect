@@ -24,12 +24,11 @@ io.on("connection", (socket) => {
 
   socket.on("start conversation", (conversationId) => {
     socket.join(conversationId);
-    console.log("user joined conversation" + conversationId);
   });
 
-  socket.on("new message", (newMessage) => {
-    
+  socket.on("new message", (newMessage, selectedUser) => {
+    socket.in(selectedUser._id).emit("message received", newMessage);
   })
 })
 
-export { io, app, server };
+export {io, app, server};

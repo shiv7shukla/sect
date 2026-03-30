@@ -1,12 +1,12 @@
 import { SendHorizontal } from 'lucide-react'
-import React from 'react'
+import React, { use } from 'react'
 import { chatStore } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
-import useDebounce from '../hooks/useDebounce';
+import { authStore } from '../store/useAuthStore';
 
 const TextArea = () => {
   const [text, setText] = React.useState("");
-  const debouncedText = useDebounce(text, 300);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const isTyping = text.length > 0;
   const id = React.useId();
   const gradientId = `gradientId-${id}`;
@@ -16,20 +16,22 @@ const TextArea = () => {
     conversations: state.conversations
   })));
   const selectedConversation = conversations.filter(c => c.conversationId === selectedUser?.conversationId);
-  const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isTyping) return;
+  const handleKeyDown = React.useCallback(async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isTyping || !selectedUser?.conversationId) return;
     if (e.key === "Enter"){
       e.preventDefault();
-      sendMessage(debouncedText, selectedConversation[0].conversationId);
+      await sendMessage(inputRef.current!.value, selectedConversation[0].conversationId);
+      setText("");
     }
-  }, [sendMessage, isTyping, debouncedText, selectedConversation]);
+  }, [sendMessage, isTyping, selectedConversation, selectedUser, ]);
 
   return (
     <div className='h-28 w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-4 px-4'>
       <div className='w-full flex gap-4 '>
         <input 
-          type="text" 
-          // value={text}
+          type="text"
+          value={text}
+          ref={inputRef}
           onKeyDown={(e) => handleKeyDown(e)}
           placeholder='Type a secure message...' 
           onChange={(e) => setText(e.target.value)}
@@ -44,7 +46,12 @@ const TextArea = () => {
               className={`size-6 text-black translate-x-2 
                 ${isTyping? "-rotate-90": "rotate-0"} 
                 transition-transform duration-300`}
-              onClick={() => sendMessage(debouncedText, selectedConversation[0].conversationId)}/>
+              onClick={() => {
+                if (selectedUser?.conversationId){
+                  sendMessage(text, selectedConversation[0].conversationId);
+                  setText("");
+                }
+                }}/>
         </button>
       </div>
       <footer className='flex gap-2'>
