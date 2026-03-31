@@ -135,15 +135,19 @@ export const chatStore = create<ChatStore>((set, get) => ({
   },
 
   sendMessage: async (text: string, type: string) => {
+    const socket = authStore.getState().socket;
+
     try {
       const res = await axiosInstance.post(
         `/conversations/send/${get().selectedUser?._id}`,
         {content: {type, text}}
       );
       set(state => ({messages: [...state.messages, res.data]}));
+      if (socket) socket.emit("new message", res.data);
     } catch (err) {
       const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
       console.log(err);
+      console.log(message);
       set({error: message});
       toast.error(message ?? "Failed to send messages");
     }
@@ -157,6 +161,9 @@ export const chatStore = create<ChatStore>((set, get) => ({
     if (!socket) return;
     
     socket.emit("start conversation", selectedUser.conversationId);
+    socket.on("message received", (newMessage) => {
+      set(state => ({messages: [...state.messages, newMessage]}));
+    })
   },
 
   unSubscribeFromMessages: () => {
@@ -164,7 +171,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
     const listener = get().messageListener;
 
     if (listener) socket?.off("newMessage", listener);
-    set({ messageListener: null });
+    set({messageListener: null});
   },
 
   setSelectedUser: (selectedUser: SelectedUser) => set({ selectedUser }),

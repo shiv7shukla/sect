@@ -8,7 +8,7 @@ import { formatMessageTime } from '../lib/utils'
 // import { authStore } from '../store/useAuthStore'
 
 const MessageArea = () => {
-  const { messages } = chatStore(useShallow((state) => ({
+  const {messages} = chatStore(useShallow((state) => ({
     messages: state.messages,
   })));
   // const { onlineusers } = authStore(useShallow((state) => ({
@@ -18,7 +18,7 @@ const MessageArea = () => {
 
   React.useEffect(() => {
     if (messageEndRef.current && messages)
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messageEndRef.current.scrollIntoView({behavior: "smooth"});
   }, [messages])
 
   return (
@@ -35,10 +35,10 @@ const MessageArea = () => {
             return(
               <TextBlock 
                 key={message.id} 
+                ref={messageEndRef} 
+                text={message.content.text}
                 senderUsername={message.senderUsername} 
                 createdAt={formatMessageTime(message.createdAt)} 
-                text={message.content.text}
-                ref={messageEndRef} 
               />
             )})}
         </div>

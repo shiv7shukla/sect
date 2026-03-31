@@ -7,9 +7,9 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
   const userId = req.user!._id.toString();
 
   const conversations = await Conversation
-  .find({ participants: userId })
-  .sort({ lastMessageAt: -1 })
-  .populate( "participants", "username" )
+  .find({participants: userId})
+  .sort({lastMessageAt: -1})
+  .populate("participants", "username")
   .lean();
 
   if ( conversations.length !== 0 ){

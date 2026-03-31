@@ -78,7 +78,7 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (!mongoose.isObjectIdOrHexString(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"}); // Prevent sending messages to yourself
   const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);
-  if (!await User.exists({ _id: receiverObjectId })) return res.status(404).json({"message": "receiver not found"});
+  if (!await User.exists({_id: receiverObjectId})) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
 
   const participants = [senderId, receiverObjectId].sort();
@@ -87,12 +87,12 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   let conversation = await Conversation
     .findOneAndUpdate({ 
         type: content.type,
-        participantsKey
+        participantsKey: participantsKey
       }, { 
         $setOnInsert: {
-          type: "direct", 
-          participants,
-          participantsKey 
+          type: content.type, 
+          participants: participants,
+          participantsKey: participantsKey 
         }}, { 
           upsert: true, 
           new: true, 

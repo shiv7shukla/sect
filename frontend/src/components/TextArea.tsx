@@ -1,8 +1,7 @@
 import { SendHorizontal } from 'lucide-react'
-import React, { use } from 'react'
+import React from 'react'
 import { chatStore } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
-import { authStore } from '../store/useAuthStore';
 
 const TextArea = () => {
   const [text, setText] = React.useState("");
