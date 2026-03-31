@@ -3,6 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
 import { authStore } from "./useAuthStore";
 import { toast } from "sonner";
+import { persist } from "zustand/middleware";
 
 export type getMessageAPIResponse = {
   conversationInfo: {
@@ -68,120 +69,130 @@ export type ChatStore = {
   setSelectedUser: (selectedUser: SelectedUser) => void;
 }
 
-export const chatStore = create<ChatStore>((set, get) => ({
-  messages: [],
-  queriedUsers: [],
-  conversations: [],
+export const chatStore = create<ChatStore>()(
+  persist(
+    (set, get) => ({
+    messages: [],
+    queriedUsers: [],
+    conversations: [],
 
-  error: null,
-  selectedUser: null,
-  lastMessageAt: null,
-  messageListener: null,
-  lastMessagePreview: null,
+    error: null,
+    selectedUser: null,
+    lastMessageAt: null,
+    messageListener: null,
+    lastMessagePreview: null,
 
-  isMessagesLoading: false,
-  isConversationsLoading: false,
+    isMessagesLoading: false,
+    isConversationsLoading: false,
 
-  getConversations: async () => {
-    set({isConversationsLoading: true});
-    try {
-      const {data: {chatInfo}} = await axiosInstance.get("/conversations");
-      set({conversations: chatInfo ?? [], isConversationsLoading: false, lastMessageAt: chatInfo[0].lastMessageAt, lastMessagePreview: chatInfo[0].lastMessagePreview});
-    } catch (err) {
-      const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
-      console.log(err);
-      set({error: message, isConversationsLoading: false});
-      toast.error(message ?? "Failed to load conversations");
-    }
-  },
+    getConversations: async () => {
+      set({isConversationsLoading: true});
+      try {
+        const {data: {chatInfo}} = await axiosInstance.get("/conversations");
+        set({conversations: chatInfo ?? [], isConversationsLoading: false, lastMessageAt: chatInfo[0].lastMessageAt, lastMessagePreview: chatInfo[0].lastMessagePreview});
+      } catch (err) {
+        const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
+        console.log(err);
+        set({error: message, isConversationsLoading: false});
+        toast.error(message ?? "Failed to load conversations");
+      }
+    },
 
-  getMessages: async (selectedUser: SelectedUser, signal?: AbortSignal) => {
-    set({isMessagesLoading: true });
-    try {
-      const {data} = await axiosInstance.get<getMessageAPIResponse>(
-        `/conversations/messages/${selectedUser?._id}`,
-        {signal}
-      );
+    getMessages: async (selectedUser: SelectedUser, signal?: AbortSignal) => {
+      set({isMessagesLoading: true });
+      try {
+        const {data} = await axiosInstance.get<getMessageAPIResponse>(
+          `/conversations/messages/${selectedUser?._id}`,
+          {signal}
+        );
 
-      set({
-        isMessagesLoading: false,
-        messages: data.messageInfo ?? [],
-        lastMessageAt: data.conversationInfo.lastMessageAt,
-        lastMessagePreview: data.conversationInfo.lastMessagePreview,
-        selectedUser: {...selectedUser, conversationId: data.conversationInfo.conversationId},
-      });
-    } catch (err) {
-      if (axios.isCancel(err)) {
-        set({isMessagesLoading: false});
+        set({
+          isMessagesLoading: false,
+          messages: data.messageInfo ?? [],
+          lastMessageAt: data.conversationInfo.lastMessageAt,
+          lastMessagePreview: data.conversationInfo.lastMessagePreview,
+          selectedUser: {...selectedUser, conversationId: data.conversationInfo.conversationId},
+        });
+      } catch (err) {
+        if (axios.isCancel(err)) {
+          set({isMessagesLoading: false});
+          return;
+        }
+        const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
+        console.log(err);
+        set({error: message, isMessagesLoading: false});
+        toast.error(message ?? "Failed to load messages");
+      }
+    },
+
+    searchUsers: async (searchQuery: string) => {
+      const query = searchQuery.trim();
+      if (!query) {
+        set({ queriedUsers: [] });
         return;
       }
-      const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
-      console.log(err);
-      set({error: message, isMessagesLoading: false});
-      toast.error(message ?? "Failed to load messages");
+      try {
+        const { data } = await axiosInstance.get("/conversations/search/", {
+          params: { searchQuery: query }
+        });
+        set({ queriedUsers: data.results });
+      } catch (err) {
+        const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
+        console.log(err);
+        set({ error: message, queriedUsers: [] });
+        toast.error("Failed to search for users");
+      }
+    },
+
+    sendMessage: async (text: string, type: string) => {
+      const socket = authStore.getState().socket;
+
+      try {
+        const res = await axiosInstance.post(
+          `/conversations/send/${get().selectedUser?._id}`,
+          {content: {type, text}}
+        );
+        set(state => ({messages: [...state.messages, res.data]}));
+        console.log("messages from sendmessage function", get().messages);
+        if (socket) socket.emit("new message", res.data, get().selectedUser);
+      } catch (err) {
+        const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
+        console.log(err);
+        console.log(message);
+        set({error: message});
+        toast.error(message ?? "Failed to send messages");
+      }
+    },
+
+    subscribeToMessages: () => {
+      const {selectedUser} = get();
+      if (!selectedUser) return;
+
+      const socket = authStore.getState().socket;
+      if (!socket) return;
+      
+      socket.emit("start conversation", selectedUser.conversationId);
+      socket.on("message received", (newMessage) => {
+        set(state => ({messages: [...state.messages, newMessage]}));
+        console.log("messages from ws event", get().messages);
+      })
+    },
+
+    unSubscribeFromMessages: () => {
+      const socket = authStore.getState().socket;
+      const listener = get().messageListener;
+
+      if (listener) socket?.off("newMessage", listener);
+      set({messageListener: null});
+    },
+
+    setSelectedUser: (selectedUser: SelectedUser) => set({selectedUser}),
+
+    clearError: () => set({ error: null }),
+  }),
+    {
+      name: "chat-storage",
+      partialize: (state) => ({selectedUser: state.selectedUser})
     }
-  },
-
-  searchUsers: async (searchQuery: string) => {
-    const query = searchQuery.trim();
-    if (!query) {
-      set({ queriedUsers: [] });
-      return;
-    }
-    try {
-      const { data } = await axiosInstance.get("/conversations/search/", {
-        params: { searchQuery: query }
-      });
-      set({ queriedUsers: data.results });
-    } catch (err) {
-      const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
-      console.log(err);
-      set({ error: message, queriedUsers: [] });
-      toast.error("Failed to search for users");
-    }
-  },
-
-  sendMessage: async (text: string, type: string) => {
-    const socket = authStore.getState().socket;
-
-    try {
-      const res = await axiosInstance.post(
-        `/conversations/send/${get().selectedUser?._id}`,
-        {content: {type, text}}
-      );
-      set(state => ({messages: [...state.messages, res.data]}));
-      if (socket) socket.emit("new message", res.data, get().selectedUser);
-    } catch (err) {
-      const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
-      console.log(err);
-      console.log(message);
-      set({error: message});
-      toast.error(message ?? "Failed to send messages");
-    }
-  },
-
-  subscribeToMessages: () => {
-    const {selectedUser} = get();
-    if (!selectedUser) return;
-
-    const socket = authStore.getState().socket;
-    if (!socket) return;
-    
-    socket.emit("start conversation", selectedUser.conversationId);
-    socket.on("message received", (newMessage) => {
-      set(state => ({messages: [...state.messages, newMessage]}));
-    })
-  },
-
-  unSubscribeFromMessages: () => {
-    const socket = authStore.getState().socket;
-    const listener = get().messageListener;
-
-    if (listener) socket?.off("newMessage", listener);
-    set({messageListener: null});
-  },
-
-  setSelectedUser: (selectedUser: SelectedUser) => set({selectedUser}),
-
-  clearError: () => set({ error: null }),
-}));
+  )
+);

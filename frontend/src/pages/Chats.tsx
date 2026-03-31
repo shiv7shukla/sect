@@ -33,7 +33,7 @@ const Chats = () => {
           min-w-0
         `}>
           {selectedUser ? (
-             <MessageArea onBack={handleBack} />
+            <MessageArea onBack={handleBack} />
           ) : (
             <ChatArea />
           )}

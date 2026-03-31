@@ -50,7 +50,9 @@ const TextArea = () => {
                   sendMessage(text, selectedConversation[0].type);
                   setText("");
                 }
-                }}/>
+              }
+            }
+          />
         </button>
       </div>
       <footer className='flex gap-2 mt-1 sm:mt-2'>
