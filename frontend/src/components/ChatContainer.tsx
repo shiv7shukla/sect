@@ -1,5 +1,5 @@
 import { Lock, User } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { chatStore } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
 import MessageSkeleton from './MessageSkeleton';
@@ -10,16 +10,16 @@ type ChatContainerProps = {
 
 const ChatContainer = ({children}: ChatContainerProps) => {
 
-  const { isMessagesLoading, getMessages, selectedUser, subscribetoMessages, unsubscribeFromMessages} = chatStore(useShallow((state) => ({
+  const {isMessagesLoading, getMessages, selectedUser, subscribetoMessages, unsubscribeFromMessages} = chatStore(useShallow((state) => ({
     isMessagesLoading: state.isMessagesLoading,
     getMessages: state.getMessages,
     selectedUser: state.selectedUser,
     subscribetoMessages: state.subscribeToMessages,
     unsubscribeFromMessages: state.unSubscribeFromMessages,
-  })))
+  })));
 
   const selectedUserId = selectedUser?._id;
-  useEffect(() => {
+  React.useEffect(() => {
     if (!selectedUserId) return;
 
     let active = true;
@@ -27,7 +27,7 @@ const ChatContainer = ({children}: ChatContainerProps) => {
     const loadAndSubscribe = async() => {
       await getMessages(selectedUser, controller.signal);
       if (active) subscribetoMessages();
-    }
+    };
     loadAndSubscribe();
     return () => {
       active = false;
@@ -39,7 +39,7 @@ const ChatContainer = ({children}: ChatContainerProps) => {
   if (isMessagesLoading) return (<div className='h-screen w-[78vw]'><MessageSkeleton /></div>);
 
   return (
-    <div className='h-screen w-[78vw] flex flex-col'>
+    <div className='h-screen w-[78vw] flex flex-col overflow-y-hidden'>
       <div className='h-20 w-[78vw] bg-[#111318] py-4 px-6 '>
           <div className='h-10 w-full flex gap-2'>
             <div className='h-12 w-12 rounded-full bg-[#171A21] relative'>

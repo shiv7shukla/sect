@@ -34,7 +34,7 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
       })
     .filter(Boolean);
 
-    return res.status(200).json({ chatInfo });
+    return res.status(200).json({chatInfo});
   }
   else return res.status(200).json({"message": "No conversations found" });
 })

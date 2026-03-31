@@ -13,14 +13,19 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
 
   // const onlineUsers = []
   const {logout} = authStore(useShallow((state) => ({logout: state.logout})))
-  const {conversations, getConversations, setSelectedUser, isConversationsLoading} = chatStore(useShallow((state) => ({
+  const {conversations, getConversations, setSelectedUser, isConversationsLoading, lastMessageAt, lastMessagePreview} = chatStore(useShallow((state) => ({
     conversations: state.conversations,
-    getConversations: state.getConversations,
+    lastMessageAt: state.lastMessageAt,
     setSelectedUser: state.setSelectedUser,
+    getConversations: state.getConversations,
+    lastMessagePreview: state.lastMessagePreview,
     isConversationsLoading: state.isConversationsLoading,
   })))
 
-  React.useEffect(() => {getConversations()}, [getConversations]);
+  React.useEffect(() => {
+    const getConvo = async() => {await getConversations()};
+    getConvo();
+  }, [getConversations]);
 
   return (
     <>
@@ -66,9 +71,9 @@ const Sidebar = ({toggleModal}: SidebarProps) => {
                     })}
                     key={c.conversationId} 
                     userId= {c.participant.id}
-                    lastMessageAt={formatMessageTime(c.lastMessageAt)} 
+                    lastMessageAt={formatMessageTime(lastMessageAt!)} 
                     username={c.participant.username}
-                    lastMessagePreview={c.lastMessagePreview} 
+                    lastMessagePreview={lastMessagePreview!} 
                   />))}
           {/* <ConversationList  /> */}
         </div>

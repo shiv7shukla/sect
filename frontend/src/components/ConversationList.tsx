@@ -9,8 +9,8 @@ type ConversationListProps = {
   onClick: () => Promise<void> | void;
 }
 
-const ConversationList = ({ userId, username, lastMessagePreview, lastMessageAt, onClick }: ConversationListProps) => {
-  const selectedUserId = chatStore((state) => ( state.selectedUser?._id ));
+const ConversationList = ({userId, username, lastMessagePreview, lastMessageAt, onClick}: ConversationListProps) => {
+  const selectedUserId = chatStore((state) => (state.selectedUser?._id));
   const isSelected = selectedUserId === userId;
 
   return (

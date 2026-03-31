@@ -27,8 +27,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("new message", (newMessage, selectedUser) => {
-    socket.in(selectedUser._id).emit("message received", newMessage, selectedUser);
-  })
+    socket.in(selectedUser.conversationId).emit("message received", newMessage, selectedUser);
+  });
 })
 
 export {io, app, server};

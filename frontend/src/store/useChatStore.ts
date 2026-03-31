@@ -52,6 +52,9 @@ export type ChatStore = {
   error: string | null;
   selectedUser: SelectedUser | null;
 
+  lastMessagePreview: string | null;
+  lastMessageAt: string | null;
+
   messageListener: ((msg: Message) => void) | null;
 
   getConversations: () => Promise<void>;
@@ -72,7 +75,9 @@ export const chatStore = create<ChatStore>((set, get) => ({
 
   error: null,
   selectedUser: null,
+  lastMessageAt: null,
   messageListener: null,
+  lastMessagePreview: null,
 
   isMessagesLoading: false,
   isConversationsLoading: false,
@@ -80,8 +85,8 @@ export const chatStore = create<ChatStore>((set, get) => ({
   getConversations: async () => {
     set({ isConversationsLoading: true });
     try {
-      const { data: { chatInfo }} = await axiosInstance.get("/conversations");
-      set({ conversations: chatInfo ?? [], isConversationsLoading: false });
+      const { data: {chatInfo}} = await axiosInstance.get("/conversations");
+      set({conversations: chatInfo ?? [], isConversationsLoading: false,});
     } catch (err) {
       const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
       console.log(err);
@@ -101,7 +106,9 @@ export const chatStore = create<ChatStore>((set, get) => ({
       set({
         isMessagesLoading: false,
         messages: data.messageInfo ?? [],
-        selectedUser: { ...selectedUser, conversationId: data.conversationInfo.conversationId }
+        lastMessageAt: data.conversationInfo.lastMessageAt,
+        lastMessagePreview: data.conversationInfo.lastMessagePreview,
+        selectedUser: {...selectedUser, conversationId: data.conversationInfo.conversationId},
       });
     } catch (err) {
       if (axios.isCancel(err)) {
@@ -143,7 +150,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
         {content: {type, text}}
       );
       set(state => ({messages: [...state.messages, res.data]}));
-      if (socket) socket.emit("new message", res.data);
+      if (socket) socket.emit("new message", res.data, get().selectedUser);
     } catch (err) {
       const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
       console.log(err);

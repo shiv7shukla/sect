@@ -19,7 +19,7 @@ const TextArea = () => {
     if (!isTyping || !selectedUser?.conversationId) return;
     if (e.key === "Enter"){
       e.preventDefault();
-      await sendMessage(inputRef.current!.value, selectedConversation[0].conversationId);
+      await sendMessage(inputRef.current!.value, selectedConversation[0].type);
       setText("");
     }
   }, [sendMessage, isTyping, selectedConversation, selectedUser, ]);
@@ -47,7 +47,7 @@ const TextArea = () => {
                 transition-transform duration-300`}
               onClick={() => {
                 if (selectedUser?.conversationId){
-                  sendMessage(text, selectedConversation[0].conversationId);
+                  sendMessage(text, selectedConversation[0].type);
                   setText("");
                 }
                 }}/>
