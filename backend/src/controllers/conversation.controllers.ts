@@ -12,11 +12,11 @@ export const getConversations = asyncHandler( async( req: Request, res: Response
   .populate("participants", "username")
   .lean();
 
-  if ( conversations.length !== 0 ){
+  if (conversations.length !== 0){
     //arrays are always truthy in JS so check for empty arrays using their length
 
     const chatInfo = conversations
-    .filter(c =>c.type === "direct")
+    .filter(c => c.type === "direct")
     .map(c => {const otherUser = (c.participants as any [])
         .find(p => p._id.toString() !== userId) //.find() finishes immediately and returns a value, so if (!otherUser) runs right after and checks that returned value.
 

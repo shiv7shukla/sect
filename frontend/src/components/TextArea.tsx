@@ -25,8 +25,8 @@ const TextArea = () => {
   }, [sendMessage, isTyping, selectedConversation, selectedUser, ]);
 
   return (
-    <div className='h-28 w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-4 px-4'>
-      <div className='w-full flex gap-4 '>
+    <div className='w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-2 sm:py-4 px-2 sm:px-4'>
+      <div className='w-full flex gap-2 sm:gap-4'>
         <input 
           type="text"
           value={text}
@@ -34,15 +34,15 @@ const TextArea = () => {
           onKeyDown={(e) => handleKeyDown(e)}
           placeholder='Type a secure message...' 
           onChange={(e) => setText(e.target.value)}
-          className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 placeholder:text-gray-500 text-white'
+          className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 sm:px-3 placeholder:text-gray-500 text-white text-sm sm:text-base'
         />
         <button 
-          className={`h-10 w-10 bg-emerald-400 rounded-xl 
+          className={`h-10 w-10 flex-shrink-0 bg-emerald-400 rounded-xl 
             ${isTyping? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
             transition-all duration-300`} 
             disabled={!isTyping}>
             <SendHorizontal 
-              className={`size-6 text-black translate-x-2 
+              className={`size-5 sm:size-6 text-black translate-x-2 
                 ${isTyping? "-rotate-90": "rotate-0"} 
                 transition-transform duration-300`}
               onClick={() => {
@@ -53,7 +53,7 @@ const TextArea = () => {
                 }}/>
         </button>
       </div>
-      <footer className='flex gap-2'>
+      <footer className='flex gap-2 mt-1 sm:mt-2'>
         <div className='mt-1'>
           <svg
           xmlns="http://www.w3.org/2000/svg"

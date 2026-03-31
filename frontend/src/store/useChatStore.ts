@@ -83,20 +83,20 @@ export const chatStore = create<ChatStore>((set, get) => ({
   isConversationsLoading: false,
 
   getConversations: async () => {
-    set({ isConversationsLoading: true });
+    set({isConversationsLoading: true});
     try {
-      const { data: {chatInfo}} = await axiosInstance.get("/conversations");
-      set({conversations: chatInfo ?? [], isConversationsLoading: false,});
+      const {data: {chatInfo}} = await axiosInstance.get("/conversations");
+      set({conversations: chatInfo ?? [], isConversationsLoading: false, lastMessageAt: chatInfo[0].lastMessageAt, lastMessagePreview: chatInfo[0].lastMessagePreview});
     } catch (err) {
       const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
       console.log(err);
-      set({ error: message, isConversationsLoading: false });
+      set({error: message, isConversationsLoading: false});
       toast.error(message ?? "Failed to load conversations");
     }
   },
 
   getMessages: async (selectedUser: SelectedUser, signal?: AbortSignal) => {
-    set({ isMessagesLoading: true });
+    set({isMessagesLoading: true });
     try {
       const {data} = await axiosInstance.get<getMessageAPIResponse>(
         `/conversations/messages/${selectedUser?._id}`,
@@ -181,7 +181,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
     set({messageListener: null});
   },
 
-  setSelectedUser: (selectedUser: SelectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser: SelectedUser) => set({selectedUser}),
 
   clearError: () => set({ error: null }),
 }));
