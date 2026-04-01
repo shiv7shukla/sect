@@ -43,6 +43,7 @@ export type SelectedUser = {
 }
 
 export type ChatStore = {
+  newMessage: Message | null;
   messages: Message [];
   queriedUsers: SelectedUser [];
   conversations: Conversations [];
@@ -53,18 +54,16 @@ export type ChatStore = {
   error: string | null;
   selectedUser: SelectedUser | null;
 
-  lastMessagePreview: string | null;
   lastMessageAt: string | null;
-
-  messageListener: ((msg: Message) => void) | null;
+  lastMessagePreview: string | null;
 
   getConversations: () => Promise<void>;
+  messageListener: ((msg: Message) => void) | null;
   searchUsers: (searchquery: string) => Promise<void>;
   getMessages: (selecteduser: SelectedUser, signal?: AbortSignal) => Promise<void>;
   sendMessage: (text: string, type: string) => Promise<void>;
 
   clearError: () => void;
-  subscribeToMessages: () => void;
   unSubscribeFromMessages: () => void;
   setSelectedUser: (selectedUser: SelectedUser) => void;
 }
@@ -75,8 +74,9 @@ export const chatStore = create<ChatStore>()(
     messages: [],
     queriedUsers: [],
     conversations: [],
-
+      
     error: null,
+    newMessage: null,
     selectedUser: null,
     lastMessageAt: null,
     messageListener: null,
@@ -145,16 +145,12 @@ export const chatStore = create<ChatStore>()(
     },
 
     sendMessage: async (text: string, type: string) => {
-      const socket = authStore.getState().socket;
-
       try {
         const res = await axiosInstance.post(
           `/conversations/send/${get().selectedUser?._id}`,
           {content: {type, text}}
         );
-        set(state => ({messages: [...state.messages, res.data]}));
-        console.log("messages from sendmessage function", get().messages);
-        if (socket) socket.emit("new message", res.data, get().selectedUser);
+        set(state => ({messages: [...state.messages, res.data], newMessage: res.data}));
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
@@ -162,20 +158,6 @@ export const chatStore = create<ChatStore>()(
         set({error: message});
         toast.error(message ?? "Failed to send messages");
       }
-    },
-
-    subscribeToMessages: () => {
-      const {selectedUser} = get();
-      if (!selectedUser) return;
-
-      const socket = authStore.getState().socket;
-      if (!socket) return;
-      
-      socket.emit("start conversation", selectedUser.conversationId);
-      socket.on("message received", (newMessage) => {
-        set(state => ({messages: [...state.messages, newMessage]}));
-        console.log("messages from ws event", get().messages);
-      })
     },
 
     unSubscribeFromMessages: () => {
@@ -190,7 +172,7 @@ export const chatStore = create<ChatStore>()(
 
     clearError: () => set({ error: null }),
   }),
-    {
+  {
       name: "chat-storage",
       partialize: (state) => ({selectedUser: state.selectedUser})
     }

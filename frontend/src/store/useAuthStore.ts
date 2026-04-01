@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
-import { io, Socket } from "socket.io-client";
+import { registerSocketListeners } from '../lib/socketEvents';
 
 export type AuthMode = "signIn" | "signUp"
 
@@ -30,7 +30,6 @@ export type AuthStore = {
   status: AuthStatus;
   error: string | null;
   mode: AuthMode;
-  socket: Socket | null;
 
   onlineUsers: string[];
 
@@ -38,14 +37,13 @@ export type AuthStore = {
   isSigningIn: boolean;
   isLoggingOut: boolean;
 
+  logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   signup: (data:SignUpInput) => Promise<void>;
   signin: (data:SignInInput) => Promise<void>;
-  logout: () => Promise<void>;
   
-  connectSocket: () => void;
-  disconnectSocket: () => void;
   clearError: () => void;
+  disconnectSocket: () => void;
   setMode: (mode:AuthMode) => void;
 };
 
@@ -85,10 +83,11 @@ export const authStore = create<AuthStore>((set, get) => ({
     try{
       const res = await axiosInstance.post("/auth/signup", data);
       console.log("this is ", res.data);
-      set({ authUser: res.data, status: "authenticated" });
+      set({authUser: res.data, status: "authenticated"});
       toast.success("Account created successfully!", {
         description: `Welcome, ${data.username}!`,
       });
+      registerSocketListeners();
     } 
     catch (err) {
       const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
@@ -103,8 +102,6 @@ export const authStore = create<AuthStore>((set, get) => ({
     finally {
       set({isSigningUp: false});
     }
-
-    get().connectSocket();
   },
 
   signin: async (data) => {
@@ -116,7 +113,7 @@ export const authStore = create<AuthStore>((set, get) => ({
       toast.success("Signed in successfully!", {
         description: `Welcome back, ${data.username}!`,
       });
-      get().connectSocket();
+      registerSocketListeners();
     } 
     catch (err) {
       const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
@@ -134,7 +131,7 @@ export const authStore = create<AuthStore>((set, get) => ({
   },
 
   logout: async () => {
-    set({ isLoggingOut: true, error: null });
+    set({isLoggingOut: true, error: null});
 
     try{
       await axiosInstance.post("/auth/logout");
@@ -150,24 +147,23 @@ export const authStore = create<AuthStore>((set, get) => ({
       toast.error("Logout failed");
     } 
     finally {
-      set({ isLoggingOut: false });
+      set({isLoggingOut: false});
     }
   },
 
-  connectSocket: () => {
-    console.log("running");
-    const {authUser} = get();
-    if (!authUser || get().socket?.connected) return;
+  // connectSocket: () => {
+  //   const {authUser} = get();
+  //   if (!authUser || get().socket?.connected) return;
     
-    const socketBaseUrl = "http://localhost:3000";
-    const socket = io(socketBaseUrl);
+  //   const socketBaseUrl = "http://localhost:3000";
+  //   const socket = io(socketBaseUrl);
 
-    socket.on("connect", () => {
-      socket.emit("setup", authUser, () => {
-        set({socket});
-      });
-    })
-  },
+  //   socket.on("connect", () => {
+  //     socket.emit("setup", authUser, () => {
+  //       set({socket});
+  //     });
+  //   })
+  // },
 
   disconnectSocket: () => {
     if (get().socket?.connected) {

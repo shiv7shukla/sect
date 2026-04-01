@@ -2,19 +2,31 @@ import { SendHorizontal } from 'lucide-react'
 import React from 'react'
 import { chatStore } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
+import { authStore } from '../store/useAuthStore';
 
 const TextArea = () => {
   const [text, setText] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const isTyping = text.length > 0;
+  const isTyping = React.useRef(false);
+  console.log(isTyping);
+  const typingTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const id = React.useId();
   const gradientId = `gradientId-${id}`;
-  const {sendMessage, selectedUser, conversations} = chatStore(useShallow((state) => ({
+
+  const {
+    sendMessage,
+    selectedUser, 
+    conversations
+  } = chatStore(useShallow((state) => ({
     sendMessage: state.sendMessage,
     selectedUser: state.selectedUser,
     conversations: state.conversations
   })));
+  const {socket} = authStore(useShallow((state) => ({socket: state.socket})));
+
   const selectedConversation = conversations.filter(c => c.conversationId === selectedUser?.conversationId);
+
   const handleKeyDown = React.useCallback(async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isTyping || !selectedUser?.conversationId) return;
     if (e.key === "Enter"){
@@ -23,27 +35,45 @@ const TextArea = () => {
       setText("");
     }
   }, [sendMessage, isTyping, selectedConversation, selectedUser, ]);
+  const typingHandler = React.useCallback(() => {
+    if (!socket) return;
+    if (inputRef){
+      isTyping.current = true;
+      
+    }
+    if (typingTimer) clearTimeout(typingTimer.current);
+
+    typingTimer.current = setTimeout(() => {
+      isTyping.current = false;
+      
+    }, 1500)
+  }, [isTyping, selectedUser?.conversationId, selectedUser?.username, socket]);
+
+  React.useEffect(() => {
+    
+  }, [socket]);
 
   return (
     <div className='w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-2 sm:py-4 px-2 sm:px-4'>
       <div className='w-full flex gap-2 sm:gap-4'>
+        {loading? <div className='h-20 w-full text-white text-md'>Loading...</div>:<></>}
         <input 
           type="text"
           value={text}
           ref={inputRef}
           onKeyDown={(e) => handleKeyDown(e)}
           placeholder='Type a secure message...' 
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {setText(e.target.value);typingHandler()}}
           className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 sm:px-3 placeholder:text-gray-500 text-white text-sm sm:text-base'
         />
         <button 
           className={`h-10 w-10 flex-shrink-0 bg-emerald-400 rounded-xl 
-            ${isTyping? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
+            ${text.length > 0? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
             transition-all duration-300`} 
-            disabled={!isTyping}>
+            disabled={text.length > 0}>
             <SendHorizontal 
               className={`size-5 sm:size-6 text-black translate-x-2 
-                ${isTyping? "-rotate-90": "rotate-0"} 
+                ${text.length > 0? "-rotate-90": "rotate-0"} 
                 transition-transform duration-300`}
               onClick={() => {
                 if (selectedUser?.conversationId){

@@ -1,10 +1,6 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
-import cookie from "cookie";
-import { ENV } from "../config/env.js";
-import { User } from "../models/userModel.js";
-import jwt from "jsonwebtoken";
 
 const app = express();
 const server = http.createServer(app);
@@ -17,18 +13,21 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("setup", (userData, callback) => {
+  socket.on("setup", (userData) => {
     socket.join(userData._id);
-    callback();
   });
 
-  socket.on("start conversation", (conversationId) => {
-    socket.join(conversationId);
+  socket.on("start conversation", (room) => {
+    socket.join(room);
   });
 
   socket.on("new message", (newMessage, selectedUser) => {
-    socket.in(selectedUser.conversationId).emit("message received", newMessage, selectedUser);
+    socket.in(selectedUser.conversationId).emit("message received", newMessage); // everyone in this room EXCEPT the socket that emitted
   });
+
+  socket.on("typing", (room, senderUsername) => socket.in(room).emit("is typing", senderUsername));
+
+  socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
 })
 
 export {io, app, server};
