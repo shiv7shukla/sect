@@ -2,7 +2,6 @@ import { toast } from 'sonner';
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
-import { registerSocketListeners } from '../lib/socketEvents';
 
 export type AuthMode = "signIn" | "signUp"
 
@@ -43,11 +42,10 @@ export type AuthStore = {
   signin: (data:SignInInput) => Promise<void>;
   
   clearError: () => void;
-  disconnectSocket: () => void;
   setMode: (mode:AuthMode) => void;
 };
 
-export const authStore = create<AuthStore>((set, get) => ({
+export const authStore = create<AuthStore>((set) => ({
   authUser: null,
   error: null,
   socket: null,
@@ -69,11 +67,9 @@ export const authStore = create<AuthStore>((set, get) => ({
     try{
       const res = await axiosInstance.get("/auth/check");
       set({authUser: res.data, status: "authenticated"});
-      get().connectSocket();
     } 
     catch {
       set({authUser: null, status: "unauthenticated"});
-      get().disconnectSocket();
     }
   },
 
@@ -87,7 +83,6 @@ export const authStore = create<AuthStore>((set, get) => ({
       toast.success("Account created successfully!", {
         description: `Welcome, ${data.username}!`,
       });
-      registerSocketListeners();
     } 
     catch (err) {
       const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
@@ -113,7 +108,6 @@ export const authStore = create<AuthStore>((set, get) => ({
       toast.success("Signed in successfully!", {
         description: `Welcome back, ${data.username}!`,
       });
-      registerSocketListeners();
     } 
     catch (err) {
       const message = axios.isAxiosError(err)? err?.response?.data?.message:null;
@@ -137,7 +131,6 @@ export const authStore = create<AuthStore>((set, get) => ({
       await axiosInstance.post("/auth/logout");
       set({ authUser: null, status: "unauthenticated" });
       toast.success("Logged out successfully");
-      get().disconnectSocket();
     } 
     catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
@@ -150,27 +143,4 @@ export const authStore = create<AuthStore>((set, get) => ({
       set({isLoggingOut: false});
     }
   },
-
-  // connectSocket: () => {
-  //   const {authUser} = get();
-  //   if (!authUser || get().socket?.connected) return;
-    
-  //   const socketBaseUrl = "http://localhost:3000";
-  //   const socket = io(socketBaseUrl);
-
-  //   socket.on("connect", () => {
-  //     socket.emit("setup", authUser, () => {
-  //       set({socket});
-  //     });
-  //   })
-  // },
-
-  disconnectSocket: () => {
-    if (get().socket?.connected) {
-      const socket = get().socket;
-      socket?.off("getOnlineUsers");
-      socket?.disconnect();
-      set({socket: null, onlineUsers: []});
-    }
-  }
 }));

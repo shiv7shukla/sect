@@ -1,9 +1,9 @@
 import axios from "axios";
 import { axiosInstance } from "../lib/axios";
 import { create } from "zustand";
-import { authStore } from "./useAuthStore";
 import { toast } from "sonner";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { socket } from "../lib/socket";
 
 export type getMessageAPIResponse = {
   conversationInfo: {
@@ -48,6 +48,7 @@ export type ChatStore = {
   queriedUsers: SelectedUser [];
   conversations: Conversations [];
 
+  isTyping: boolean;
   isMessagesLoading: boolean;
   isConversationsLoading: boolean;
 
@@ -64,8 +65,8 @@ export type ChatStore = {
   sendMessage: (text: string, type: string) => Promise<void>;
 
   clearError: () => void;
-  unSubscribeFromMessages: () => void;
-  setSelectedUser: (selectedUser: SelectedUser) => void;
+  // unSubscribeFromMessages: () => void;
+  setSelectedUser: (selectedUser: SelectedUser | null) => void;
 }
 
 export const chatStore = create<ChatStore>()(
@@ -82,6 +83,7 @@ export const chatStore = create<ChatStore>()(
     messageListener: null,
     lastMessagePreview: null,
 
+    isTyping: false,
     isMessagesLoading: false,
     isConversationsLoading: false,
 
@@ -151,6 +153,7 @@ export const chatStore = create<ChatStore>()(
           {content: {type, text}}
         );
         set(state => ({messages: [...state.messages, res.data], newMessage: res.data}));
+        socket.emit("new message", res.data, get().selectedUser);
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
@@ -160,20 +163,13 @@ export const chatStore = create<ChatStore>()(
       }
     },
 
-    unSubscribeFromMessages: () => {
-      const socket = authStore.getState().socket;
-      const listener = get().messageListener;
+    setSelectedUser: (selectedUser: SelectedUser | null) => set({selectedUser}),
 
-      if (listener) socket?.off("newMessage", listener);
-      set({messageListener: null});
-    },
-
-    setSelectedUser: (selectedUser: SelectedUser) => set({selectedUser}),
-
-    clearError: () => set({ error: null }),
+    clearError: () => set({error: null}),
   }),
   {
       name: "chat-storage",
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({selectedUser: state.selectedUser})
     }
   )

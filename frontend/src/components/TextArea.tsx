@@ -3,60 +3,53 @@ import React from 'react'
 import { chatStore } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
 import { authStore } from '../store/useAuthStore';
+import { socket } from '../lib/socket';
 
 const TextArea = () => {
   const [text, setText] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const isTyping = React.useRef(false);
-  console.log(isTyping);
   const typingTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const id = React.useId();
   const gradientId = `gradientId-${id}`;
 
   const {
     sendMessage,
+    isTyping,
     selectedUser, 
-    conversations
+    conversations,
   } = chatStore(useShallow((state) => ({
     sendMessage: state.sendMessage,
+    isTyping: state.isTyping,
     selectedUser: state.selectedUser,
     conversations: state.conversations
   })));
-  const {socket} = authStore(useShallow((state) => ({socket: state.socket})));
-
   const selectedConversation = conversations.filter(c => c.conversationId === selectedUser?.conversationId);
 
   const handleKeyDown = React.useCallback(async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isTyping || !selectedUser?.conversationId) return;
+    if (!inputRef.current?.value || !selectedUser?.conversationId) return;
     if (e.key === "Enter"){
       e.preventDefault();
-      await sendMessage(inputRef.current!.value, selectedConversation[0].type);
+      await sendMessage(text, selectedConversation[0].type);
       setText("");
     }
-  }, [sendMessage, isTyping, selectedConversation, selectedUser, ]);
-  const typingHandler = React.useCallback(() => {
+  }, [sendMessage, selectedConversation, selectedUser, text]);
+  const typingHandler = () => {
     if (!socket) return;
     if (inputRef){
-      isTyping.current = true;
-      
+      socket.emit("typing", authStore.getState().authUser?._id, chatStore.getState().selectedUser?._id);
     }
+
     if (typingTimer) clearTimeout(typingTimer.current);
 
     typingTimer.current = setTimeout(() => {
-      isTyping.current = false;
-      
+      socket.emit("not typing", chatStore.getState().selectedUser?.conversationId, chatStore.getState().selectedUser?.username);
     }, 1500)
-  }, [isTyping, selectedUser?.conversationId, selectedUser?.username, socket]);
-
-  React.useEffect(() => {
-    
-  }, [socket]);
+  };
 
   return (
     <div className='w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-2 sm:py-4 px-2 sm:px-4'>
       <div className='w-full flex gap-2 sm:gap-4'>
-        {loading? <div className='h-20 w-full text-white text-md'>Loading...</div>:<></>}
+        {/* {isTyping? <div className='h-10 w-full text-white bg-orange-700 text-md'>Loading...</div>:<></>} */}
         <input 
           type="text"
           value={text}
@@ -70,18 +63,19 @@ const TextArea = () => {
           className={`h-10 w-10 flex-shrink-0 bg-emerald-400 rounded-xl 
             ${text.length > 0? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
             transition-all duration-300`} 
-            disabled={text.length > 0}>
-            <SendHorizontal 
-              className={`size-5 sm:size-6 text-black translate-x-2 
-                ${text.length > 0? "-rotate-90": "rotate-0"} 
-                transition-transform duration-300`}
-              onClick={() => {
+            disabled={text.length < 0}
+            onClick={() => {
                 if (selectedUser?.conversationId){
                   sendMessage(text, selectedConversation[0].type);
                   setText("");
                 }
               }
             }
+            >
+            <SendHorizontal 
+              className={`size-5 sm:size-6 text-black translate-x-2 
+                ${text.length > 0? "-rotate-90": "rotate-0"} 
+                transition-transform duration-300`}
           />
         </button>
       </div>
@@ -127,4 +121,4 @@ const TextArea = () => {
   )
 }
 
-export default TextArea
+export default TextArea;

@@ -16,18 +16,14 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
 
   const {
     messages, 
-    isMessagesLoading, 
     getMessages, 
     selectedUser, 
-    subscribetoMessages, 
-    unsubscribeFromMessages
+    isMessagesLoading, 
   } = chatStore(useShallow((state) => ({
     messages: state.messages,
-    isMessagesLoading: state.isMessagesLoading,
     getMessages: state.getMessages,
     selectedUser: state.selectedUser,
-    subscribetoMessages: state.subscribeToMessages,
-    unsubscribeFromMessages: state.unSubscribeFromMessages,
+    isMessagesLoading: state.isMessagesLoading,
   })));
 
   React.useEffect(() => {
@@ -35,23 +31,18 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
       messageEndRef.current.scrollIntoView({behavior: "smooth"});
   }, [messages]);
 
-  const selectedUserId = selectedUser?._id;
   React.useEffect(() => {
-    if (!selectedUserId) return;
+    if (!selectedUser?._id) return;
 
-    let active = true;
     const controller = new AbortController();
     const loadAndSubscribe = async() => {
       await getMessages(selectedUser, controller.signal);
-      if (active) subscribetoMessages();
     };
     loadAndSubscribe();
     return () => {
-      active = false;
       controller.abort();
-      unsubscribeFromMessages();
     }
-  }, [selectedUserId, getMessages, subscribetoMessages, unsubscribeFromMessages]);
+  }, [selectedUser?._id, getMessages]);
 
   if (isMessagesLoading) return (<div className='h-screen w-full'><MessageSkeleton /></div>);
 

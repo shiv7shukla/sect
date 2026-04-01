@@ -11,7 +11,7 @@ const Chats = () => {
   const [showModal, setShowModal] = React.useState(false);
 
   const handleBack = () => {
-    setSelectedUser(null as never);
+    setSelectedUser(null);
   };
 
   return (

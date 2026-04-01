@@ -3,17 +3,17 @@ import { authStore } from "../store/useAuthStore";
 import { socket } from "./socket";
 
 export const registerSocketListeners = () => {
-    if (!authStore.getState().authUser) return;
+    if (!authStore.getState().authUser && socket.connected) return;
     
     socket.connect();
     socket.emit("setup", authStore.getState().authUser);
 
     socket.emit("start conversation", chatStore.getState().selectedUser?.conversationId);
-    socket.emit("new message", chatStore.getState().newMessage, chatStore.getState().selectedUser);
+    
     socket.on("message received", (newMessage) => {
-        chatStore.setState((prevState) => ({messages: [...prevState.messages, newMessage]}));
-    });
+        chatStore.setState((prevState) => ({messages: [...prevState.messages, newMessage]}))});
 
-    socket.emit("typing", chatStore.getState().selectedUser?.conversationId, chatStore.getState().selectedUser?.username);
-    socket.emit("not typing", chatStore.getState().selectedUser?.conversationId, chatStore.getState().selectedUser?.username);
+    socket.on("is typing", () => chatStore.getState().isTyping = true);
+    socket.on("is not typing", () => chatStore.getState().isTyping = false);
+
 }

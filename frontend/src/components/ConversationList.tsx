@@ -12,7 +12,6 @@ type ConversationListProps = {
 const ConversationList = ({userId, username, lastMessagePreview, lastMessageAt, onClick}: ConversationListProps) => {
   const selectedUserId = chatStore((state) => (state.selectedUser?._id));
   const isSelected = selectedUserId === userId;
-  console.log(lastMessagePreview);
 
   return (
     <>

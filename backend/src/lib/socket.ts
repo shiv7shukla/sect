@@ -25,9 +25,9 @@ io.on("connection", (socket) => {
     socket.in(selectedUser.conversationId).emit("message received", newMessage); // everyone in this room EXCEPT the socket that emitted
   });
 
-  socket.on("typing", (room, senderUsername) => socket.in(room).emit("is typing", senderUsername));
+  socket.on("typing", (room, senderUsername) => socket.in(senderUsername).emit("is typing", senderUsername));
 
-  socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
+  socket.on("not typing", (room, senderUsername) => socket.in(senderUsername).emit("is not typing", senderUsername));
 })
 
 export {io, app, server};
