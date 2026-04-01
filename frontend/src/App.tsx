@@ -19,8 +19,12 @@ const App = () => {
 
   React.useEffect(() => {
     checkAuth();
-    registerSocketListeners();
   }, [checkAuth]);
+
+  React.useEffect(() => {
+    if (!authUser?._id) return;
+    registerSocketListeners();
+  }, [authUser]);
 
   if (status == "checking") return <Spinner />
 

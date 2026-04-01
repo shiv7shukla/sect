@@ -33,4 +33,6 @@ const messageSchema = new mongoose.Schema<IM>({
   },
 }, {timestamps: true});
 
+messageSchema.index({conversationId: 1, createdAt: 1});
+
 export const Message = mongoose.models.Message as mongoose.Model<IM> || mongoose.model<IM>("Message", messageSchema);

@@ -17,7 +17,10 @@ const ConversationList = ({userId, username, lastMessagePreview, lastMessageAt, 
     <>
       <button
         type="button"
-        onClick={onClick}
+        onClick={() => {
+          onClick();
+        }
+      }
         className={`h-16 sm:h-20 lg:h-24 w-full flex items-center gap-2 rounded-xl mb-1 sm:mb-2 bg-transparent transition-colors duration-200 hover:bg-[#171A21] px-2 hover:cursor-pointer ${isSelected? 
         "border-l-2 border-l-emerald-400" : 
         "border-l-transparent"}`}

@@ -23,14 +23,16 @@ const TextArea = () => {
     selectedUser: state.selectedUser,
     conversations: state.conversations
   })));
-  const selectedConversation = conversations.filter(c => c.conversationId === selectedUser?.conversationId);
+  const selectedConversation = React.useMemo(() => 
+    conversations.filter(c => c.conversationId === selectedUser?.conversationId), 
+  [selectedUser, conversations]);
 
   const handleKeyDown = React.useCallback(async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!inputRef.current?.value || !selectedUser?.conversationId) return;
     if (e.key === "Enter"){
       e.preventDefault();
-      await sendMessage(text, selectedConversation[0].type);
       setText("");
+      await sendMessage(text, selectedConversation[0].type);
     }
   }, [sendMessage, selectedConversation, selectedUser, text]);
   const typingHandler = () => {
@@ -63,7 +65,7 @@ const TextArea = () => {
           className={`h-10 w-10 flex-shrink-0 bg-emerald-400 rounded-xl 
             ${text.length > 0? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
             transition-all duration-300`} 
-            disabled={text.length < 0}
+            disabled={text.trim().length === 0}
             onClick={() => {
                 if (selectedUser?.conversationId){
                   sendMessage(text, selectedConversation[0].type);

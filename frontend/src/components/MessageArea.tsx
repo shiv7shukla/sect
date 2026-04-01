@@ -6,6 +6,8 @@ import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
 import { formatMessageTime } from '../lib/utils'
 import MessageSkeleton from './MessageSkeleton'
+import { socket } from '../lib/socket'
+import { authStore } from '../store/useAuthStore'
 
 type MessageAreaProps = {
   onBack?: () => void;
@@ -16,11 +18,13 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
 
   const {
     messages, 
+    isTyping,
     getMessages, 
     selectedUser, 
     isMessagesLoading, 
   } = chatStore(useShallow((state) => ({
     messages: state.messages,
+    isTyping: state.isTyping,
     getMessages: state.getMessages,
     selectedUser: state.selectedUser,
     isMessagesLoading: state.isMessagesLoading,
@@ -34,12 +38,15 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
   React.useEffect(() => {
     if (!selectedUser?._id) return;
 
+    let active = true;
     const controller = new AbortController();
     const loadAndSubscribe = async() => {
-      await getMessages(selectedUser, controller.signal);
+    const cId =  await getMessages(selectedUser, controller.signal);
+      if (cId && active) socket.emit("start conversation", chatStore.getState().selectedUser?.conversationId);
     };
     loadAndSubscribe();
     return () => {
+      active = false;
       controller.abort();
     }
   }, [selectedUser?._id, getMessages]);
@@ -64,6 +71,11 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
             <div className='w-full text-white text-sm sm:text-base truncate'>
               {selectedUser?.username}
             </div>
+            {chatStore.getState().isTyping ? 
+              <div className='w-full text-white text-sm sm:text-base truncate'>
+                isTyping
+              </div> : <></>
+            }
             <div className='w-full text-emerald-400 text-xs'>
               <Lock className='text-emerald-400 inline-block mr-1 sm:mr-2' size={12} />End-to-end encrypted
             </div>
@@ -86,13 +98,13 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
               return(
                 <TextBlock 
                   key={message.id} 
-                  ref={messageEndRef} 
                   text={message.content.text}
-                  senderUsername={message.senderUsername} 
                   createdAt={formatMessageTime(message.createdAt)} 
+                  isSelf={message.senderUsername === authStore.getState().authUser?.username}
                 />
               )})}
           </div>
+          <div ref={messageEndRef} />
         </div>
         
         <TextArea />

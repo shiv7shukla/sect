@@ -78,7 +78,6 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   if (!mongoose.isObjectIdOrHexString(receiverId)) return res.status(400).json({"message":  "invalid receiverId"});
   if (senderId.toString() === receiverId) return res.status(400).json({"message": "cannot send message to yourself"}); // Prevent sending messages to yourself
   const receiverObjectId = mongoose.Types.ObjectId.createFromHexString(receiverId);
-  if (!await User.exists({_id: receiverObjectId})) return res.status(404).json({"message": "receiver not found"});
   if (!content || typeof content !== "object") return res.status(400).json({"message": "content is required"});
 
   const participants = [senderId, receiverObjectId].sort();
@@ -103,38 +102,32 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
   const message = await Message
     .create({senderId, conversationId: conversation._id, content});
   
-const [, populatedMessage] = await Promise.all([
-    await Conversation.findOneAndUpdate(
-    {
-      _id: conversation._id,
-      $or: [
-        {lastMessageAt: {$exists: false}},           // no preview yet (new conversation)
-        {lastMessageAt: {$lt: message.createdAt!}}    // this message is newer
-      ]
-    },
-    {
-      $set: {
-        lastMessageAt: message.createdAt,
-        lastMessagePreview: content.text        
-      }
+  await Conversation.findOneAndUpdate(
+  {
+    _id: conversation._id,
+    $or: [
+      {lastMessageAt: {$exists: false}},           // no preview yet (new conversation)
+      {lastMessageAt: {$lt: message.createdAt!}}    // this message is newer
+    ]
+  },
+  {
+    $set: {
+      lastMessageAt: message.createdAt,
+      lastMessagePreview: content.text        
     }
-  ),
-    Message
-    .findById(message._id)
-    .populate("senderId", "_id username")
-    .lean()
-]);
+  }
+);
   
-  if (!populatedMessage) return res.status(500).json({"message": "unable to create new message"});
+  if (!message) return res.status(500).json({"message": "unable to create new message"});
   
-  const sender = populatedMessage.senderId as {_id: mongoose.Types.ObjectId; username: string } | null;
+  // const sender = populatedMessage.senderId as {_id: mongoose.Types.ObjectId; username: string } | null;
   
   const newMessage = {
-    id: populatedMessage._id.toString(),
-    senderId: sender?._id?.toString() ?? null,
-    senderUsername: sender?.username ?? "Deleted User",
-    content: populatedMessage.content,
-    createdAt: populatedMessage.createdAt,
+    id: message._id.toString(),
+    senderId: senderId.toString() ?? null,
+    senderUsername: req.user?.username ?? "Deleted User",
+    content: message.content,
+    createdAt: message.createdAt,
   };
 
     // const receiverSocketId = getReceiverSocketId(receiverId);
