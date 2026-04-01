@@ -102,31 +102,32 @@ export const sendMessages = asyncHandler(async(req:Request, res:Response) => {
 
   const message = await Message
     .create({senderId, conversationId: conversation._id, content});
-
-  await Conversation.findOneAndUpdate(
-  {
-    _id: conversation._id,
-    $or: [
-      {lastMessageAt: {$exists: false}},           // no preview yet (new conversation)
-      {lastMessageAt: {$lt: message.createdAt!}}    // this message is newer
-    ]
-  },
-  {
-    $set: {
-      lastMessageAt: message.createdAt,
-      lastMessagePreview: content.text        
-    }
-  }
-);
   
-const populatedMessage = await Message
+const [, populatedMessage] = await Promise.all([
+    await Conversation.findOneAndUpdate(
+    {
+      _id: conversation._id,
+      $or: [
+        {lastMessageAt: {$exists: false}},           // no preview yet (new conversation)
+        {lastMessageAt: {$lt: message.createdAt!}}    // this message is newer
+      ]
+    },
+    {
+      $set: {
+        lastMessageAt: message.createdAt,
+        lastMessagePreview: content.text        
+      }
+    }
+  ),
+    Message
     .findById(message._id)
     .populate("senderId", "_id username")
-    .lean();
+    .lean()
+]);
   
   if (!populatedMessage) return res.status(500).json({"message": "unable to create new message"});
   
-  const sender = populatedMessage.senderId as { _id: mongoose.Types.ObjectId; username: string } | null;
+  const sender = populatedMessage.senderId as {_id: mongoose.Types.ObjectId; username: string } | null;
   
   const newMessage = {
     id: populatedMessage._id.toString(),

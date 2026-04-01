@@ -148,12 +148,15 @@ export const chatStore = create<ChatStore>()(
 
     sendMessage: async (text: string, type: string) => {
       try {
+        const targetUser = get().selectedUser;
         const res = await axiosInstance.post(
           `/conversations/send/${get().selectedUser?._id}`,
           {content: {type, text}}
         );
-        set(state => ({messages: [...state.messages, res.data], newMessage: res.data}));
-        socket.emit("new message", res.data, get().selectedUser);
+        if (targetUser === get().selectedUser){
+          set(state => ({messages: [...state.messages, res.data], newMessage: res.data}));
+          socket.emit("new message", res.data, targetUser);
+        }
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);

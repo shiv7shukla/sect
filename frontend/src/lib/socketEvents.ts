@@ -3,10 +3,11 @@ import { authStore } from "../store/useAuthStore";
 import { socket } from "./socket";
 
 export const registerSocketListeners = () => {
-    if (!authStore.getState().authUser && socket.connected) return;
+    if (!authStore.getState().authUser || socket.connected || socket.active) return;
     
-    socket.connect();
-    socket.emit("setup", authStore.getState().authUser);
+    socket.on("connect", () => {
+        socket.emit("setup", authStore.getState().authUser)});
+    socket.connect(); 
 
     socket.emit("start conversation", chatStore.getState().selectedUser?.conversationId);
     
