@@ -38,14 +38,14 @@ const TextArea = () => {
   const typingHandler = () => {
     if (!socket) return;
     if (inputRef){
-      socket.emit("typing", authStore.getState().authUser?._id, chatStore.getState().selectedUser?._id);
+      socket.emit("typing", chatStore.getState().selectedUser?.conversationId, authStore.getState().authUser?.username);
     }
 
     if (typingTimer) clearTimeout(typingTimer.current);
 
     typingTimer.current = setTimeout(() => {
-      socket.emit("not typing", chatStore.getState().selectedUser?.conversationId, chatStore.getState().selectedUser?.username);
-    }, 1500)
+      socket.emit("not typing", chatStore.getState().selectedUser?.conversationId, authStore.getState().authUser?.username);
+    }, 500)
   };
 
   return (
