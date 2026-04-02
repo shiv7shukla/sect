@@ -17,16 +17,16 @@ function FormField<T extends FieldValues>({
   const error = errors[name];
   
   return (
-    <div className='flex flex-col gap-2 m-2'>
-      <label className='block'>{label}</label>
+    <div className='flex flex-col gap-1.5 sm:gap-2 m-1.5 sm:m-2'>
+      <label className='block text-sm sm:text-base'>{label}</label>
       <input 
-        className='p-3 bg-zinc-950 rounded-sm' 
+        className='p-2.5 sm:p-3 bg-zinc-950 rounded-sm text-sm sm:text-base w-full' 
         placeholder={placeholder} 
         type={type} 
         {...register(name)} 
       />
       {touched && error && (
-        <p className="text-red-500">{String(error.message)}</p>
+        <p className="text-red-500 text-xs sm:text-sm">{String(error.message)}</p>
       )}
     </div>
   );

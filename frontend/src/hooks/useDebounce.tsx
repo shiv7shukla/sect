@@ -12,4 +12,4 @@ const useDebounce = (value: string, delay: number) => {
   return debouncedVal;
 }
 
-export default useDebounce
+export default useDebounce;

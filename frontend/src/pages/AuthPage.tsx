@@ -30,26 +30,28 @@ const AuthPage = () => {
   }, [authUser]);
 
   return (
-    <div className='h-screen w-screen bg-black px-[25%] py-[3%] flex flex-col justify-start align-center'>
-      <div className='h-[90vh] text-white px-[10%] py-[6%] bg-[#18181B] rounded-xl'>
-        <div className='w-[57%] flex justify-between mb-4'>
+    <div className='min-h-screen w-screen bg-black px-4 sm:px-8 md:px-[15%] lg:px-[20%] xl:px-[25%] py-4 sm:py-6 lg:py-[3%] flex flex-col justify-start items-center'>
+      <div className='w-full max-w-2xl text-white px-4 sm:px-8 md:px-[8%] lg:px-[10%] py-6 sm:py-8 lg:py-[6%] bg-[#18181B] rounded-xl'>
+        <div className='flex items-center justify-between sm:justify-start sm:gap-8 md:gap-12 mb-4'>
           <button 
             className='opacity-60 hover:opacity-100' 
             onClick={() => window.history.back()}
             aria-label="Go back"
           >
-            <ArrowLeft />
+            <ArrowLeft size={20} />
           </button>
-          <div className='h-24 w-24 bg-[#27272A] rounded-full relative'>
-            <Shield className='text-green-700 absolute left-2 top-2' size={80} />
+          <div className='h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 bg-[#27272A] rounded-full relative flex-shrink-0'>
+            <Shield className='text-green-700 absolute left-1.5 top-1.5 sm:left-2 sm:top-2' size={52} />
           </div>
+          {/* Invisible spacer for mobile centering */}
+          <div className='w-5 sm:hidden' aria-hidden="true" />
         </div>
         
         <div className='flex flex-col'>
-          <h1 className='place-self-center text-3xl font-extrabold'>
+          <h1 className='place-self-center text-xl sm:text-2xl lg:text-3xl font-extrabold text-center'>
             {textContent.heading}
           </h1>
-          <p className='place-self-center text-gray-500'>
+          <p className='place-self-center text-gray-500 text-sm sm:text-base text-center mt-1'>
             {textContent.description}
           </p>
         </div>

@@ -1,10 +1,6 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
-import cookie from "cookie";
-import { ENV } from "../config/env.js";
-import { User } from "../models/userModel.js";
-import jwt from "jsonwebtoken";
 
 const app = express();
 const server = http.createServer(app);
@@ -12,42 +8,26 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === "production"? true: ["http://localhost:5173"],
+    credentials: true
   }
-});
-
-export function getReceiverSocketId(userId: string){ return userSocketMap[userId]};
-
-type UserSocketMap = Partial<Record<string, string>>;
-
-const userSocketMap: UserSocketMap = {}; //{userId: socketId}
-
-io.use(async (socket, next) => {
-  try{
-    const cookies = cookie.parse(socket.handshake.headers.cookie || "");
-    const token = cookies.jwt;
-    if (!token) return next(new Error("Unauthorized - token not provided"));
-
-    const decoded = jwt.verify(token, ENV.JWT_SECRET) as { id: string };
-    const user =  await User.findById(decoded.id).select("-password");
-    if (!user) return next(new Error("Unauthorized - token not provided"));
-
-    socket.data.userId = decoded.id;
-    next();
-  }
-  catch{ next(new Error("Unauthorized - token not provided")); }
 });
 
 io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
-  const userId = socket.data.userId;
-  if (userId) userSocketMap[userId as string] = socket.id;
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+  });
 
-  socket.on("disconnect", () => {
-    console.log("a user disconnected", socket.id);
-    if (userId && userSocketMap[userId as string] === socket.id) delete userSocketMap[userId as string];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
-  })
-});
+  socket.on("start conversation", (room) => {
+    socket.join(room);
+  });
 
-export { io, app, server };
+  socket.on("new message", (newMessage, selectedUser) => {
+    socket.in(selectedUser.conversationId).emit("message received", newMessage); // everyone in this room EXCEPT the socket that emitted
+  });
+
+  socket.on("typing", (room, senderUsername) => socket.in(room).emit("is typing", senderUsername));
+
+  socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
+})
+
+export {io, app, server};

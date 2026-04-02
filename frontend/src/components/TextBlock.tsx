@@ -1,27 +1,23 @@
 import React from 'react'
-import { useShallow } from 'zustand/shallow'
-import { authStore } from '../store/useAuthStore'
 
 type TextBlockProps = {
   text: string,
+  isSelf: boolean
   createdAt: string,
-  senderUsername: string,
-  ref?: React.Ref<HTMLDivElement>
 }
 
-const TextBlock = ({text, createdAt, senderUsername, ref}: TextBlockProps ) => {
-  const { authUser } = authStore(useShallow((state) => ({
-    authUser: state.authUser
-  })))
-
+const TextBlock = React.memo(({text, createdAt, isSelf}: TextBlockProps ) => {
+  
   return (
     <>
-      <div className={`h-16 w-fit flex flex-col justify-between gap-2 px-3 py-2  ${senderUsername === authUser?.username? "bg-emerald-400": "bg-[#1E2229]"}  rounded-xl`} ref={ref}>
-        <p className={`text-md ${senderUsername !== authUser?.username? "text-white": "text-black"}`}>{text}</p>
-        <time className='text-xs text-gray-400'>{createdAt}</time>
+      <div 
+        className={`min-h-[3rem] sm:min-h-[4rem] w-fit max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] flex flex-col justify-between gap-1 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 ${isSelf ? "bg-emerald-600 self-end" : "bg-[#1E2229] self-start"} rounded-xl`} 
+      >
+        <p className={`text-sm sm:text-md break-words ${!isSelf ? "text-white" : "text-black"}`}>{text}</p>
+        <time className={`text-xs ${isSelf ? "text-gray-200" : "text-gray-400"}`}>{createdAt}</time>
       </div>
     </>
   )
-}
+});
 
 export default TextBlock

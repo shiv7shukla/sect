@@ -8,6 +8,7 @@ import AuthPage from './pages/AuthPage'
 import { Toaster } from "./components/ui/sonner";
 import Chats from './pages/Chats'
 import { Spinner } from './components/ui/spinner'
+import { registerSocketListeners } from './lib/socketEvents'
 
 const App = () => {
   const { authUser, checkAuth, status } = authStore(useShallow((state)=>({
@@ -16,9 +17,14 @@ const App = () => {
     status: state.status
   })));
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  React.useEffect(() => {
+    if (!authUser?._id) return;
+    registerSocketListeners();
+  }, [authUser]);
 
   if (status == "checking") return <Spinner />
 

@@ -1,26 +1,87 @@
 import { SendHorizontal } from 'lucide-react'
-import React, { useId } from 'react'
+import React from 'react'
+import { chatStore } from '../store/useChatStore';
+import { useShallow } from 'zustand/shallow';
+import { authStore } from '../store/useAuthStore';
+import { socket } from '../lib/socket';
 
 const TextArea = () => {
   const [text, setText] = React.useState("");
-  const isTyping = text.length > 0;
-  const id = useId();
-  const gradientId = `gradientId-${id}`
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const typingTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const id = React.useId();
+  const gradientId = `gradientId-${id}`;
+
+  const {
+    sendMessage,
+    isTyping,
+    selectedUser, 
+    conversations,
+  } = chatStore(useShallow((state) => ({
+    sendMessage: state.sendMessage,
+    isTyping: state.isTyping,
+    selectedUser: state.selectedUser,
+    conversations: state.conversations
+  })));
+  const selectedConversation = React.useMemo(() => 
+    conversations.filter(c => c.conversationId === selectedUser?.conversationId), 
+  [selectedUser, conversations]);
+
+  const handleKeyDown = React.useCallback(async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!inputRef.current?.value || !selectedUser?.conversationId) return;
+    if (e.key === "Enter"){
+      e.preventDefault();
+      setText("");
+      await sendMessage(text, selectedConversation[0].type);
+    }
+  }, [sendMessage, selectedConversation, selectedUser, text]);
+  const typingHandler = () => {
+    if (!socket) return;
+    if (inputRef){
+      socket.emit("typing", chatStore.getState().selectedUser?.conversationId, authStore.getState().authUser?.username);
+    }
+
+    if (typingTimer) clearTimeout(typingTimer.current);
+
+    typingTimer.current = setTimeout(() => {
+      socket.emit("not typing", chatStore.getState().selectedUser?.conversationId, authStore.getState().authUser?.username);
+    }, 500)
+  };
 
   return (
-    <div className='h-28 w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-4 px-4'>
-      <div className='w-full flex gap-4 '>
+    <div className='w-full flex flex-col items-center justify-between border-t-2 border-t-zinc-800 bg-[#111318] py-2 sm:py-4 px-2 sm:px-4'>
+      <div className='w-full flex gap-2 sm:gap-4'>
+        {/* {isTyping? <div className='h-10 w-full text-white bg-orange-700 text-md'>Loading...</div>:<></>} */}
         <input 
-        type="text" 
-        value={text}
-        onChange={(e)=>setText(e.target.value)}
-        placeholder='Type a secure message...' 
-        className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 placeholder:text-gray-500 text-white' />
-        <button className={`h-10 w-10 bg-emerald-400 rounded-xl ${isTyping? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} transition-all duration-300`} disabled={!isTyping}>
-          <SendHorizontal className={`size-6 text-black translate-x-2 ${isTyping? "-rotate-90": "rotate-0" } transition-transform duration-300`}/>
+          type="text"
+          value={text}
+          ref={inputRef}
+          onKeyDown={(e) => handleKeyDown(e)}
+          placeholder='Type a secure message...' 
+          onChange={(e) => {setText(e.target.value);typingHandler()}}
+          className='h-10 w-full rounded-xl border-2 border-zinc-900 focus:border-emerald-400 transition-colors bg-[#171A21] focus:outline-none px-2 sm:px-3 placeholder:text-gray-500 text-white text-sm sm:text-base'
+        />
+        <button 
+          className={`h-10 w-10 flex-shrink-0 bg-emerald-400 rounded-xl 
+            ${text.length > 0? "opacity-100 cursor-pointer ": "opacity-50 cursor-default"} 
+            transition-all duration-300`} 
+            disabled={text.trim().length === 0}
+            onClick={() => {
+                if (selectedUser?.conversationId){
+                  sendMessage(text, selectedConversation[0].type);
+                  setText("");
+                }
+              }
+            }
+            >
+            <SendHorizontal 
+              className={`size-5 sm:size-6 text-black translate-x-2 
+                ${text.length > 0? "-rotate-90": "rotate-0"} 
+                transition-transform duration-300`}
+          />
         </button>
       </div>
-      <footer className='flex gap-2'>
+      <footer className='flex gap-2 mt-1 sm:mt-2'>
         <div className='mt-1'>
           <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -62,4 +123,4 @@ const TextArea = () => {
   )
 }
 
-export default TextArea
+export default TextArea;
