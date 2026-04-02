@@ -42,7 +42,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     const controller = new AbortController();
     const loadAndSubscribe = async() => {
     const cId =  await getMessages(selectedUser, controller.signal);
-      if (cId && active) socket.emit("start conversation", chatStore.getState().selectedUser?.conversationId);
+      if (cId && active) socket.emit("start conversation", cId);
     };
     loadAndSubscribe();
     return () => {
