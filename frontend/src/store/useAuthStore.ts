@@ -132,8 +132,8 @@ export const authStore = create<AuthStore>((set) => ({
       await axiosInstance.post("/auth/logout");
       set({authUser: null, status: "unauthenticated"});
       toast.success("Logged out successfully");
-      socket.disconnect();
       socket.removeAllListeners();
+      socket.disconnect();
     } 
     catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
