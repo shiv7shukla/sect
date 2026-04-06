@@ -21,6 +21,10 @@ io.on("connection", (socket) => {
     socket.join(room);
   });
 
+  socket.on("leave conversation", (room) => {
+    socket.leave(room);
+  });
+
   socket.on("new message", (newMessage, selectedUser) => {
     socket.in(selectedUser.conversationId).emit("message received", newMessage); // everyone in this room EXCEPT the socket that emitted
   });
@@ -28,6 +32,7 @@ io.on("connection", (socket) => {
   socket.on("typing", (room, senderUsername) => socket.in(room).emit("is typing", senderUsername));
 
   socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
+
 })
 
 export {io, app, server};

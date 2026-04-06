@@ -39,15 +39,21 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     if (!selectedUser?._id) return;
 
     let active = true;
+    let currentConversationId: string | undefined;
     const controller = new AbortController();
     const loadAndSubscribe = async() => {
-    const cId =  await getMessages(selectedUser, controller.signal);
-      if (cId && active) socket.emit("start conversation", cId);
+      const cId =  await getMessages(selectedUser, controller.signal);
+      if (cId && active) {
+        currentConversationId = cId;
+        socket.emit("start conversation", cId);
+      }
     };
     loadAndSubscribe();
     return () => {
       active = false;
       controller.abort();
+      if (currentConversationId)
+        socket.emit("leave conversation", currentConversationId);
     }
   }, [selectedUser?._id, getMessages]);
 
