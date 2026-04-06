@@ -134,8 +134,8 @@ export const authStore = create<AuthStore>((set) => ({
       toast.success("Logged out successfully");
       socket.disconnect();
       socket.off("message received");
-      socket.off("isTyping");
-      socket.off("is not Typing");
+      socket.off("is typing");
+      socket.off("is not typing");
     } 
     catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
