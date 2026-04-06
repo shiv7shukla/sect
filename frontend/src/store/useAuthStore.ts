@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import axios from "axios";
+import { socket } from '../lib/socket';
 
 export type AuthMode = "signIn" | "signUp"
 
@@ -129,14 +130,16 @@ export const authStore = create<AuthStore>((set) => ({
 
     try{
       await axiosInstance.post("/auth/logout");
-      set({ authUser: null, status: "unauthenticated" });
+      set({authUser: null, status: "unauthenticated"});
       toast.success("Logged out successfully");
+      socket.disconnect();
+      socket.off("message received");
+      socket.off("isTyping");
+      socket.off("is not Typing");
     } 
     catch (err) {
       const message=axios.isAxiosError(err)? err?.response?.data?.message:null;
-      set({
-        error: message ?? "Logout failed",
-      });
+      set({error: message ?? "Logout failed"});
       toast.error("Logout failed");
     } 
     finally {

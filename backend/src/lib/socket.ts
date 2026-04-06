@@ -28,6 +28,11 @@ io.on("connection", (socket) => {
   socket.on("typing", (room, senderUsername) => socket.in(room).emit("is typing", senderUsername));
 
   socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
+
+  socket.on("disconnect", (reason) => {
+    if (reason as string === "io client disconnect")
+      socket.disconnect();
+  })
 })
 
 export {io, app, server};
