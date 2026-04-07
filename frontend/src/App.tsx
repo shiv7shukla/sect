@@ -1,6 +1,5 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import HomePage from './pages/HomePage'
 import Navbar from './components/Navbar'
 import { useShallow } from 'zustand/shallow'
 import { authStore } from './store/useAuthStore'
@@ -9,6 +8,7 @@ import { Toaster } from "./components/ui/sonner";
 import Chats from './pages/Chats'
 import { Spinner } from './components/ui/spinner'
 import { registerSocketListeners } from './lib/socketEvents'
+import Index from './pages/Index'
 
 const App = () => {
   const { authUser, checkAuth, status } = authStore(useShallow((state)=>({
@@ -32,7 +32,7 @@ const App = () => {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={authUser? <HomePage />: <Navigate to="/authenticate"/>} />
+        <Route path="/" element={ <Index />} />
         <Route path="/authenticate" element={!authUser? <AuthPage />: <Navigate to="/chats" />} />
         <Route path="/chats" element={authUser? <Chats />: <Navigate to="/authenticate"/>} />
         {/* <Route path="/chat" element={<Chats />} /> */}
