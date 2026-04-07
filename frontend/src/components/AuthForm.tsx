@@ -78,7 +78,7 @@ const AuthForm: React.FC = () => {
             placeholder={field.placeholder}
             register={register as any}
             errors={errors}
-            touched={!!touchedFields[field.name]}
+            touched={!!touchedFields[field.name as keyof typeof touchedFields]}
           />
         ))}
         

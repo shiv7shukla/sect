@@ -1,13 +1,23 @@
 import { Shield, Lock, Eye, Zap, ChevronDown, ArrowRight } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../components/ui/button";
 import { useState } from "react";
 import { cn } from "../lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { authStore } from "../store/useAuthStore";
+import React from "react";
+import { useShallow } from "zustand/shallow";
 
 const LandingPage = () => {
 const [openFaq, setOpenFaq] = useState<number | null>(null);
 const navigate = useNavigate();
+const { authUser, checkAuth } = authStore(useShallow((state)=>({
+    authUser: state.authUser, 
+    checkAuth: state.checkAuth,
+})));
+
+React.useEffect(() => {
+    checkAuth();
+}, [checkAuth]);
 
 const features = [
 {
@@ -63,8 +73,6 @@ const faqs = [
 }
 ];
 
-const authUser = authStore((state) => state.authUser);
-
 return (
 <div className="min-h-screen bg-background overflow-x-hidden">
     {/* Navigation */}
@@ -82,7 +90,7 @@ return (
             <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
         </div>
         <div className="flex items-center gap-3">
-            {!authUser  && (<Button variant="ghost" size="sm" onClick={() => navigate("/chats")}>Log In</Button>)}
+            {!authUser  && (<Button variant="ghost" size="sm" onClick={() => {navigate("/chats")}}>Log In</Button>)}
             <Button variant="default" size="sm" onClick={() => navigate("/chats")}>
             Get Started
             </Button>

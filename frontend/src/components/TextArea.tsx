@@ -14,12 +14,10 @@ const TextArea = () => {
 
   const {
     sendMessage,
-    isTyping,
     selectedUser, 
     conversations,
   } = chatStore(useShallow((state) => ({
     sendMessage: state.sendMessage,
-    isTyping: state.isTyping,
     selectedUser: state.selectedUser,
     conversations: state.conversations
   })));

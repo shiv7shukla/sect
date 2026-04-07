@@ -1,43 +1,38 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import Navbar from './components/Navbar'
 import { useShallow } from 'zustand/shallow'
 import { authStore } from './store/useAuthStore'
 import AuthPage from './pages/AuthPage'
 import { Toaster } from "./components/ui/sonner";
-import Chats from './pages/Chats'
-import { Spinner } from './components/ui/spinner'
-import { registerSocketListeners } from './lib/socketEvents'
-import Index from './pages/Index'
-import NotFound from './pages/NotFound'
+import LandingPage from './pages/LandingPage'
+
+const NotFoundComponent = React.lazy(() => import("./pages/NotFound"));
+const ChatsComponent = React.lazy(() => import("./pages/Chats"));
 
 const App = () => {
-  const { authUser, checkAuth, status } = authStore(useShallow((state)=>({
+  const { authUser, checkAuth } = authStore(useShallow((state)=>({
     authUser: state.authUser, 
     checkAuth: state.checkAuth,
-    status: state.status
   })));
 
   React.useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  React.useEffect(() => {
-    if (!authUser?._id) return;
-    registerSocketListeners();
-  }, [authUser]);
+  // React.useEffect(() => {
+  //   if (!authUser?._id) return;
+  //   registerSocketListeners();
+  // }, [authUser]);
 
-  if (status == "checking") return <Spinner />
+  // if (status == "checking") return <Spinner />
 
   return (
     <>
-      <Navbar />
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/authenticate" element={!authUser? <AuthPage />: <Navigate to="/" />} />
-        <Route path="/chats" element={authUser? <Chats />: <Navigate to="/authenticate"/>} />
-        <Route path="*" element={<NotFound />} />
-        {/* <Route path="/chat" element={<Chats />} /> */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/authenticate" element={!authUser ? <AuthPage /> : <Navigate replace to="/" />} />
+        <Route path="/chats" element={authUser ? <ChatsComponent /> : <Navigate replace to="/authenticate" />} />
+        <Route path="*" element={<NotFoundComponent />} />
       </Routes>
       <Toaster /> 
     </>

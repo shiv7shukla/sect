@@ -1,11 +1,9 @@
 import React from 'react'
 import { ArrowLeft, Lock, User } from 'lucide-react'
 import TextArea from './TextArea'
-import TextBlock from './TextBlock'
 import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
 import { formatMessageTime } from '../lib/utils'
-import MessageSkeleton from './MessageSkeleton'
 import { socket } from '../lib/socket'
 import { authStore } from '../store/useAuthStore'
 
@@ -13,18 +11,18 @@ type MessageAreaProps = {
   onBack?: () => void;
 };
 
+const TextBlockComponent = React.lazy(() => import("./TextBlock"));
+const MessageSkeletonComponent = React.lazy(() => import("./MessageSkeleton"));
 const MessageArea = ({onBack}: MessageAreaProps) => {
   const messageEndRef = React.useRef<HTMLDivElement>(null);
 
   const {
     messages, 
-    isTyping,
     getMessages, 
     selectedUser, 
     isMessagesLoading, 
   } = chatStore(useShallow((state) => ({
     messages: state.messages,
-    isTyping: state.isTyping,
     getMessages: state.getMessages,
     selectedUser: state.selectedUser,
     isMessagesLoading: state.isMessagesLoading,
@@ -54,10 +52,11 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
       controller.abort();
       if (currentConversationId)
         socket.emit("leave conversation", currentConversationId);
+      // sessionStorage.removeItem("chat-storage");
     }
   }, [selectedUser?._id, getMessages]);
 
-  if (isMessagesLoading) return (<div className='h-screen w-full'><MessageSkeleton /></div>);
+  if (isMessagesLoading) return (<div className='h-screen w-full'><MessageSkeletonComponent /></div>);
 
   return (
     <div className='h-screen w-full flex flex-col overflow-y-hidden bg-[#0c120c]'>
@@ -102,7 +101,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
           <div className='flex flex-col gap-2 p-2 sm:p-4'>
             {messages.map((message: Message) => {
               return(
-                <TextBlock 
+                <TextBlockComponent 
                   key={message.id} 
                   text={message.content.text}
                   createdAt={formatMessageTime(message.createdAt)} 
