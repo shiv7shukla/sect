@@ -17,7 +17,7 @@ const AUTH_TEXT = {
 } as const;
 
 const AuthPage = () => {
-  const { mode, authUser } = authStore(useShallow((state) => ({
+  const {mode, authUser} = authStore(useShallow((state) => ({
     mode: state.mode,
     authUser:state.authUser
   })));
@@ -26,7 +26,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authUser !== null) navigate("/chat", {replace: true});
+    if (authUser !== null) navigate("/chats");
   }, [authUser]);
 
   return (

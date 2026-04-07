@@ -33,8 +33,8 @@ const App = () => {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={ <Index />} />
-        <Route path="/authenticate" element={!authUser? <AuthPage />: <Navigate to="/chats" />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/authenticate" element={!authUser? <AuthPage />: <Navigate to="/" />} />
         <Route path="/chats" element={authUser? <Chats />: <Navigate to="/authenticate"/>} />
         <Route path="*" element={<NotFound />} />
         {/* <Route path="/chat" element={<Chats />} /> */}

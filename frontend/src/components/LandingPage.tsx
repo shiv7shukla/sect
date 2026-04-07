@@ -2,14 +2,10 @@ import { Shield, Lock, Eye, Zap, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { cn } from "../lib/utils";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authStore } from "../store/useAuthStore";
 
-interface LandingPageProps {
-onEnterChat: () => void;
-}
-
-const LandingPage = ({ onEnterChat }: LandingPageProps) => {
+const LandingPage = () => {
 const [openFaq, setOpenFaq] = useState<number | null>(null);
 const navigate = useNavigate();
 
@@ -67,6 +63,8 @@ const faqs = [
 }
 ];
 
+const authUser = authStore((state) => state.authUser);
+
 return (
 <div className="min-h-screen bg-background overflow-x-hidden">
     {/* Navigation */}
@@ -84,8 +82,8 @@ return (
             <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
         </div>
         <div className="flex items-center gap-3">
-            {!authStore.getState().authUser  && (<Button variant="ghost" size="sm" onClick={() => navigate("/authenticate")}>Log In</Button>)}
-            <Button variant="default" size="sm" onClick={() => navigate("/authenticate")}>
+            {!authUser  && (<Button variant="ghost" size="sm" onClick={() => navigate("/chats")}>Log In</Button>)}
+            <Button variant="default" size="sm" onClick={() => navigate("/chats")}>
             Get Started
             </Button>
         </div>
@@ -119,7 +117,7 @@ return (
         </div>
 
         {/* Logo */}
-        <div className="mb-8 flex justify-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="mb-8 flex justify-center animate-fade-in" style={{animationDelay: '0.1s'}}>
         <div className="relative">
             <div className="w-24 h-24 rounded-3xl bg-gradient-card border-glow flex items-center justify-center animate-float">
             <Shield className="w-12 h-12 text-primary" />
@@ -129,22 +127,22 @@ return (
         </div>
 
         {/* Title */}
-        <h1 className="font-mono text-5xl sm:text-6xl md:text-7xl font-bold mb-6 tracking-tight animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <h1 className="font-mono text-5xl sm:text-6xl md:text-7xl font-bold mb-6 tracking-tight animate-fade-in" style={{animationDelay: '0.2s'}}>
         <span className="text-gradient">sect</span>
         </h1>
 
-        <p className="text-xl sm:text-2xl text-foreground/90 mb-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <p className="text-xl sm:text-2xl text-foreground/90 mb-4 animate-fade-in" style={{animationDelay: '0.3s'}}>
         Messaging for the paranoid.
         </p>
 
-        <p className="text-muted-foreground text-base sm:text-lg mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <p className="text-muted-foreground text-base sm:text-lg mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{animationDelay: '0.4s'}}>
         No phone number. No email. No trace. Connect with people using only their unique identifier. 
         Your conversations remain yours—encrypted, anonymous, and ephemeral.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-        <Button onClick={onEnterChat}>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in" style={{animationDelay: '0.5s'}}>
+        <Button onClick={() => navigate("/chats")}>
             <Lock className="w-5 h-5 mr-2" />
             Start Secure Chat
             <ArrowRight className="w-5 h-5 ml-2" />
@@ -152,7 +150,7 @@ return (
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto animate-fade-in" style={{ animationDelay: '0.6s' }}>
+        <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto animate-fade-in" style={{animationDelay: '0.6s'}}>
         <div>
             <p className="font-mono text-2xl sm:text-3xl font-bold text-primary">50K+</p>
             <p className="text-xs sm:text-sm text-muted-foreground">Active Users</p>
@@ -320,7 +318,7 @@ return (
         Join thousands of users who've made the switch to truly private communication. 
         No registration, no tracking, no compromise.
         </p>
-        <Button onClick={() => navigate("/authenticate")}>
+        <Button onClick={() => navigate("/chats")}>
         <Lock className="w-5 h-5 mr-2" />
         Enter the Sect
         <ArrowRight className="w-5 h-5 ml-2" />
@@ -339,10 +337,10 @@ return (
             <span className="font-mono font-bold text-gradient">sect</span>
         </div>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="*" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="*" className="hover:text-foreground transition-colors">Terms of Service</a>
-            <a href="*" className="hover:text-foreground transition-colors">Security</a>
-            <a href="*" className="hover:text-foreground transition-colors">Contact</a>
+            <Link to="*" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+            <Link to="*" className="hover:text-foreground transition-colors">Terms of Service</Link>
+            <Link to="*" className="hover:text-foreground transition-colors">Security</Link>
+            <Link to="*" className="hover:text-foreground transition-colors">Contact</Link>
         </div>
         <p className="text-xs text-muted-foreground">
             © 2026 Sect. All rights reserved.
