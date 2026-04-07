@@ -1,7 +1,9 @@
-import { Shield, Lock, Eye, Zap, ChevronDown, ArrowRight, MessageSquare } from "lucide-react";
+import { Shield, Lock, Eye, Zap, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
+import { useNavigate } from "react-router-dom";
+import { authStore } from "../store/useAuthStore";
 
 interface LandingPageProps {
 onEnterChat: () => void;
@@ -9,6 +11,7 @@ onEnterChat: () => void;
 
 const LandingPage = ({ onEnterChat }: LandingPageProps) => {
 const [openFaq, setOpenFaq] = useState<number | null>(null);
+const navigate = useNavigate();
 
 const features = [
 {
@@ -81,8 +84,8 @@ return (
             <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
         </div>
         <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onEnterChat}>Log In</Button>
-            <Button variant="default" size="sm" onClick={onEnterChat}>
+            {!authStore.getState().authUser  && (<Button variant="ghost" size="sm" onClick={() => navigate("/authenticate")}>Log In</Button>)}
+            <Button variant="default" size="sm" onClick={() => navigate("/authenticate")}>
             Get Started
             </Button>
         </div>
@@ -209,7 +212,7 @@ return (
         <div className="space-y-8">
         {[
             { step: "01", title: "Get Your UUID", description: "Sign up instantly—no personal information required. You'll receive a unique identifier that serves as your anonymous identity." },
-            { step: "02", title: "Share Securely", description: "Share your UUID with trusted contacts through any secure channel. That's the only way anyone can reach you." },
+            { step: "02", title: "Share Securely", description: "Share your messages with trusted contacts through any secure channel." },
             { step: "03", title: "Chat Freely", description: "Start encrypted conversations with complete anonymity. Messages are encrypted on your device and never stored on our servers." }
         ].map((item, index) => (
             <div key={index} className="flex gap-6 items-start group">
@@ -317,7 +320,7 @@ return (
         Join thousands of users who've made the switch to truly private communication. 
         No registration, no tracking, no compromise.
         </p>
-        <Button onClick={onEnterChat}>
+        <Button onClick={() => navigate("/authenticate")}>
         <Lock className="w-5 h-5 mr-2" />
         Enter the Sect
         <ArrowRight className="w-5 h-5 ml-2" />
@@ -336,10 +339,10 @@ return (
             <span className="font-mono font-bold text-gradient">sect</span>
         </div>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-foreground transition-colors">Security</a>
-            <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+            <a href="*" className="hover:text-foreground transition-colors">Privacy Policy</a>
+            <a href="*" className="hover:text-foreground transition-colors">Terms of Service</a>
+            <a href="*" className="hover:text-foreground transition-colors">Security</a>
+            <a href="*" className="hover:text-foreground transition-colors">Contact</a>
         </div>
         <p className="text-xs text-muted-foreground">
             © 2026 Sect. All rights reserved.

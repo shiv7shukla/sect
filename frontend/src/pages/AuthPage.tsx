@@ -23,10 +23,10 @@ const AuthPage = () => {
   })));
 
   const textContent = AUTH_TEXT[mode];
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (authUser!==null) navigate("/chat", { replace: true });
+    if (authUser !== null) navigate("/chat", {replace: true});
   }, [authUser]);
 
   return (
@@ -40,10 +40,6 @@ const AuthPage = () => {
           >
             <ArrowLeft size={20} />
           </button>
-          <div className='h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 bg-[#27272A] rounded-full relative flex-shrink-0'>
-            <Shield className='text-green-700 absolute left-1.5 top-1.5 sm:left-2 sm:top-2' size={52} />
-          </div>
-          {/* Invisible spacer for mobile centering */}
           <div className='w-5 sm:hidden' aria-hidden="true" />
         </div>
         

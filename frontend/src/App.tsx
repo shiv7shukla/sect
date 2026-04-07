@@ -9,6 +9,7 @@ import Chats from './pages/Chats'
 import { Spinner } from './components/ui/spinner'
 import { registerSocketListeners } from './lib/socketEvents'
 import Index from './pages/Index'
+import NotFound from './pages/NotFound'
 
 const App = () => {
   const { authUser, checkAuth, status } = authStore(useShallow((state)=>({
@@ -35,10 +36,10 @@ const App = () => {
         <Route path="/" element={ <Index />} />
         <Route path="/authenticate" element={!authUser? <AuthPage />: <Navigate to="/chats" />} />
         <Route path="/chats" element={authUser? <Chats />: <Navigate to="/authenticate"/>} />
+        <Route path="*" element={<NotFound />} />
         {/* <Route path="/chat" element={<Chats />} /> */}
       </Routes>
       <Toaster /> 
-      {/* add toaster here so it can appear anywhere you want */}
     </>
   )
 }
