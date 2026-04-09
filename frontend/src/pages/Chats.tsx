@@ -40,7 +40,11 @@ const Chats = () => {
           )}
         </div>
       </div>
-      <SearchModalComponewnt showModal={showModal} onClose={() => setShowModal(false)} />
+      {showModal && (
+        <React.Suspense fallback={null}>
+          <SearchModalComponewnt showModal={showModal} onClose={() => setShowModal(false)} />
+        </React.Suspense>
+      )}
     </>
   )
 }

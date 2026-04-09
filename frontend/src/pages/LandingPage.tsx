@@ -7,18 +7,6 @@ import { authStore } from "../store/useAuthStore";
 import React from "react";
 import { useShallow } from "zustand/shallow";
 
-const LandingPage = () => {
-const [openFaq, setOpenFaq] = useState<number | null>(null);
-const navigate = useNavigate();
-const {authUser, checkAuth} = authStore(useShallow((state)=>({
-    authUser: state.authUser, 
-    checkAuth: state.checkAuth,
-})));
-
-React.useEffect(() => {
-    if (!authUser) checkAuth();
-}, [checkAuth]);
-
 const features = [
 {
     icon: Lock,
@@ -72,6 +60,19 @@ const faqs = [
     answer: "Unlike other apps, Sect requires no personal information whatsoever. No phone number, no email—just a UUID. This provides an additional layer of anonymity that other platforms don't offer."
 }
 ];
+
+const LandingPage = () => {
+const [openFaq, setOpenFaq] = useState<number | null>(null);
+const navigate = useNavigate();
+const {authUser, checkAuth} = authStore(useShallow((state)=>({
+    authUser: state.authUser, 
+    checkAuth: state.checkAuth,
+})));
+
+React.useEffect(() => {
+    if (!authUser) checkAuth();
+}, [checkAuth]);
+
 
 return (
 <div className="min-h-screen bg-background overflow-x-hidden">

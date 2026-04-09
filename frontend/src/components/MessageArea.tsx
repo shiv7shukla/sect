@@ -101,12 +101,15 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
           <div className='flex flex-col gap-2 p-2 sm:p-4'>
             {messages.map((message: Message) => {
               return(
-                <TextBlockComponent 
-                  key={message.id} 
-                  text={message.content.text}
-                  createdAt={formatMessageTime(message.createdAt)} 
-                  isSelf={message.senderUsername === authStore.getState().authUser?.username}
-                />
+                <React.Suspense fallback={null}>
+                  <TextBlockComponent 
+                    key={message.id} 
+                    text={message.content.text}
+                    createdAt={formatMessageTime(message.createdAt)} 
+                    isSelf={message.senderUsername === authStore.getState().authUser?.username}
+                  />
+                </React.Suspense>
+                
               )})}
           </div>
           <div ref={messageEndRef} />
