@@ -6,13 +6,13 @@ import { useShallow } from 'zustand/shallow'
 import { formatMessageTime } from '../lib/utils'
 import { socket } from '../lib/socket'
 import { authStore } from '../store/useAuthStore'
+import MessageSkeleton from './MessageSkeleton'
 
 type MessageAreaProps = {
   onBack?: () => void;
 };
 
 const TextBlockComponent = React.lazy(() => import("./TextBlock"));
-const MessageSkeletonComponent = React.lazy(() => import("./MessageSkeleton"));
 const MessageArea = ({onBack}: MessageAreaProps) => {
   const messageEndRef = React.useRef<HTMLDivElement>(null);
 
@@ -56,7 +56,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     }
   }, [selectedUser?._id, getMessages]);
 
-  if (isMessagesLoading) return (<div className='h-screen w-full'><MessageSkeletonComponent /></div>);
+  if (isMessagesLoading) return (<div className='h-screen w-full'><MessageSkeleton /></div>);
 
   return (
     <div className='h-screen w-full flex flex-col overflow-y-hidden bg-[#0c120c]'>

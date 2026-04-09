@@ -10,13 +10,13 @@ import { useShallow } from "zustand/shallow";
 const LandingPage = () => {
 const [openFaq, setOpenFaq] = useState<number | null>(null);
 const navigate = useNavigate();
-const { authUser, checkAuth } = authStore(useShallow((state)=>({
+const {authUser, checkAuth} = authStore(useShallow((state)=>({
     authUser: state.authUser, 
     checkAuth: state.checkAuth,
 })));
 
 React.useEffect(() => {
-    checkAuth();
+    if (!authUser) checkAuth();
 }, [checkAuth]);
 
 const features = [

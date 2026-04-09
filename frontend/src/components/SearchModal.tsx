@@ -5,17 +5,23 @@ import { chatStore, type SelectedUser } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
 
 const UsersListComponent = React.lazy(() => import("./UsersList"));
-type SearchModalProps = { showModal: boolean; onClose: () => void }
+type SearchModalProps = {showModal: boolean; onClose: () => void}
 
 const SearchModal = ({showModal, onClose}: SearchModalProps) => {
   const [inputVal, setInputVal] = React.useState("");
   const debouncedVal = useDebounce(inputVal, 300);
-  const {searchUsers, setSelectedUser, getMessages, queriedUsers} = chatStore(useShallow((state) => ({
+  const {
+    searchUsers,
+    setSelectedUser, 
+    getMessages, 
+    queriedUsers
+  } = chatStore(
+    useShallow((state) => ({
     searchUsers: state.searchUsers,
     getMessages: state.getMessages,
     queriedUsers: state.queriedUsers,
     setSelectedUser: state.setSelectedUser
-  })))
+})))
   const queriedUserClick = async(user: SelectedUser) => {
     const selected = { 
       _id: user._id, 
@@ -76,8 +82,9 @@ const SearchModal = ({showModal, onClose}: SearchModalProps) => {
           </div>
         </div>
         <div className="flex flex-col items-center justify-start gap-2 text-center px-2 sm:px-6 overflow-y-auto mb-3">
-          {debouncedVal.trim().length > 0 && queriedUsers.length > 0? 
-            (queriedUsers
+          {debouncedVal.trim().length > 0 && queriedUsers.length > 0?
+            <React.Suspense fallback={<div className="text-muted-foreground text-sm">Loading...</div>}>
+              {queriedUsers
               .map((q) =>
               <div className="w-full flex flex-col items-center justify-evenly gap-2 text-center px-6 mt-3 mb-3">
                 <UsersListComponent 
@@ -86,7 +93,9 @@ const SearchModal = ({showModal, onClose}: SearchModalProps) => {
                   onSelect={queriedUserClick}
                 />
               </div>
-                )):
+                )}
+            </React.Suspense>
+            :            
           <div className="flex flex-col items-center justify-evenly gap-2 text-center px-2 sm:px-6 mt-3 mb-3">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-secondary/75 border border-border/50 flex items-center justify-center mb-2 sm:mb-3">
               <Search className="w-6 h-6 sm:w-7 sm:h-7 text-muted-foreground/80" />
