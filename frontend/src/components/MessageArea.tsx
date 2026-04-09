@@ -52,7 +52,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
       controller.abort();
       if (currentConversationId)
         socket.emit("leave conversation", currentConversationId);
-      // sessionStorage.removeItem("chat-storage");
+      sessionStorage.removeItem("chat-storage");
     }
   }, [selectedUser?._id, getMessages]);
 
