@@ -133,14 +133,14 @@ export const chatStore = create<ChatStore>()(
     searchUsers: async (searchQuery: string) => {
       const query = searchQuery.trim();
       if (!query) {
-        set({ queriedUsers: [] });
+        set({queriedUsers: []});
         return;
       }
       try {
-        const { data } = await axiosInstance.get("/conversations/search/", {
-          params: { searchQuery: query }
+        const {data} = await axiosInstance.get("/conversations/search/", {
+          params: {searchQuery: query}
         });
-        set({ queriedUsers: data.results });
+        set({queriedUsers: data.results});
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);

@@ -3,19 +3,25 @@ import { Search, X } from 'lucide-react'
 import useDebounce from '../hooks/useDebounce';
 import { chatStore, type SelectedUser } from '../store/useChatStore';
 import { useShallow } from 'zustand/shallow';
-import ConversationList from './ConversationList';
 
-type SearchModalProps = { showModal: boolean; onClose: () => void }
+const UsersListComponent = React.lazy(() => import("./UsersList"));
+type SearchModalProps = {showModal: boolean; onClose: () => void}
 
-const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
+const SearchModal = ({showModal, onClose}: SearchModalProps) => {
   const [inputVal, setInputVal] = React.useState("");
   const debouncedVal = useDebounce(inputVal, 300);
-  const { searchUsers, queriedUsers, getMessages, setSelectedUser } = chatStore(useShallow((state) => ({
+  const {
+    searchUsers,
+    setSelectedUser, 
+    getMessages, 
+    queriedUsers
+  } = chatStore(
+    useShallow((state) => ({
     searchUsers: state.searchUsers,
     getMessages: state.getMessages,
     queriedUsers: state.queriedUsers,
     setSelectedUser: state.setSelectedUser
-  })))
+})))
   const queriedUserClick = async(user: SelectedUser) => {
     const selected = { 
       _id: user._id, 
@@ -33,14 +39,17 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
   }, [onClose]);
 
   React.useEffect(() => {
-    if (!showModal) return;
+    if (!showModal){
+      chatStore.setState({queriedUsers: []});
+      return;
+    } 
     const handleEscape = (e: KeyboardEvent) => {if (e.key === "Escape") closeAndReset()};
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [showModal, closeAndReset]);
 
   React.useEffect(() => {
-    if (debouncedVal.trim()) searchUsers(debouncedVal.trim());
+    if (!debouncedVal.trim()) searchUsers(debouncedVal.trim());
   }, [debouncedVal, searchUsers]);
 
   return !showModal ? null : (
@@ -76,25 +85,28 @@ const SearchModal = ({ showModal, onClose }: SearchModalProps) => {
           </div>
         </div>
         <div className="flex flex-col items-center justify-start gap-2 text-center px-2 sm:px-6 overflow-y-auto mb-3">
-          {/* {debouncedVal.trim().length > 0 && queriedUsers.length > 0? 
-            (queriedUsers
+          {debouncedVal.trim().length > 0 && queriedUsers.length > 0?
+            <React.Suspense fallback={<div className="text-muted-foreground text-sm">Loading...</div>}>
+              {queriedUsers
               .map((q) =>
-              <div className="w-full flex flex-col items-center justify-evenly gap-2 text-center px-6 mt-3 mb-3">
-                <ConversationList 
-                  key={q._id}
-                  userId={q._id}
-                  username={q.username}
-                  onClick={() => queriedUserClick(q)}
-                />
+                <div 
+                  key={q._id} 
+                  className="w-full flex flex-col items-center justify-evenly gap-2 text-center px-6 mt-3 mb-3">
+                  <UsersListComponent 
+                    queriedUser={q}
+                    onSelect={queriedUserClick}
+                  />
               </div>
-                )): */}
+                )}
+            </React.Suspense>
+            :            
           <div className="flex flex-col items-center justify-evenly gap-2 text-center px-2 sm:px-6 mt-3 mb-3">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-secondary/75 border border-border/50 flex items-center justify-center mb-2 sm:mb-3">
               <Search className="w-6 h-6 sm:w-7 sm:h-7 text-muted-foreground/80" />
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mb-1">Find people on sect</p>
             <p className="text-xs text-muted-foreground/60">Type a username to discover users</p>
-          </div>
+          </div>}
         </div>
       </div>
     </div>

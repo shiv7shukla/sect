@@ -1,9 +1,10 @@
 import React from 'react'
 import Sidebar from '../components/Sidebar'
 import ChatArea from '../components/ChatArea'
-import MessageArea from '../components/MessageArea'
 import { chatStore } from '../store/useChatStore'
-import SearchModal from '../components/SearchModal'
+
+const SearchModalComponewnt = React.lazy(() => import("../components/SearchModal"));
+const MessageAreaComponent = React.lazy(() => import("../components/MessageArea"));
 
 const Chats = () => {
   const selectedUser = chatStore((state) => state.selectedUser)
@@ -33,13 +34,17 @@ const Chats = () => {
           min-w-0
         `}>
           {selectedUser ? (
-            <MessageArea onBack={handleBack} />
+            <MessageAreaComponent onBack={handleBack} />
           ) : (
             <ChatArea />
           )}
         </div>
       </div>
-      <SearchModal showModal={showModal} onClose={() => setShowModal(false)} />
+      {showModal && (
+        <React.Suspense fallback={null}>
+          <SearchModalComponewnt showModal={showModal} onClose={() => setShowModal(false)} />
+        </React.Suspense>
+      )}
     </>
   )
 }

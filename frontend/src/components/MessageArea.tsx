@@ -1,30 +1,28 @@
 import React from 'react'
 import { ArrowLeft, Lock, User } from 'lucide-react'
 import TextArea from './TextArea'
-import TextBlock from './TextBlock'
 import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
 import { formatMessageTime } from '../lib/utils'
-import MessageSkeleton from './MessageSkeleton'
 import { socket } from '../lib/socket'
 import { authStore } from '../store/useAuthStore'
+import MessageSkeleton from './MessageSkeleton'
 
 type MessageAreaProps = {
   onBack?: () => void;
 };
 
+const TextBlockComponent = React.lazy(() => import("./TextBlock"));
 const MessageArea = ({onBack}: MessageAreaProps) => {
   const messageEndRef = React.useRef<HTMLDivElement>(null);
 
   const {
     messages, 
-    isTyping,
     getMessages, 
     selectedUser, 
     isMessagesLoading, 
   } = chatStore(useShallow((state) => ({
     messages: state.messages,
-    isTyping: state.isTyping,
     getMessages: state.getMessages,
     selectedUser: state.selectedUser,
     isMessagesLoading: state.isMessagesLoading,
@@ -34,6 +32,10 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     if (messageEndRef.current && messages)
       messageEndRef.current.scrollIntoView({behavior: "smooth"});
   }, [messages]);
+
+  React.useEffect(() => {
+    sessionStorage.removeItem("chat-storage");
+  }, []);
 
   React.useEffect(() => {
     if (!selectedUser?._id) return;
@@ -102,12 +104,15 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
           <div className='flex flex-col gap-2 p-2 sm:p-4'>
             {messages.map((message: Message) => {
               return(
-                <TextBlock 
-                  key={message.id} 
-                  text={message.content.text}
-                  createdAt={formatMessageTime(message.createdAt)} 
-                  isSelf={message.senderUsername === authStore.getState().authUser?.username}
-                />
+                <React.Suspense fallback={null}>
+                  <TextBlockComponent 
+                    key={message.id} 
+                    text={message.content.text}
+                    createdAt={formatMessageTime(message.createdAt)} 
+                    isSelf={message.senderUsername === authStore.getState().authUser?.username}
+                  />
+                </React.Suspense>
+                
               )})}
           </div>
           <div ref={messageEndRef} />
