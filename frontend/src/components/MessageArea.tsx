@@ -34,6 +34,10 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
   }, [messages]);
 
   React.useEffect(() => {
+    sessionStorage.removeItem("chat-storage");
+  }, []);
+
+  React.useEffect(() => {
     if (!selectedUser?._id) return;
 
     let active = true;
@@ -52,7 +56,6 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
       controller.abort();
       if (currentConversationId)
         socket.emit("leave conversation", currentConversationId);
-      sessionStorage.removeItem("chat-storage");
     }
   }, [selectedUser?._id, getMessages]);
 
