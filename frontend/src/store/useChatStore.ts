@@ -90,8 +90,21 @@ export const chatStore = create<ChatStore>()(
     getConversations: async () => {
       set({isConversationsLoading: true});
       try {
-        const {data: {chatInfo}} = await axiosInstance.get("/conversations");
-        set({conversations: chatInfo ?? [], isConversationsLoading: false, lastMessageAt: chatInfo[0].lastMessageAt, lastMessagePreview: chatInfo[0].lastMessagePreview});
+        const {data} = await axiosInstance.get("/conversations");
+        console.log(data.chatInfo)
+        if (JSON.stringify(data.chatInfo) !== "{}")
+          set({
+            conversations: data.chatInfo ?? [],
+            isConversationsLoading: false, 
+            lastMessageAt: data.chatInfo[0].lastMessageAt, 
+            lastMessagePreview: data.chatInfo[0].lastMessagePreview
+          });
+        else
+          set({
+            conversations: [],
+            isConversationsLoading: false
+          });
+
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);

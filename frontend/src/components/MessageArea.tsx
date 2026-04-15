@@ -51,6 +51,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
       }
     };
     loadAndSubscribe();
+
     return () => {
       active = false;
       controller.abort();
@@ -112,7 +113,6 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
                     isSelf={message.senderUsername === authStore.getState().authUser?.username}
                   />
                 </React.Suspense>
-                
               )})}
           </div>
           <div ref={messageEndRef} />

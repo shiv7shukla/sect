@@ -51,7 +51,7 @@ export const authStore = create<AuthStore>((set) => ({
   error: null,
   socket: null,
   mode:"signIn",
-  status: "unauthenticated",
+  status: "checking",
   
   onlineUsers: [],
 
