@@ -30,10 +30,10 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
 
   if (!conversation) return res.status(200).json({
     conversationInfo: {
-      conversationId: "new conversation",
-      type: "",
-      lastMessageAt: "",
-      lastMessagePreview: "",
+      conversationId: null,
+      type: null,
+      lastMessageAt: null,
+      lastMessagePreview: null,
     },
     messageInfo: []
   });

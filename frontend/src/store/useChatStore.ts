@@ -90,7 +90,7 @@ export const chatStore = create<ChatStore>()(
       set({isConversationsLoading: true});
       try {
         const {data} = await axiosInstance.get("/conversations");
-        if (data.chatInfo !== undefined)
+        if (Array.isArray(data.chatInfo) && data.chatInfo.length > 0)
           set({
             conversations: data.chatInfo ?? [],
             isConversationsLoading: false, 

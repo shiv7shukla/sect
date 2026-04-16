@@ -50,6 +50,7 @@ const SearchModal = ({showModal, onClose}: SearchModalProps) => {
 
   React.useEffect(() => {
     if ((debouncedVal.trim()).length > 1) searchUsers(debouncedVal.trim());
+    else chatStore.setState({queriedUsers: []});
   }, [debouncedVal, searchUsers]);
 
   return !showModal ? null : (
