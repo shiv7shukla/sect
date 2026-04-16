@@ -60,7 +60,7 @@ export type ChatStore = {
 
   getConversations: () => Promise<void>;
   messageListener: ((msg: Message) => void) | null;
-  searchUsers: (searchquery: string) => Promise<void>;
+  searchUsers: (searchquery: string, signal?: AbortSignal) => Promise<void>;
   getMessages: (selecteduser: SelectedUser, signal?: AbortSignal) => Promise<string | undefined>;
   sendMessage: (text: string, type: string) => Promise<void>;
 
