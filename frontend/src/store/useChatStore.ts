@@ -142,7 +142,7 @@ export const chatStore = create<ChatStore>()(
       }
     },
 
-    searchUsers: async (searchQuery: string) => {
+    searchUsers: async (searchQuery: string, signal?: AbortController) => {
       const query = searchQuery.trim();
       if (!query) {
         set({queriedUsers: []});
@@ -150,10 +150,12 @@ export const chatStore = create<ChatStore>()(
       }
       try {
         const {data} = await axiosInstance.get("/conversations/search/", {
-          params: {searchQuery: query}
+          params: {searchQuery: query},
+          signal
         });
         set({queriedUsers: data.results});
       } catch (err) {
+        if (axios.isCancel(err)) return;
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
         set({error: message, queriedUsers: []});
