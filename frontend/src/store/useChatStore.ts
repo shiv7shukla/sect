@@ -142,7 +142,7 @@ export const chatStore = create<ChatStore>()(
       }
     },
 
-    searchUsers: async (searchQuery: string, signal?: AbortController) => {
+    searchUsers: async (searchQuery: string, signal?: AbortSignal) => {
       const query = searchQuery.trim();
       if (!query) {
         set({queriedUsers: []});
