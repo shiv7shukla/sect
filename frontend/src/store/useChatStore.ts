@@ -65,7 +65,6 @@ export type ChatStore = {
   sendMessage: (text: string, type: string) => Promise<void>;
 
   clearError: () => void;
-  // unSubscribeFromMessages: () => void;
   setSelectedUser: (selectedUser: SelectedUser | null) => void;
 }
 
@@ -75,7 +74,7 @@ export const chatStore = create<ChatStore>()(
     messages: [],
     queriedUsers: [],
     conversations: [],
-      
+
     error: null,
     newMessage: null,
     selectedUser: null,
@@ -101,6 +100,7 @@ export const chatStore = create<ChatStore>()(
         else
           set({
             conversations: [],
+            messages: [],
             isConversationsLoading: false
           });
 
@@ -156,7 +156,7 @@ export const chatStore = create<ChatStore>()(
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
-        set({ error: message, queriedUsers: [] });
+        set({error: message, queriedUsers: []});
         toast.error("Failed to search for users");
       }
     },

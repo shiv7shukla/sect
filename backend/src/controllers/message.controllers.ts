@@ -35,7 +35,7 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
       lastMessageAt: "",
       lastMessagePreview: "",
     },
-    messageInfo: {}
+    messageInfo: []
   });
 
   const messages = await Message.find({conversationId: conversation._id})

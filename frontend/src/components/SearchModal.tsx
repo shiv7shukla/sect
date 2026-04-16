@@ -49,7 +49,7 @@ const SearchModal = ({showModal, onClose}: SearchModalProps) => {
   }, [showModal, closeAndReset]);
 
   React.useEffect(() => {
-    if (!debouncedVal.trim()) searchUsers(debouncedVal.trim());
+    if ((debouncedVal.trim()).length > 1) searchUsers(debouncedVal.trim());
   }, [debouncedVal, searchUsers]);
 
   return !showModal ? null : (
