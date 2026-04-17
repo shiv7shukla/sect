@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b",
-    "dev": "npm run build && npm run start",
-    "start": "node --watch dist/server.js"
+    "build:watch": "tsc -b --watch",
+    "start": "node --watch dist/server.js",
+    "dev": "concurrently \"npm run build:watch\" \"npm run start\""
   },
   "keywords": [],
   "author": "",
@@ -34,6 +35,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.3",
-    "@types/socket.io": "^3.0.1"
+    "@types/socket.io": "^3.0.1",
+    "concurrently": "^9.2.1"
   }
 }

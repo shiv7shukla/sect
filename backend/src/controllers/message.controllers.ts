@@ -21,27 +21,25 @@ export const getMessages = asyncHandler(async(req: Request, res: Response) => {
   const participantsKey = participants.map(id => id.toString()).join("_");
 
   const conversation = await Conversation
-  .findOneAndUpdate({
+  .findOne({
     type: "direct",
     participantsKey
-  },
-  {
-    $setOnInsert: {
-      type: "direct",
-      participants,
-      participantsKey,
-      lastMessagePreview: ""
-    }
-  },
-  {
-    new: true, //return the document (new or existing)
-    upsert: true //create if not found
   })
   .select("_id type participants lastMessageAt lastMessagePreview")
   .lean();
 
-  const messages = await Message.find({ conversationId: conversation._id })
-    .sort({ createdAt: 1 })
+  if (!conversation) return res.status(200).json({
+    conversationInfo: {
+      conversationId: null,
+      type: null,
+      lastMessageAt: null,
+      lastMessagePreview: null,
+    },
+    messageInfo: []
+  });
+
+  const messages = await Message.find({conversationId: conversation._id})
+    .sort({createdAt: 1})
     .populate("senderId", "_id username")
     .lean();
 

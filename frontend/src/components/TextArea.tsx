@@ -24,7 +24,6 @@ const TextArea = () => {
   const selectedConversation = React.useMemo(() => 
     conversations.filter(c => c.conversationId === selectedUser?.conversationId), 
   [selectedUser, conversations]);
-
   const handleKeyDown = React.useCallback(async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!inputRef.current?.value || !selectedUser?.conversationId) return;
     if (e.key === "Enter"){
@@ -40,7 +39,6 @@ const TextArea = () => {
     }
 
     if (typingTimer) clearTimeout(typingTimer.current);
-
     typingTimer.current = setTimeout(() => {
       socket.emit("not typing", chatStore.getState().selectedUser?.conversationId, authStore.getState().authUser?.username);
     }, 500)

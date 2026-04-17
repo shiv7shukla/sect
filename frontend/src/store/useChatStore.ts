@@ -60,12 +60,11 @@ export type ChatStore = {
 
   getConversations: () => Promise<void>;
   messageListener: ((msg: Message) => void) | null;
-  searchUsers: (searchquery: string) => Promise<void>;
+  searchUsers: (searchquery: string, signal?: AbortSignal) => Promise<void>;
   getMessages: (selecteduser: SelectedUser, signal?: AbortSignal) => Promise<string | undefined>;
   sendMessage: (text: string, type: string) => Promise<void>;
 
   clearError: () => void;
-  // unSubscribeFromMessages: () => void;
   setSelectedUser: (selectedUser: SelectedUser | null) => void;
 }
 
@@ -75,7 +74,7 @@ export const chatStore = create<ChatStore>()(
     messages: [],
     queriedUsers: [],
     conversations: [],
-      
+
     error: null,
     newMessage: null,
     selectedUser: null,
@@ -90,8 +89,21 @@ export const chatStore = create<ChatStore>()(
     getConversations: async () => {
       set({isConversationsLoading: true});
       try {
-        const {data: {chatInfo}} = await axiosInstance.get("/conversations");
-        set({conversations: chatInfo ?? [], isConversationsLoading: false, lastMessageAt: chatInfo[0].lastMessageAt, lastMessagePreview: chatInfo[0].lastMessagePreview});
+        const {data} = await axiosInstance.get("/conversations");
+        if (Array.isArray(data.chatInfo) && data.chatInfo.length > 0)
+          set({
+            conversations: data.chatInfo ?? [],
+            isConversationsLoading: false, 
+            lastMessageAt: data.chatInfo[0].lastMessageAt, 
+            lastMessagePreview: data.chatInfo[0].lastMessagePreview
+          });
+        else
+          set({
+            conversations: [],
+            messages: [],
+            isConversationsLoading: false
+          });
+
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
@@ -130,7 +142,7 @@ export const chatStore = create<ChatStore>()(
       }
     },
 
-    searchUsers: async (searchQuery: string) => {
+    searchUsers: async (searchQuery: string, signal?: AbortSignal) => {
       const query = searchQuery.trim();
       if (!query) {
         set({queriedUsers: []});
@@ -138,13 +150,15 @@ export const chatStore = create<ChatStore>()(
       }
       try {
         const {data} = await axiosInstance.get("/conversations/search/", {
-          params: {searchQuery: query}
+          params: {searchQuery: query},
+          signal
         });
         set({queriedUsers: data.results});
       } catch (err) {
+        if (axios.isCancel(err)) return;
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
-        set({ error: message, queriedUsers: [] });
+        set({error: message, queriedUsers: []});
         toast.error("Failed to search for users");
       }
     },
