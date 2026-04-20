@@ -12,11 +12,13 @@ const __dirname = path.resolve();
 if(ENV.NODE_ENV === "production")
   app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
+const PORT = ENV.PORT || 3000
+
 const startServer = async () => {
   try{
       await connectDB();
       console.log("Mongo connected to:", mongoose.connection.name);
-      server.listen(ENV.PORT, () => {console.log("Backend running on port", ENV.PORT)});
+      server.listen(PORT, () => {console.log("Backend running on port", ENV.PORT)});
     }
   catch(error){
       console.error("Error starting the server", error);

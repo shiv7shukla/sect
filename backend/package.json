@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
-    "start": "node --watch dist/server.js",
+    "start": "node dist/server.js",
     "dev": "concurrently \"npm run build:watch\" \"npm run start\""
   },
   "keywords": [],
