@@ -107,6 +107,7 @@ export const chatStore = create<ChatStore>()(
       } catch (err) {
         const message = axios.isAxiosError(err) ? err?.response?.data?.message : null;
         console.log(err);
+        console.log(message);
         set({error: message, isConversationsLoading: false});
         toast.error(message ?? "Failed to load conversations");
       }
