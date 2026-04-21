@@ -14,7 +14,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
-app.options("*", cors(corsOptions))
+app.options("/{*path}", cors(corsOptions))
 app.use("/api/auth", authRouter);
 app.use("/api/conversations", conversationRouter);
 app.use(errorHandler);
