@@ -102,7 +102,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
         </div>
         
         <div className='flex-1 overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
-          <div className='flex flex-col gap-2 p-2 sm:p-4'>
+          <div className='flex flex-col gap-2 p-2 sm:p-4' ref={messageEndRef}>
             <React.Suspense fallback={<MessageSkeleton />}>
               {messages &&  (messages.map((message: Message) => {
                 return(
@@ -116,7 +116,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
                   )}))}
             </React.Suspense>
           </div>
-          <div ref={messageEndRef} />
+          <div  />
         </div>
         
         <TextArea />
