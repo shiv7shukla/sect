@@ -32,7 +32,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     if (messageEndRef.current && messages)
       setTimeout(() => {
       messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    }, 500);
   }, [messages]);
 
   React.useEffect(() => {
