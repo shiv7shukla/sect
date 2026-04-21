@@ -1,0 +1,53 @@
+import { asyncHandler } from './../utils/asyncHandler.js';
+import { Conversation } from "../models/conversationModel.js";
+import { User } from '../models/userModel.js';
+export const getConversations = asyncHandler(async (req, res) => {
+    const userId = req.user._id.toString();
+    const conversations = await Conversation
+        .find({ participants: userId })
+        .sort({ lastMessageAt: -1 })
+        .populate("participants", "username")
+        .lean();
+    if (conversations.length !== 0) {
+        //arrays are always truthy in JS so check for empty arrays using their length
+        const chatInfo = conversations
+            .filter(c => c.type === "direct")
+            .map(c => {
+            const otherUser = c.participants
+                .find(p => p._id.toString() !== userId); //.find() finishes immediately and returns a value, so if (!otherUser) runs right after and checks that returned value.
+            if (!otherUser)
+                return null;
+            return {
+                conversationId: c._id.toString(),
+                type: c.type,
+                lastMessagePreview: c.lastMessagePreview,
+                lastMessageAt: c.lastMessageAt.toString(),
+                participant: {
+                    id: otherUser._id.toString(),
+                    username: otherUser.username,
+                }
+            };
+        })
+            .filter(Boolean);
+        return res.status(200).json({ chatInfo });
+    }
+    else
+        return res.status(200).json({ "message": "No conversations found" });
+});
+export const searchUsers = asyncHandler(async (req, res) => {
+    let searchQuery = req.query.searchQuery;
+    const userId = req.user?._id;
+    if (!userId)
+        return res.status(401).json({ "message": "unauthorized" });
+    searchQuery = searchQuery.trim();
+    const results = await User
+        .find({
+        _id: { $ne: userId },
+        username: { $regex: searchQuery, $options: "i" }
+    })
+        .select("username _id")
+        .limit(10)
+        .lean();
+    return res.status(200).json({ results });
+});
+//# sourceMappingURL=conversation.controllers.js.map

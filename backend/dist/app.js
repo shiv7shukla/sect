@@ -1,0 +1,15 @@
+import { authRouter } from "./routes/auth.routes.js";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { conversationRouter } from "./routes/conversation.routes.js";
+import { errorHandler } from "./utils/errorHandler.js";
+import { app } from "./lib/socket.js";
+app.use(cors({ origin: process.env.NODE_ENV === "production" ? true : "http://localhost:5173", credentials: true }));
+app.use(cookieParser());
+app.use(express.json());
+app.use("/api/auth", authRouter);
+app.use("/api/conversations", conversationRouter);
+app.use(errorHandler);
+export default app;
+//# sourceMappingURL=app.js.map
