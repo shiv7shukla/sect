@@ -30,7 +30,9 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
 
   React.useEffect(() => {
     if (messageEndRef.current && messages)
-      messageEndRef.current.scrollIntoView({behavior: "smooth"});
+      setTimeout(() => {
+      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }, [messages]);
 
   React.useEffect(() => {
@@ -102,7 +104,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
         </div>
         
         <div className='flex-1 overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
-          <div className='flex flex-col gap-2 p-2 sm:p-4' ref={messageEndRef}>
+          <div className='flex flex-col gap-2 p-2 sm:p-4'>
             <React.Suspense fallback={<MessageSkeleton />}>
               {messages &&  (messages.map((message: Message) => {
                 return(
@@ -116,7 +118,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
                   )}))}
             </React.Suspense>
           </div>
-          <div  />
+          <div ref={messageEndRef} />
         </div>
         
         <TextArea />
