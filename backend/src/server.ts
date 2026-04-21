@@ -19,6 +19,7 @@ const startServer = async () => {
       await connectDB();
       console.log("Mongo connected to:", mongoose.connection.name);
       server.listen(PORT, () => {console.log("Backend running on port", ENV.PORT)});
+      console.log("NEW DEPLOY TEST");
     }
   catch(error){
       console.error("Error starting the server", error);
