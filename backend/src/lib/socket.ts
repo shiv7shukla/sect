@@ -33,8 +33,8 @@ io.on("connection", (socket) => {
 
   socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
 
-  socket.on('call-user', ({ to, from, offer }) => {
-    socket.to(to).emit('incoming-call', { from, offer });
+  socket.on('call-user', ({ to, fromId, from, offer }) => {
+    socket.to(to).emit('incoming-call', { fromId, from, offer });
   });
 
   socket.on('answer-call', ({ to, answer }) => {

@@ -4,6 +4,8 @@ export type CallStatus = "idle" | "calling" | "receiving" | "in-call" | "decline
 
 export type CallStore = {
     remoteId: string | null,
+    remoteUsername: string | null,
+
     localStream: MediaStream | null,
     remoteStream: MediaStream | null,
     incomingOffer: RTCSessionDescriptionInit| null,
@@ -15,7 +17,7 @@ export type CallStore = {
     setCallStatus: (s: CallStatus) => void;
     setLocalStream: (s: MediaStream | null) => void;
     setRemoteStream: (s: MediaStream | null) => void;
-    setRemoteId: (id: string | null) => void;
+    setRemote: (id: string | null, username: string | null) => void;
     setIncomingOffer: (offer: RTCSessionDescriptionInit | null) => void;
 
     resetCall: () => void;
@@ -25,6 +27,7 @@ export type CallStore = {
 
 export const callStore = create<CallStore>((set, get) => ({
     remoteId: null,
+    remoteUsername: null,
     localStream: null,
     remoteStream: null,
     incomingOffer: null,
@@ -35,7 +38,7 @@ export const callStore = create<CallStore>((set, get) => ({
 
     setLocalStream: (localStream) => set({ localStream }),
     setRemoteStream: (remoteStream) => set({ remoteStream }),
-    setRemoteId: (remoteId) => set({ remoteId }),
+    setRemote: (remoteId, remoteUsername) => set({ remoteId, remoteUsername }),
     setCallStatus: (callStatus) => set({ callStatus }),
     setIncomingOffer: (incomingOffer) => set({ incomingOffer }),
 

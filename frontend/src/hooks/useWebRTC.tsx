@@ -14,14 +14,14 @@ const ICE_SERVERS = {
         setLocalStream, 
         setRemoteStream,
         setCallStatus, 
-        setRemoteId,
+        setRemote,
         resetCall,
         localStream
     } = callStore(useShallow((state) => ({
         setLocalStream: state.setLocalStream,
         setRemoteStream: state.setRemoteStream,
         setCallStatus: state.setCallStatus,
-        setRemoteId: state.setRemoteId,
+        setRemote: state.setRemote,
         resetCall: state.resetCall,
         localStream: state.localStream
     })));
@@ -64,19 +64,19 @@ const ICE_SERVERS = {
         return pc;
     }, [socket, setRemoteStream]);
 
-    const initiateCall = useCallback(async (targetId: string) => {
+    const initiateCall = useCallback(async (targetId: string, targetUsername: string) => {
         const stream = await getLocalMedia();
         const pc = createPeerConnection(stream, targetId);
 
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
 
-        socket?.emit('call-user', { to: targetId, from: authUser?._id, offer });
-        setRemoteId(targetId);
+        socket?.emit('call-user', { to: targetId, fromId: authUser?._id, from: authUser?.username, offer });
+        setRemote(targetId, targetUsername);
         setCallStatus('calling');
-    }, [getLocalMedia, createPeerConnection, socket, setRemoteId, setCallStatus]);
+    }, [getLocalMedia, createPeerConnection, socket, setRemote, setCallStatus]);
 
-    const acceptCall = useCallback(async (fromId: string, offer: RTCSessionDescriptionInit) => {
+    const acceptCall = useCallback(async (fromId: string, from: string, offer: RTCSessionDescriptionInit) => {
         const stream = await getLocalMedia();
         const pc = createPeerConnection(stream, fromId);
 
@@ -85,9 +85,9 @@ const ICE_SERVERS = {
         await pc.setLocalDescription(answer);
 
         socket?.emit('answer-call', { to: fromId, answer });
-        setRemoteId(fromId);
+        setRemote(fromId, from);
         setCallStatus('in-call');
-    }, [getLocalMedia, createPeerConnection, socket, setRemoteId, setCallStatus]);
+    }, [getLocalMedia, createPeerConnection, socket, setRemote, setCallStatus]);
 
     const handleRemoteAnswer = useCallback(async (answer: RTCSessionDescriptionInit) => {
         await pcRef.current?.setRemoteDescription(new RTCSessionDescription(answer));

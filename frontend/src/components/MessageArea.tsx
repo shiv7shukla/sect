@@ -98,7 +98,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
           <Button 
             variant="ghost" 
             size="default"
-            onClick={() => {if (selectedUser?._id) initiateCall(selectedUser._id)}}
+            onClick={() => {if (selectedUser?._id && selectedUser.username) initiateCall(selectedUser._id, selectedUser.username)}}
             >
             <VideoIcon />
           </Button>

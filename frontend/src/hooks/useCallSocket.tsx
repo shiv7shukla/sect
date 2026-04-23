@@ -9,20 +9,21 @@ const useCallSocket = () => {
     const {
         setCallStatus, 
         setIncomingOffer,
-        setRemoteId, 
+        setRemote, 
         resetCall,
+
     } = callStore(useShallow((state) => ({
         setCallStatus: state.setCallStatus,
         setIncomingOffer: state.setIncomingOffer,
-        setRemoteId: state.setRemoteId,
+        setRemote: state.setRemote,
         resetCall: state.resetCall
     })));
 
     const { handleRemoteAnswer, addIceCandidate, cleanupConnection } = useWebRTC();
 
     useEffect(() => {
-        socket.on('incoming-call', ({ from, offer }) => {
-            setRemoteId(from);
+        socket.on('incoming-call', ({ fromId, from, offer }) => {
+            setRemote(fromId, from);
             setIncomingOffer(offer);
             setCallStatus('receiving');
         });
