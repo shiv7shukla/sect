@@ -5,7 +5,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.NODE_ENV === "production" ? ["https://your-frontend.onrender.com"] : ["http://localhost:5173"],
+        origin: process.env.NODE_ENV === "production" ? ["https://sect-chat.netlify.app"] : ["http://localhost:5173"],
         credentials: true
     }
 });
@@ -24,6 +24,21 @@ io.on("connection", (socket) => {
     });
     socket.on("typing", (room, senderUsername) => socket.in(room).emit("is typing", senderUsername));
     socket.on("not typing", (room, senderUsername) => socket.in(room).emit("is not typing", senderUsername));
+    socket.on('call-user', ({ to, fromId, from, offer }) => {
+        socket.to(to).emit('incoming-call', { fromId, from, offer });
+    });
+    socket.on('answer-call', ({ to, answer }) => {
+        socket.to(to).emit('call-answered', answer);
+    });
+    socket.on('decline-call', ({ to }) => {
+        socket.to(to).emit('call-declined');
+    });
+    socket.on('ice-candidate', ({ to, candidate }) => {
+        socket.to(to).emit('ice-candidate', candidate);
+    });
+    socket.on('end-call', ({ to }) => {
+        socket.to(to).emit('call-ended');
+    });
 });
 export { io, app, server };
 //# sourceMappingURL=socket.js.map

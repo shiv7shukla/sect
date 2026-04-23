@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeft, Lock, User } from 'lucide-react'
+import { ArrowLeft, Lock, User, VideoIcon } from 'lucide-react'
 import TextArea from './TextArea'
 import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
@@ -7,6 +7,8 @@ import { formatMessageTime } from '../lib/utils'
 import { socket } from '../lib/socket'
 import { authStore } from '../store/useAuthStore'
 import MessageSkeleton from './MessageSkeleton'
+import { Button } from './ui/button'
+import { useWebRTC } from '../hooks/useWebRTC'
 
 type MessageAreaProps = {
   onBack?: () => void;
@@ -27,6 +29,8 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     selectedUser: state.selectedUser,
     isMessagesLoading: state.isMessagesLoading,
   })));
+
+  const { initiateCall } = useWebRTC();
 
   React.useEffect(() => {
     if (messageEndRef.current && messages)
@@ -91,10 +95,16 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
               <Lock className='text-emerald-400 inline-block mr-1 sm:mr-2' size={12} />End-to-end encrypted
             </div>
           </div>
+          <Button 
+            variant="ghost" 
+            size="default"
+            onClick={() => {if (selectedUser?._id && selectedUser.username) initiateCall(selectedUser._id, selectedUser.username)}}
+            >
+            <VideoIcon />
+          </Button>
         </div>
       </div>
 
-      {/* Messages Area */}
       <div className='flex-1 flex flex-col min-h-0 border-t-2 border-t-zinc-800 bg-[#0c120c]'>
         <div className='flex justify-center flex-shrink-0'>
           <div className='h-fit w-fit flex items-center bg-emerald-900/50 shadow-[inset_0_0_20px_rgba(16,185,129,0.15)] mt-3 gap-1.5 sm:gap-2 text-emerald-400 text-xs sm:text-sm border-2 border-solid leading-tight border-emerald-500/30 rounded-full py-1 px-3 sm:px-4'>
@@ -108,7 +118,6 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
             <React.Suspense fallback={<MessageSkeleton />}>
               {messages &&  (messages.map((message: Message) => {
                 return(
-                  
                     <TextBlockComponent 
                       key={message.id} 
                       text={message.content.text}

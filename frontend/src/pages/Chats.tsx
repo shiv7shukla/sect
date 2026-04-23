@@ -2,14 +2,16 @@ import React from 'react'
 import Sidebar from '../components/Sidebar'
 import ChatArea from '../components/ChatArea'
 import { chatStore } from '../store/useChatStore'
+import { useShallow } from 'zustand/shallow';
 
 const SearchModalComponewnt = React.lazy(() => import("../components/SearchModal"));
 const MessageAreaComponent = React.lazy(() => import("../components/MessageArea"));
+const VideoCallComponent = React.lazy(() => import("../components/VideoCallModal"));
 
 const Chats = () => {
-  const selectedUser = chatStore((state) => state.selectedUser)
-  const setSelectedUser = chatStore((state) => state.setSelectedUser)
+  const {setSelectedUser, selectedUser} = chatStore(useShallow((state) => ({selectedUser: state.selectedUser, setSelectedUser: state.setSelectedUser})));
   const [showModal, setShowModal] = React.useState(false);
+  const [videoCallModal, setvideoCallModal] = React.useState(false);
 
   const handleBack = () => {
     setSelectedUser(null);
@@ -43,6 +45,11 @@ const Chats = () => {
       {showModal && (
         <React.Suspense fallback={null}>
           <SearchModalComponewnt showModal={showModal} onClose={() => setShowModal(false)} />
+        </React.Suspense>
+      )}
+      {videoCallModal && (
+        <React.Suspense fallback={null}>
+          <VideoCallComponent isOpen={videoCallModal} closeCall={() => setvideoCallModal(false)} />
         </React.Suspense>
       )}
     </>

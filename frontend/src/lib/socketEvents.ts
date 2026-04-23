@@ -10,9 +10,9 @@ export const registerSocketListeners = () => {
     socket.connect(); 
     
     socket.on("message received", (newMessage) => {
-        chatStore.setState((prevState) => ({messages: [...prevState.messages, newMessage]}))});
+        chatStore.setState((prevState) => ({ messages: [...prevState.messages, newMessage] }))});
 
-    socket.on("is typing", () => {chatStore.setState({isTyping: true})});
-    socket.on("is not typing", () => {chatStore.setState({isTyping: false})});
+    socket.on("is typing", () => {chatStore.setState({ isTyping: true })});
+    socket.on("is not typing", () => {chatStore.setState({ isTyping: false })});
 
 }
