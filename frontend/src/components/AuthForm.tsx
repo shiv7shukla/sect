@@ -1,6 +1,6 @@
 import React from 'react'
 import {useForm} from "react-hook-form"
-import type { SubmitHandler } from 'react-hook-form'
+import type { SubmitHandler, UseFormRegister } from 'react-hook-form'
 import {zodResolver} from "@hookform/resolvers/zod"
 import { authStore } from '../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow'
@@ -76,7 +76,7 @@ const AuthForm: React.FC = () => {
             label={field.label}
             type={field.type}
             placeholder={field.placeholder}
-            register={register as any}
+            register={register as UseFormRegister<SignInData | SignUpData>}
             errors={errors}
             touched={!!touchedFields[field.name as keyof typeof touchedFields]}
           />

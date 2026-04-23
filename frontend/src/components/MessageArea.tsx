@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeft, Lock, User } from 'lucide-react'
+import { ArrowLeft, Lock, User, VideoIcon } from 'lucide-react'
 import TextArea from './TextArea'
 import { chatStore, type Message } from '../store/useChatStore'
 import { useShallow } from 'zustand/shallow'
@@ -7,6 +7,8 @@ import { formatMessageTime } from '../lib/utils'
 import { socket } from '../lib/socket'
 import { authStore } from '../store/useAuthStore'
 import MessageSkeleton from './MessageSkeleton'
+import { Button } from './ui/button'
+import { useWebRTC } from '../hooks/useWebRTC'
 
 type MessageAreaProps = {
   onBack?: () => void;
@@ -27,6 +29,8 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     selectedUser: state.selectedUser,
     isMessagesLoading: state.isMessagesLoading,
   })));
+
+  const {initiateCall} = useWebRTC();
 
   React.useEffect(() => {
     if (messageEndRef.current && messages)
@@ -91,6 +95,13 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
               <Lock className='text-emerald-400 inline-block mr-1 sm:mr-2' size={12} />End-to-end encrypted
             </div>
           </div>
+          <Button 
+            variant="ghost" 
+            size="default"
+            onClick={() => selectedUser?._id && initiateCall(selectedUser._id)}
+            >
+            <VideoIcon />
+          </Button>
         </div>
       </div>
 
