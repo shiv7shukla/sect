@@ -9,44 +9,39 @@ const useCallSocket = () => {
     const {
         setCallStatus, 
         setIncomingOffer,
-        setRemoteSocketId, 
+        setRemoteId, 
         resetCall,
     } = callStore(useShallow((state) => ({
         setCallStatus: state.setCallStatus,
         setIncomingOffer: state.setIncomingOffer,
-        setRemoteSocketId: state.setRemoteSocketId,
+        setRemoteId: state.setRemoteId,
         resetCall: state.resetCall
     })));
 
     const { handleRemoteAnswer, addIceCandidate, cleanupConnection } = useWebRTC();
 
     useEffect(() => {
-        // Another user is calling us
-    socket.on('incoming-call', ({ from, offer }) => {
-        setRemoteSocketId(from);
-        setIncomingOffer(offer);
-        setCallStatus('receiving');
-    });
+        socket.on('incoming-call', ({ from, offer }) => {
+            setRemoteId(from);
+            setIncomingOffer(offer);
+            setCallStatus('receiving');
+        });
 
-    // Our call was answered — complete the handshake
-    socket.on('call-answered', handleRemoteAnswer);
+        socket.on('call-answered', handleRemoteAnswer);
 
-    // Our call was declined — reset immediately
-    socket.on('call-declined', () => {
-        cleanupConnection();
-        resetCall();
-    });
+        socket.on('call-declined', () => {
+            cleanupConnection();
+            resetCall();
+        });
 
-    // Relay ICE candidates to the peer connection
-    socket.on('ice-candidate', addIceCandidate);
+        socket.on('ice-candidate', addIceCandidate);
 
-    // Other party ended the call
-    socket.on('call-ended', () => {
-        cleanupConnection();
-        resetCall();
-    });
+        socket.on('call-ended', () => {
+            cleanupConnection();
+            resetCall();
+        });
 
-    return () => { socket.disconnect(); };
+        return () => { socket.disconnect(); };
     }, [])
 
     return (

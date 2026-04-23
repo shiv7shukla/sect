@@ -2,6 +2,7 @@ import { useRef, useCallback } from 'react';
 import { callStore } from '../store/useCallStore';
 import { useShallow } from 'zustand/shallow';
 import { socket } from '../lib/socket';
+import { authStore } from '../store/useAuthStore';
 
 const ICE_SERVERS = {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
@@ -13,13 +14,25 @@ const ICE_SERVERS = {
         setLocalStream, 
         setRemoteStream,
         setCallStatus, 
-        setRemoteSocketId,
+        setRemoteId,
+        resetCall,
+        localStream
     } = callStore(useShallow((state) => ({
         setLocalStream: state.setLocalStream,
         setRemoteStream: state.setRemoteStream,
         setCallStatus: state.setCallStatus,
-        setRemoteSocketId: state.setRemoteSocketId
+        setRemoteId: state.setRemoteId,
+        resetCall: state.resetCall,
+        localStream: state.localStream
     })));
+
+    const authUser = authStore((state) => state.authUser);
+
+    const cleanupTracks = useCallback(() => {
+        // Stop all local tracks to release the camera and mic indicator
+        localStream?.getTracks().forEach((t) => t.stop());
+        setLocalStream(null);
+    }, [localStream, setLocalStream]);
 
     const getLocalMedia = useCallback(async () => {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -29,8 +42,7 @@ const ICE_SERVERS = {
         return stream;
     }, [setLocalStream]);
 
-    const createPeerConnection = useCallback(
-        (stream: MediaStream, targetId: string) => {
+    const createPeerConnection = useCallback((stream: MediaStream, targetId: string) => {
         const pc = new RTCPeerConnection(ICE_SERVERS);
         pcRef.current = pc;
 
@@ -50,9 +62,7 @@ const ICE_SERVERS = {
         };
 
         return pc;
-        },
-        [socket, setRemoteStream]
-    );
+    }, [socket, setRemoteStream]);
 
     const initiateCall = useCallback(async (targetId: string) => {
         const stream = await getLocalMedia();
@@ -61,15 +71,12 @@ const ICE_SERVERS = {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
 
-        socket?.emit('call-user', { to: targetId, offer });
-        setRemoteSocketId(targetId);
+        socket?.emit('call-user', { to: targetId, from: authUser?._id, offer });
+        setRemoteId(targetId);
         setCallStatus('calling');
-    }, [getLocalMedia, createPeerConnection, socket, setRemoteSocketId, setCallStatus]);
+    }, [getLocalMedia, createPeerConnection, socket, setRemoteId, setCallStatus]);
 
-    const acceptCall = useCallback(async (
-        fromId: string,
-        offer: RTCSessionDescriptionInit
-    ) => {
+    const acceptCall = useCallback(async (fromId: string, offer: RTCSessionDescriptionInit) => {
         const stream = await getLocalMedia();
         const pc = createPeerConnection(stream, fromId);
 
@@ -78,9 +85,9 @@ const ICE_SERVERS = {
         await pc.setLocalDescription(answer);
 
         socket?.emit('answer-call', { to: fromId, answer });
-        setRemoteSocketId(fromId);
+        setRemoteId(fromId);
         setCallStatus('in-call');
-    }, [getLocalMedia, createPeerConnection, socket, setRemoteSocketId, setCallStatus]);
+    }, [getLocalMedia, createPeerConnection, socket, setRemoteId, setCallStatus]);
 
     const handleRemoteAnswer = useCallback(async (answer: RTCSessionDescriptionInit) => {
         await pcRef.current?.setRemoteDescription(new RTCSessionDescription(answer));
@@ -96,5 +103,21 @@ const ICE_SERVERS = {
         pcRef.current = null;
     }, []);
 
-    return { initiateCall, acceptCall, handleRemoteAnswer, addIceCandidate, cleanupConnection };
+    const declineCall = useCallback((fromId: string) => {
+        // Emit to server → server relays 'call-declined' to the caller
+        socket?.emit('decline-call', { to: fromId });
+        // Reset our own state — we were only in 'receiving' status, no PC yet
+        resetCall();
+    }, [socket, resetCall]);
+
+    const endCall = useCallback((remoteId: string) => {
+        // Notify the other peer so their screen resets too
+        socket?.emit('end-call', { to: remoteId });
+        // Tear down in order: tracks first, then peer connection, then state
+        cleanupTracks();
+        cleanupConnection();
+        resetCall();
+    }, [socket, cleanupTracks, cleanupConnection, resetCall]);
+
+    return { initiateCall, acceptCall, handleRemoteAnswer, addIceCandidate, cleanupConnection, declineCall, endCall };
 }

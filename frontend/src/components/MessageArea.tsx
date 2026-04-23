@@ -30,7 +30,7 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
     isMessagesLoading: state.isMessagesLoading,
   })));
 
-  const {initiateCall} = useWebRTC();
+  const { initiateCall } = useWebRTC();
 
   React.useEffect(() => {
     if (messageEndRef.current && messages)
@@ -98,14 +98,13 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
           <Button 
             variant="ghost" 
             size="default"
-            onClick={() => selectedUser?._id && initiateCall(selectedUser._id)}
+            onClick={() => {if (selectedUser?._id) initiateCall(selectedUser._id)}}
             >
             <VideoIcon />
           </Button>
         </div>
       </div>
 
-      {/* Messages Area */}
       <div className='flex-1 flex flex-col min-h-0 border-t-2 border-t-zinc-800 bg-[#0c120c]'>
         <div className='flex justify-center flex-shrink-0'>
           <div className='h-fit w-fit flex items-center bg-emerald-900/50 shadow-[inset_0_0_20px_rgba(16,185,129,0.15)] mt-3 gap-1.5 sm:gap-2 text-emerald-400 text-xs sm:text-sm border-2 border-solid leading-tight border-emerald-500/30 rounded-full py-1 px-3 sm:px-4'>
@@ -119,7 +118,6 @@ const MessageArea = ({onBack}: MessageAreaProps) => {
             <React.Suspense fallback={<MessageSkeleton />}>
               {messages &&  (messages.map((message: Message) => {
                 return(
-                  
                     <TextBlockComponent 
                       key={message.id} 
                       text={message.content.text}

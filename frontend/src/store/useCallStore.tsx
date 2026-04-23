@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
-export type CallStatus = "idle" | "calling" | "receiving" | "in-call";
+export type CallStatus = "idle" | "calling" | "receiving" | "in-call" | "declined" | "connected";
 
 export type CallStore = {
-    remoteSocketId: string | null,
+    remoteId: string | null,
     localStream: MediaStream | null,
     remoteStream: MediaStream | null,
     incomingOffer: RTCSessionDescriptionInit| null,
@@ -15,7 +15,7 @@ export type CallStore = {
     setCallStatus: (s: CallStatus) => void;
     setLocalStream: (s: MediaStream | null) => void;
     setRemoteStream: (s: MediaStream | null) => void;
-    setRemoteSocketId: (id: string | null) => void;
+    setRemoteId: (id: string | null) => void;
     setIncomingOffer: (offer: RTCSessionDescriptionInit | null) => void;
 
     resetCall: () => void;
@@ -24,7 +24,7 @@ export type CallStore = {
 };
 
 export const callStore = create<CallStore>((set, get) => ({
-    remoteSocketId: null,
+    remoteId: null,
     localStream: null,
     remoteStream: null,
     incomingOffer: null,
@@ -35,7 +35,7 @@ export const callStore = create<CallStore>((set, get) => ({
 
     setLocalStream: (localStream) => set({ localStream }),
     setRemoteStream: (remoteStream) => set({ remoteStream }),
-    setRemoteSocketId: (remoteSocketId) => set({ remoteSocketId }),
+    setRemoteId: (remoteId) => set({ remoteId }),
     setCallStatus: (callStatus) => set({ callStatus }),
     setIncomingOffer: (incomingOffer) => set({ incomingOffer }),
 
@@ -53,7 +53,7 @@ export const callStore = create<CallStore>((set, get) => ({
 
     resetCall: () => set({
         remoteStream: null, localStream: null, callStatus: 'idle',
-        remoteSocketId: null, incomingOffer: null,
+        remoteId: null, incomingOffer: null,
         isMuted: false, isVideoOff: false,
     }),
 }));
